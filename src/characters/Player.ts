@@ -34,7 +34,7 @@ export default class Player extends Entity {
     private jumpHoldTime = 0;
     readonly initialJumpImpulse = 40 * 1000;
     readonly jumpExtendForce = 90 * 1000;
-    readonly maxJumpHoldTime = 0.2;     // Max duration to apply the extra force (in seconds)
+    readonly maxJumpHoldTime = 0.2;
 
     private coyoteTimeCounter = 0;
     readonly coyoteTimeThreshold = 0.1;
@@ -143,7 +143,7 @@ export default class Player extends Entity {
         const result = new PhysicsRaycastResult();
         physicsPlugin.raycast(raycastOrigin, raycastEnd, result);
         
-        const isGrounded = result.hasHit && result.hitNormalWorld.y > 0.9;
+        const isGrounded = result.hasHit && result.hitNormalWorld.y > 0.7;
 
         if (isGrounded) {
             this.jumpStarted = false;
