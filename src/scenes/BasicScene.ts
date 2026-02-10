@@ -1,4 +1,6 @@
 import { Scene, HemisphericLight, Vector3, MeshBuilder, HavokPlugin, PhysicsAggregate, PhysicsShapeType } from '@babylonjs/core';
+import "@babylonjs/core/Debug/debugLayer";
+import "@babylonjs/inspector";
 import { SceneLoader } from '@babylonjs/core/Loading/sceneLoader';
 import HavokPhysics from "@babylonjs/havok";
 
@@ -17,7 +19,17 @@ export default class MyScene extends BaseScene {
         const havokPlugin = new HavokPlugin(true, havokInstance);
 
         this.scene.collisionsEnabled = true;
-        this.scene.enablePhysics(new Vector3(0, -200, 0), havokPlugin);
+        this.scene.enablePhysics(new Vector3(0, -100, 0), havokPlugin);
+        // Hide/show the Inspector with Alt+I
+        window.addEventListener("keydown", (ev) => {
+            if (ev.altKey && ev.key === 'i') {
+                if (this.scene.debugLayer.isVisible()) {
+                    this.scene.debugLayer.hide();
+                } else {
+                    this.scene.debugLayer.show({ embedMode: true });
+                }
+            }
+        });
 
         this.light = new HemisphericLight('light1', new Vector3(0,1,0), this.scene);
     }
@@ -34,7 +46,7 @@ export default class MyScene extends BaseScene {
         
         meshes.forEach((mesh) => {
             if (mesh.getTotalVertices() > 0) {
-                const physicsAggregate = new PhysicsAggregate(mesh, PhysicsShapeType.MESH, { mass: 0 }, this.scene);
+                const physicsAggregate = new PhysicsAggregate(mesh, PhysicsShapeType.MESH, { mass: 0, restitution: 0 }, this.scene);
                 console.log("Physics aggregate created")
             }
         });

@@ -9,7 +9,8 @@ import {
     MeshBuilder,
     Quaternion,
     Camera,
-    Scalar
+    Scalar,
+    PhysicsRaycastResult
 } from '@babylonjs/core';
 import { ActionManager, ExecuteCodeAction } from "@babylonjs/core/Actions";
 import "@babylonjs/loaders";
@@ -28,12 +29,17 @@ export default class Player extends Entity {
 
     readonly moveSpeed = 14;
     readonly rotationSpeed = 6;
-    readonly animationBlendSpeed = 4.0;
 
-    vertical = 0;
-    verticalAxis = 0;
-    horizontal = 0;
-    horizontalAxis = 0;
+    private jumpStarted = false;
+    private jumpHoldTime = 0;
+    readonly initialJumpImpulse = 40 * 1000;
+    readonly jumpExtendForce = 90 * 1000;
+    readonly maxJumpHoldTime = 0.2;     // Max duration to apply the extra force (in seconds)
+
+    private coyoteTimeCounter = 0;
+    readonly coyoteTimeThreshold = 0.1;
+
+    readonly animationBlendSpeed = 4.0;
 
     readonly inputMap: Map<string, boolean>;
     readonly thirdPersonCamera: Camera;
@@ -42,6 +48,8 @@ export default class Player extends Entity {
     keyBackward = "s";
     keyLeft = "q";
     keyRight = "d";
+    keyJump = " ";
+
 
     static async CreateAsync(scene: Scene, position: Vector3 = Vector3.Zero()): Promise<Player> {
         const result = await SceneLoader.ImportMeshAsync(
@@ -96,11 +104,11 @@ export default class Player extends Entity {
             })
         );
 
-        this.physicsAggregate = new PhysicsAggregate(this.impostorMesh, PhysicsShapeType.CAPSULE, { mass: 1, friction: 0.5 }, scene);
+        this.physicsAggregate = new PhysicsAggregate(this.impostorMesh, PhysicsShapeType.CAPSULE, { mass: 1, friction: 0, restitution: 0 }, scene);
     
         this.physicsAggregate.body.setMassProperties({ inertia: Vector3.ZeroReadOnly });
         this.physicsAggregate.body.setAngularDamping(100);
-        this.physicsAggregate.body.setLinearDamping(10);
+        this.physicsAggregate.body.setLinearDamping(1);
     }
     
     public update(delta: number): void {
@@ -127,6 +135,42 @@ export default class Player extends Entity {
             move.addInPlace(right);
         }
 
+        const scene = this.impostorMesh.getScene();
+        const physicsPlugin = scene.getPhysicsEngine().getPhysicsPlugin();
+        const raycastOrigin = this.impostorMesh.getAbsolutePosition();
+        const raycastEnd = raycastOrigin.add(new Vector3(0, -1.1, 0));
+
+        const result = new PhysicsRaycastResult();
+        physicsPlugin.raycast(raycastOrigin, raycastEnd, result);
+        
+        const isGrounded = result.hasHit && result.hitNormalWorld.y > 0.9;
+
+        if (isGrounded) {
+            this.jumpStarted = false;
+            this.coyoteTimeCounter = 0;
+        } else {
+            this.coyoteTimeCounter += deltaSeconds;
+        }
+        
+        const jumpKeyDown = this.inputMap.get(this.keyJump);
+        const canJump = isGrounded || this.coyoteTimeCounter < this.coyoteTimeThreshold;
+
+        if (jumpKeyDown && canJump && !this.jumpStarted) {
+            const currentVel = this.physicsAggregate.body.getLinearVelocity();
+            this.physicsAggregate.body.setLinearVelocity(new Vector3(currentVel.x, 0, currentVel.z));
+
+            this.physicsAggregate.body.applyImpulse(new Vector3(0, this.initialJumpImpulse, 0), this.impostorMesh.getAbsolutePosition());
+            this.jumpStarted = true;
+            this.jumpHoldTime = 0;
+        }
+        
+        else if (jumpKeyDown && this.jumpStarted) {
+            if (this.jumpHoldTime < this.maxJumpHoldTime) {
+                this.physicsAggregate.body.applyForce(new Vector3(0, this.jumpExtendForce, 0), this.impostorMesh.getAbsolutePosition());
+                this.jumpHoldTime += deltaSeconds;
+            }
+        }
+
         if (move.lengthSquared() > 0) {
             move.normalize();
 
@@ -135,6 +179,8 @@ export default class Player extends Entity {
             
             const velocity = move.scale(this.moveSpeed);
             this.physicsAggregate.body.setLinearVelocity(new Vector3(velocity.x, this.physicsAggregate.body.getLinearVelocity().y, velocity.z));
+        } else {
+            this.physicsAggregate.body.setLinearVelocity(new Vector3(0, this.physicsAggregate.body.getLinearVelocity().y, 0));
         }
     }
 
