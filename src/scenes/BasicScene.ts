@@ -10,6 +10,7 @@ import Camera from '../camera/DefaultCamera';
 import Player from '../characters/Player';
 import CollisionEntity from '../entities/CollisionEntity';
 import { StateManager } from '../utils/StateManager';
+import InteractionEntity from '../entities/InteractionEntity';
 
 export default class MyScene extends BaseScene {
 
@@ -60,7 +61,7 @@ export default class MyScene extends BaseScene {
             this.entityManager.addEntity(player);
             this.scene.activeCamera = player.thirdPersonCamera;
 
-            let collisionEntity = new CollisionEntity(player, 1, this.scene);
+            let collisionEntity = new InteractionEntity(player, 1, this.scene);
             collisionEntity.meshEnteredFunc = (actionEvent: any) => {
                 console.log("Entered collision entity");
 
@@ -68,6 +69,10 @@ export default class MyScene extends BaseScene {
             
             collisionEntity.meshExitedFunc = (actionEvent: any) => {
                 console.log("Exited collision entity");
+            }
+
+            collisionEntity.onInteract = (player: Player) => {
+                console.log("Player interacted with collision entity");
             }
             this.entityManager.addEntity(collisionEntity);
         });

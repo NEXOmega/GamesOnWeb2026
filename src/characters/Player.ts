@@ -17,6 +17,7 @@ import "@babylonjs/loaders";
 import { SceneLoader } from '@babylonjs/core/Loading/sceneLoader';
 import Entity from '../entities/Entity';
 import { Collidable } from '../entities/CollidableInterface';
+import { StateManager } from '../utils/StateManager';
 
 export default class Player extends Entity implements Collidable {
 
@@ -50,6 +51,7 @@ export default class Player extends Entity implements Collidable {
     keyLeft = "q";
     keyRight = "d";
     keyJump = " ";
+    keyInteract = "e";
 
 
     static async CreateAsync(scene: Scene, position: Vector3 = Vector3.Zero()): Promise<Player> {
@@ -182,6 +184,12 @@ export default class Player extends Entity implements Collidable {
             this.physicsAggregate.body.setLinearVelocity(new Vector3(velocity.x, this.physicsAggregate.body.getLinearVelocity().y, velocity.z));
         } else {
             this.physicsAggregate.body.setLinearVelocity(new Vector3(0, this.physicsAggregate.body.getLinearVelocity().y, 0));
+        }
+
+        if(this.inputMap.get(this.keyInteract)) {
+            if(StateManager.currectInteractionEntity) {
+                StateManager.currectInteractionEntity.onInteract(this);
+            }
         }
     }
 

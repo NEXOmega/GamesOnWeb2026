@@ -1,69 +1,29 @@
-import { AbstractMesh, ActionManager, ExecuteCodeAction, MeshBuilder, Scene, Vector3 } from "@babylonjs/core";
-import Entity from "./Entity";
-import { Collidable } from "./CollidableInterface";
+import { Vector3 } from "@babylonjs/core";
+import Player from "../characters/Player";
+import CollisionEntity from "./CollisionEntity";
+import { StateManager } from "../utils/StateManager";
 
-/**
- * Used for interactions, will call onMeshEntered or onMeshExited when the target enter inside de sphere
- * 
- * @todo Improve and implements the possibility of having different mesh type instead of just a sphere
- */
-export default class CollisionEntity extends Entity {
-    public meshEnteredFunc: (actionEvent: any) => void;
-    public meshExitedFunc: (actionEvent: any) => void;
-    public meshIsInside: boolean = false;
+export default class InteractionEntity extends CollisionEntity {
+    public onInteractFunc: (player: Player) => void;
 
-    /**
-     * Default constructor
-     * @param target Target mesh that will trigger actions when entering or leaving the mesh
-     * @param radius Radius of the sphere
-     * @param scene Scene so we can create the the entity and action manager
-     */
-    constructor(target: Collidable, radius: number, scene: Scene) {
-        super(MeshBuilder.CreateSphere("debugEntity", { diameter: radius }, scene), scene);
-
-            const targetMesh = target.getCollisionMesh();
-
-            this.mesh.position = new Vector3(5, 2, 5); // Example position
-            this.mesh.isPickable = false;
-            this.mesh.visibility = 0.5;
-            this.mesh.actionManager = new ActionManager(scene);
-            this.mesh.actionManager.registerAction(new ExecuteCodeAction({
-                trigger: ActionManager.OnIntersectionEnterTrigger,
-                parameter: targetMesh // Detect intersection with the collidable's mesh
-            }, (actionEvent) => {
-                this.onMeshEntered(actionEvent);
-            }));
-            this.mesh.actionManager.registerAction(new ExecuteCodeAction({
-                trigger: ActionManager.OnIntersectionExitTrigger,
-                parameter: targetMesh
-            }, (actionEvent) => {
-                this.onMeshExited(actionEvent);
-            }))
+    public onMeshEntered(actionEvent: any): void {
+        super.onMeshEntered(actionEvent);
+        StateManager.currectInteractionEntity = this;
     }
 
-    public update(delta: number): void {
-        super.update(delta);
+    public onMeshExited(actionEvent: any): void {
+        super.onMeshExited(actionEvent);
+        if(StateManager.currectInteractionEntity === this)
+            StateManager.currectInteractionEntity = null;
     }
-
-    /**
-     * Triggered when target mesh enter our own mesh
-     * @param actionEvent the ActionEvent may be used for some info
-     */
-    public onMeshEntered(actionEvent: any) {
-        this.meshIsInside = true;
-        if (this.meshEnteredFunc) {
-            this.meshEnteredFunc(actionEvent);
+    
+    public onInteract(player: Player): void {
+        let distance = Vector3.Distance(player.mesh.position, this.mesh.position);
+        if(distance > this.distance) {
+            return;
         }
-    }
-
-    /**
-     * Triggered when target mesh leave our own mesh
-     * @param actionEvent the ActionEvent may be used for some info
-     */
-    public onMeshExited(actionEvent: any) {
-        this.meshIsInside = false;
-        if (this.meshExitedFunc) {
-            this.meshExitedFunc(actionEvent);
+        if (this.onInteractFunc) {
+            this.onInteractFunc(player);
         }
     }
 }
