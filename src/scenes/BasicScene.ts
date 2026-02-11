@@ -1,4 +1,4 @@
-import { Scene, HemisphericLight, Vector3, MeshBuilder, HavokPlugin, PhysicsAggregate, PhysicsShapeType } from '@babylonjs/core';
+import { Scene, HemisphericLight, Vector3, MeshBuilder, HavokPlugin, PhysicsAggregate, PhysicsShapeType, ExecuteCodeAction, ActionManager } from '@babylonjs/core';
 import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
 import { SceneLoader } from '@babylonjs/core/Loading/sceneLoader';
@@ -8,6 +8,8 @@ import BaseScene from './BaseScene';
 import DebugEntity from '../entities/DebugEntity';
 import Camera from '../camera/DefaultCamera';
 import Player from '../characters/Player';
+import CollisionEntity from '../entities/CollisionEntity';
+import { StateManager } from '../utils/StateManager';
 
 export default class MyScene extends BaseScene {
 
@@ -32,6 +34,8 @@ export default class MyScene extends BaseScene {
         });
 
         this.light = new HemisphericLight('light1', new Vector3(0,1,0), this.scene);
+
+
     }
 
     async createEnvironment(): Promise<void> {
@@ -51,10 +55,21 @@ export default class MyScene extends BaseScene {
             }
         });
 
-         Player.CreateAsync(this.scene, new Vector3(0, 10, 0)).then((player) => {
-            console.log("Player created");
+        Player.CreateAsync(this.scene, new Vector3(0, 10, 0)).then((player) => {
+            StateManager.actualPlayer = player;
             this.entityManager.addEntity(player);
             this.scene.activeCamera = player.thirdPersonCamera;
+
+            let collisionEntity = new CollisionEntity(player, 1, this.scene);
+            collisionEntity.meshEnteredFunc = (actionEvent: any) => {
+                console.log("Entered collision entity");
+
+            }
+            
+            collisionEntity.meshExitedFunc = (actionEvent: any) => {
+                console.log("Exited collision entity");
+            }
+            this.entityManager.addEntity(collisionEntity);
         });
     }
 }

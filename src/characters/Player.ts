@@ -16,8 +16,9 @@ import { ActionManager, ExecuteCodeAction } from "@babylonjs/core/Actions";
 import "@babylonjs/loaders";
 import { SceneLoader } from '@babylonjs/core/Loading/sceneLoader';
 import Entity from '../entities/Entity';
+import { Collidable } from '../entities/CollidableInterface';
 
-export default class Player extends Entity {
+export default class Player extends Entity implements Collidable {
 
     //Model mesh for animation and visuals
     readonly model: AbstractMesh;
@@ -77,7 +78,7 @@ export default class Player extends Entity {
     }
 
     constructor(mesh: AbstractMesh, camera: ArcRotateCamera, scene: Scene, position: Vector3) {
-        super(mesh);
+        super(mesh, scene);
         this.impostorMesh = MeshBuilder.CreateCapsule("CharacterTransform", {height: 2, radius: 0.5}, scene);
         this.impostorMesh.position = position;
         this.impostorMesh.visibility = 0.1;
@@ -186,5 +187,9 @@ export default class Player extends Entity {
 
     public setPosition(position: Vector3) {
         this.impostorMesh.position = position;
+    }
+
+    public getCollisionMesh(): AbstractMesh {
+        return this.impostorMesh;
     }
 }

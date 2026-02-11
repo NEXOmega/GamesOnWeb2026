@@ -1,9 +1,9 @@
-import { AbstractMesh } from '@babylonjs/core';
+import { AbstractMesh, Scene } from '@babylonjs/core';
 import Entity  from './Entity';
 
 export default class DebugEntity extends Entity {
-    constructor(mesh: AbstractMesh) {
-        super(mesh);
+    constructor(mesh: AbstractMesh, scene: Scene) {
+        super(mesh, scene);
     }
     
     public update(): void {
