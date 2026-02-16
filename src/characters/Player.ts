@@ -18,6 +18,8 @@ import { SceneLoader } from '@babylonjs/core/Loading/sceneLoader';
 import Entity from '../entities/Entity';
 import { Collidable } from '../entities/CollidableInterface';
 import { StateManager } from '../utils/StateManager';
+import { AdvancedDynamicTexture, Button } from '@babylonjs/gui';
+import PlayerHud from '../gui/PlayerHud';
 
 export default class Player extends Entity implements Collidable {
 
@@ -45,6 +47,8 @@ export default class Player extends Entity implements Collidable {
 
     readonly inputMap: Map<string, boolean>;
     readonly thirdPersonCamera: Camera;
+
+    public readonly playerHud: PlayerHud = new PlayerHud();
 
     keyForward = "z";
     keyBackward = "s";
@@ -104,6 +108,11 @@ export default class Player extends Entity implements Collidable {
         scene.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, (e) => {
                 this.inputMap.set(e.sourceEvent.key, e.sourceEvent.type !== "keyup");
+                if(e.sourceEvent.key === this.keyInteract) {
+                    if(StateManager.currectInteractionEntity) {
+                        StateManager.currectInteractionEntity.onInteract(this);
+                    }
+                }
             })
         );
 
@@ -184,12 +193,6 @@ export default class Player extends Entity implements Collidable {
             this.physicsAggregate.body.setLinearVelocity(new Vector3(velocity.x, this.physicsAggregate.body.getLinearVelocity().y, velocity.z));
         } else {
             this.physicsAggregate.body.setLinearVelocity(new Vector3(0, this.physicsAggregate.body.getLinearVelocity().y, 0));
-        }
-
-        if(this.inputMap.get(this.keyInteract)) {
-            if(StateManager.currectInteractionEntity) {
-                StateManager.currectInteractionEntity.onInteract(this);
-            }
         }
     }
 

@@ -1,6 +1,7 @@
 import { AbstractMesh, Scene, Vector3 } from '@babylonjs/core';
+import Tickable from '../utils/Tickable';
 
-export default class Entity {
+export default class Entity implements Tickable {
     public mesh: AbstractMesh;
     public scene: Scene;
     public childs = new Array<Entity>();

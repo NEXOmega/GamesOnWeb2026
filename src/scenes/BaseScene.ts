@@ -1,6 +1,7 @@
 import { Engine, Scene, FreeCamera, Light, HavokPlugin } from '@babylonjs/core';
 import HavokPhysics from '@babylonjs/havok'
 import EntityManager from '../entities/EntityManager';
+import { StateManager } from '../utils/StateManager';
 
 export default class BaseScene {
     public canvas: HTMLCanvasElement;
@@ -39,6 +40,9 @@ export default class BaseScene {
         this.engine.runRenderLoop(() => {
             this.scene.render();
             this.entityManager.update(this.engine.getDeltaTime());
+            if(StateManager.actualPlayer != null) {
+                StateManager.actualPlayer.playerHud.update(this.engine.getDeltaTime());
+            }
         });
         window.addEventListener('resize', () => {
             this.engine.resize();
