@@ -6,7 +6,7 @@ import HavokPhysics from "@babylonjs/havok";
 
 import BaseScene from './BaseScene';
 import DebugEntity from '../entities/DebugEntity';
-import Camera from '../camera/DefaultCamera';
+import Camera from '../camera/CinematicCamera';
 import Player from '../characters/Player';
 import CollisionEntity from '../entities/CollisionEntity';
 import { StateManager } from '../utils/StateManager';
@@ -37,8 +37,6 @@ export default class MyScene extends BaseScene {
         });
 
         this.light = new HemisphericLight('light1', new Vector3(0,1,0), this.scene);
-
-
     }
 
     async createEnvironment(): Promise<void> {
