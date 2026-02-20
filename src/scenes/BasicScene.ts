@@ -9,7 +9,7 @@ import DebugEntity from '../entities/DebugEntity';
 import Camera from '../camera/CinematicCamera';
 import Player from '../characters/Player';
 import CollisionEntity from '../entities/CollisionEntity';
-import { StateManager } from '../utils/StateManager';
+import { State, StateManager } from '../utils/StateManager';
 import InteractionEntity from '../entities/InteractionEntity';
 import * as TitleAnimation from '../gui/title/TitleAnimation'
 import { AnimationSerializer } from '../utils/json/AnimationSerializer';
@@ -25,7 +25,7 @@ export default class MyScene extends BaseScene {
 
         this.scene.collisionsEnabled = true;
         this.scene.enablePhysics(new Vector3(0, -100, 0), havokPlugin);
-        // Hide/show the Inspector with Alt+I
+        // Hide/show the Inspector with Alt+I   
         window.addEventListener("keydown", (ev) => {
             if (ev.altKey && ev.key === 'i') {
                 if (this.scene.debugLayer.isVisible()) {
@@ -35,6 +35,19 @@ export default class MyScene extends BaseScene {
                 }
             }
         });
+
+        window.addEventListener("keydown", (ev) => {
+            if(ev.altKey && ev.key === 'c') {
+                if(this.scene.activeCamera == camera) {
+                    this.scene.activeCamera = StateManager.actualPlayer.playerCamera;
+                    StateManager.state = State.PLAYING;
+                } else {
+                    this.scene.activeCamera = camera;
+                    StateManager.state = State.CINEMATIC;
+                        camera.moveTo(camera.position.add(new Vector3(0,5,0)), 5)
+                }
+            }
+        })
 
         this.light = new HemisphericLight('light1', new Vector3(0,1,0), this.scene);
     }
@@ -96,6 +109,7 @@ export default class MyScene extends BaseScene {
 
             }
             this.entityManager.addEntity(collisionEntity);
+            StateManager.state = State.PLAYING;
         });
     }
 }

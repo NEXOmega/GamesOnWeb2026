@@ -18,7 +18,7 @@ import "@babylonjs/loaders";
 import { SceneLoader } from '@babylonjs/core/Loading/sceneLoader';
 import Entity from '../entities/Entity';
 import { Collidable } from '../entities/CollidableInterface';
-import { StateManager } from '../utils/StateManager';
+import { State, StateManager } from '../utils/StateManager';
 import { AdvancedDynamicTexture, Button } from '@babylonjs/gui';
 import PlayerHud from '../gui/PlayerHud';
 import PlayerCamera from '../camera/PlayerCamera';
@@ -99,11 +99,14 @@ export default class Player extends Entity implements Collidable {
 
         scene.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, (e) => {
-                this.inputMap.set(e.sourceEvent.key, e.sourceEvent.type == "keydown");
+                if(StateManager.state === State.PLAYING)
+                    this.inputMap.set(e.sourceEvent.key, e.sourceEvent.type == "keydown");
             })
         );
         scene.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, (e) => {
+                if(StateManager.state != State.PLAYING)
+                    return;
                 this.inputMap.set(e.sourceEvent.key, e.sourceEvent.type !== "keyup");
                 if(e.sourceEvent.key === this.keyInteract) {
                     if(StateManager.currectInteractionEntity) {
