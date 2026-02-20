@@ -12,6 +12,7 @@ import CollisionEntity from '../entities/CollisionEntity';
 import { StateManager } from '../utils/StateManager';
 import InteractionEntity from '../entities/InteractionEntity';
 import * as TitleAnimation from '../gui/title/TitleAnimation'
+import { AnimationSerializer } from '../utils/json/AnimationSerializer';
 
 export default class MyScene extends BaseScene {
 
@@ -53,6 +54,7 @@ export default class MyScene extends BaseScene {
         meshes.forEach((mesh) => {
             if (mesh.getTotalVertices() > 0) {
                 const physicsAggregate = new PhysicsAggregate(mesh, PhysicsShapeType.MESH, { mass: 0, restitution: 0 }, this.scene);
+                mesh.checkCollisions = true;
                 console.log("Physics aggregate created")
             }
         });
@@ -60,7 +62,7 @@ export default class MyScene extends BaseScene {
         Player.CreateAsync(this.scene, new Vector3(0, 10, 0)).then((player) => {
             StateManager.actualPlayer = player;
             this.entityManager.addEntity(player);
-            this.scene.activeCamera = player.thirdPersonCamera;
+            this.scene.activeCamera = player.playerCamera;
 
             let collisionEntity = new InteractionEntity(player, 1, this.scene);
             collisionEntity.meshEnteredFunc = (actionEvent: any) => {
@@ -78,29 +80,22 @@ export default class MyScene extends BaseScene {
                     text: "",
                     animation: new TitleAnimation.SetTextInfoAnimation(0, "white", 130, 0)
                 })
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Libérez Zdahir", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Libérez Samsou", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Libérez L'albanais", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Jow Dash", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Le T", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Brakav", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Drixav", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Tromax", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Ricky La Pénave", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Jonhy L'Horloger", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Libérez Pundal", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Guendoul", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Belbit", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Pollux", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Libérez Délivrer", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Libérez Vos Chakra", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Libérez les WC", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Libérez l'alsace", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Libérez AAAAAAAA", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Nike", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Libérez La chambre avant midi", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Libérez La Bastille", 150, 150, 0))
-                player.playerHud.title.enqueue(player.playerHud.title.createFadeTitle("Libérez de l'espace de stockage afin de pouvoir installer le software", 150, 400, 0))
+                
+                let animation = new TitleAnimation.AnimationSequence([
+                                new TitleAnimation.FadeAnimation(100, 0, 1),
+                                new TitleAnimation.WaitAnimation(150),
+                                new TitleAnimation.FadeAnimation(100, 1, 0)
+                            ])
+                const serialized = AnimationSerializer.Serialize(animation)
+                const deserialized = AnimationSerializer.Deserialize(serialized)
+                console.log(deserialized)
+
+                player.playerHud.title.enqueue({
+                    text: "Test de serialization",
+                    animation: deserialized
+                })
+
+
             }
             this.entityManager.addEntity(collisionEntity);
         });

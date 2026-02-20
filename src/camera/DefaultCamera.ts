@@ -1,10 +1,11 @@
-import { FreeCamera, Scene, Vector3 } from '@babylonjs/core';
+import { UniversalCamera, Scene, Vector3 } from '@babylonjs/core';
 
+// Camera used by scene at start
 export default class Camera {
-    public camera: FreeCamera;
+    public camera: UniversalCamera;
 
     constructor(scene: Scene, canvas: HTMLCanvasElement) {
-        this.camera = new FreeCamera('camera1', new Vector3(0, 5, -10), scene);
+        this.camera = new UniversalCamera('camera1', new Vector3(0, 5, -10), scene);
         this.camera.setTarget(Vector3.Zero());
         this.camera.attachControl(canvas, false);
 

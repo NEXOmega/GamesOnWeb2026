@@ -10,7 +10,8 @@ import {
     Quaternion,
     Camera,
     Scalar,
-    PhysicsRaycastResult
+    PhysicsRaycastResult,
+    Ray
 } from '@babylonjs/core';
 import { ActionManager, ExecuteCodeAction } from "@babylonjs/core/Actions";
 import "@babylonjs/loaders";
@@ -20,6 +21,7 @@ import { Collidable } from '../entities/CollidableInterface';
 import { StateManager } from '../utils/StateManager';
 import { AdvancedDynamicTexture, Button } from '@babylonjs/gui';
 import PlayerHud from '../gui/PlayerHud';
+import PlayerCamera from '../camera/PlayerCamera';
 
 export default class Player extends Entity implements Collidable {
 
@@ -46,7 +48,8 @@ export default class Player extends Entity implements Collidable {
     readonly animationBlendSpeed = 4.0;
 
     readonly inputMap: Map<string, boolean>;
-    readonly thirdPersonCamera: Camera;
+    
+    readonly playerCamera: PlayerCamera;
 
     public readonly playerHud: PlayerHud = new PlayerHud();
 
@@ -72,18 +75,12 @@ export default class Player extends Entity implements Collidable {
         cameraAttachPoint.parent = model;
         cameraAttachPoint.position = new Vector3(0, 1.5, 0);
 
-        const camera = new ArcRotateCamera("thirdPersonCamera", -1.5, 1.2, 5, Vector3.Zero(), scene);
-        camera.attachControl(true);
-
-        camera.lockedTarget = cameraAttachPoint;
-        camera.wheelPrecision = 200;
-        camera.lowerRadiusLimit = 3;
-        camera.upperBetaLimit = 3.14 / 2 + 0.2;
+        const camera = new PlayerCamera(cameraAttachPoint, scene);
 
         return new Player(model, camera, scene, position);
     }
 
-    constructor(mesh: AbstractMesh, camera: ArcRotateCamera, scene: Scene, position: Vector3) {
+    constructor(mesh: AbstractMesh, camera: PlayerCamera, scene: Scene, position: Vector3) {
         super(mesh, scene);
         this.impostorMesh = MeshBuilder.CreateCapsule("CharacterTransform", {height: 2, radius: 0.5}, scene);
         this.impostorMesh.position = position;
@@ -95,7 +92,7 @@ export default class Player extends Entity implements Collidable {
         this.model.rotate(Vector3.Up(), Math.PI)
         this.model.position.y = -1
 
-        this.thirdPersonCamera = camera;
+        this.playerCamera = camera;
 
         this.inputMap = new Map();
         scene.actionManager = new ActionManager(scene);
@@ -126,8 +123,8 @@ export default class Player extends Entity implements Collidable {
     public update(delta: number): void {
         const deltaSeconds = delta / 1000;
 
-        const cameraForward = this.thirdPersonCamera.getForwardRay().direction;
-        const cameraRight = this.thirdPersonCamera.getDirection(Vector3.Right());
+        const cameraForward = this.playerCamera.getForwardRay().direction;
+        const cameraRight = this.playerCamera.getDirection(Vector3.Right());
 
         const forward = new Vector3(cameraForward.x, 0, cameraForward.z).normalize();
         const right = new Vector3(cameraRight.x, 0, cameraRight.z).normalize();
@@ -194,6 +191,8 @@ export default class Player extends Entity implements Collidable {
         } else {
             this.physicsAggregate.body.setLinearVelocity(new Vector3(0, this.physicsAggregate.body.getLinearVelocity().y, 0));
         }
+
+        this.playerCamera.handleCameraOcclusion(this, this.impostorMesh.getScene());
     }
 
     public setPosition(position: Vector3) {

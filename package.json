@@ -26,6 +26,8 @@
     "@babylonjs/inspector": "^8.50.3",
     "@babylonjs/loaders": "^8.50.3",
     "@babylonjs/materials": "^8.50.3",
-    "http": "^0.0.1-security"
+    "class-transformer": "^0.5.1",
+    "http": "^0.0.1-security",
+    "reflect-metadata": "^0.2.2"
   }
 }
