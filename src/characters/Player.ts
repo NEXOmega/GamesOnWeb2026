@@ -99,8 +99,9 @@ export default class Player extends Entity implements Collidable {
 
         scene.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, (e) => {
-                if(StateManager.state === State.PLAYING)
-                    this.inputMap.set(e.sourceEvent.key, e.sourceEvent.type == "keydown");
+                if(StateManager.state != State.PLAYING)
+                    return;
+                this.inputMap.set(e.sourceEvent.key, e.sourceEvent.type == "keydown");
             })
         );
         scene.actionManager.registerAction(

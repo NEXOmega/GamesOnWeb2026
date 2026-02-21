@@ -2,20 +2,19 @@ import { Engine, Scene, FreeCamera, Light, HavokPlugin } from '@babylonjs/core';
 import HavokPhysics from '@babylonjs/havok'
 import EntityManager from '../entities/EntityManager';
 import { StateManager } from '../utils/StateManager';
+import CinematicCamera from '../camera/CinematicCamera';
 
-export default class BaseScene {
+export default class BaseScene extends Scene {
     public canvas: HTMLCanvasElement;
-    public engine: Engine;
-    public scene: Scene;
-    public camera: FreeCamera;
+    public cinematicCamera: CinematicCamera;
     public light: Light;
 
     public entityManager: EntityManager;
 
     constructor(canvasElement : string, pointerLock : boolean = true) {
+        super(new Engine(document.getElementById(canvasElement) as unknown as HTMLCanvasElement))
         // Create canvas and engine.
         this.canvas = document.getElementById(canvasElement) as unknown as HTMLCanvasElement;
-        this.engine = new Engine(this.canvas, true);
         this.entityManager = new EntityManager();
 
         if(pointerLock) {
@@ -37,15 +36,15 @@ export default class BaseScene {
     async createEnvironment(): Promise<void> {}
 
     doRender() : void {
-        this.engine.runRenderLoop(() => {
-            this.scene.render();
-            this.entityManager.update(this.engine.getDeltaTime());
+        this.getEngine().runRenderLoop(() => {
+            this.render();
+            this.entityManager.update(this.getEngine().getDeltaTime());
             if(StateManager.actualPlayer != null) {
-                StateManager.actualPlayer.playerHud.update(this.engine.getDeltaTime());
+                StateManager.actualPlayer.playerHud.update(this.getEngine().getDeltaTime());
             }
         });
         window.addEventListener('resize', () => {
-            this.engine.resize();
+            this.getEngine().resize();
         });
     }
 }

@@ -9,5 +9,5 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
 window.addEventListener('resize', () => {
-    game.engine.resize();
+    game.getEngine().resize();
 });

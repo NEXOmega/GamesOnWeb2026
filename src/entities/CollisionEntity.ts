@@ -15,6 +15,7 @@ export default class CollisionEntity extends Entity implements Collidable {
     public meshIsInside: boolean = false;
 
     public distance: number = 0;
+    public readonly target: Collidable;
 
     /**
      * Default constructor
@@ -22,25 +23,24 @@ export default class CollisionEntity extends Entity implements Collidable {
      * @param distance Radius of the sphere
      * @param scene Scene so we can create the the entity and action manager
      */
-    constructor(target: Collidable, distance: number, scene: Scene) {
+    constructor(target: Collidable, distance: number, scene: Scene, position: Vector3 = Vector3.Zero()) {
         super(MeshBuilder.CreateSphere("debugEntity", { diameter: distance }, scene), scene);
         this.distance = distance;
+            this.target = target;
 
-            const targetMesh = target.getCollisionMesh();
-
-            this.mesh.position = new Vector3(5, 2, 5); // Example position
+            this.mesh.position = position // Example position
             this.mesh.isPickable = false;
             this.mesh.visibility = 0.5;
             this.mesh.actionManager = new ActionManager(scene);
             this.mesh.actionManager.registerAction(new ExecuteCodeAction({
                 trigger: ActionManager.OnIntersectionEnterTrigger,
-                parameter: targetMesh // Detect intersection with the collidable's mesh
+                parameter: target.getCollisionMesh() // Detect intersection with the collidable's mesh
             }, (actionEvent) => {
                 this.onMeshEntered(actionEvent);
             }));
             this.mesh.actionManager.registerAction(new ExecuteCodeAction({
                 trigger: ActionManager.OnIntersectionExitTrigger,
-                parameter: targetMesh
+                parameter: target.getCollisionMesh()
             }, (actionEvent) => {
                 this.onMeshExited(actionEvent);
             }))

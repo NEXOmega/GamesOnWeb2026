@@ -1,4 +1,5 @@
 import { UniversalCamera, Scene, Vector3, Animation } from '@babylonjs/core';
+import { Rotation } from '@babylonjs/havok';
 
 // Camera used by scene at start
 export default class CinematicCamera extends UniversalCamera {
@@ -33,4 +34,11 @@ export default class CinematicCamera extends UniversalCamera {
         this.getScene().beginDirectAnimation(this, [moveTo], 0, time * this.frameRate, true);
     }
 
+    public lookAt(position: Vector3) {
+        const point = position.subtract(this.position);
+        const yaw = Math.atan2(point.x, point.z);
+        const distance = Math.sqrt(Math.pow(point.x, 2) + Math.pow(point.z, 2))
+        const pitch = Math.atan(-point.y, )
+        this.rotation = new Vector3(pitch, yaw, 0)
+    }
 }
