@@ -58,7 +58,7 @@ export default class Player extends Entity implements Collidable {
     keyLeft = "q";
     keyRight = "d";
     keyJump = " ";
-    keyInteract = "e";
+    keyInteract = ["e", 'r', 't'];
 
 
     static async CreateAsync(scene: Scene, position: Vector3 = Vector3.Zero()): Promise<Player> {
@@ -99,6 +99,12 @@ export default class Player extends Entity implements Collidable {
 
         scene.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, (e) => {
+                if(StateManager.state == State.DIALOG) {
+                    if(this.keyInteract.includes(e.sourceEvent.key)) {
+                        this.inputMap.set(e.sourceEvent.key, e.sourceEvent.type == "keydown");
+                        return;
+                    }
+                }
                 if(StateManager.state != State.PLAYING)
                     return;
                 this.inputMap.set(e.sourceEvent.key, e.sourceEvent.type == "keydown");
@@ -106,12 +112,23 @@ export default class Player extends Entity implements Collidable {
         );
         scene.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, (e) => {
+                if(StateManager.state == State.DIALOG) {
+                    if(this.keyInteract.includes(e.sourceEvent.key)) {
+                        this.inputMap.set(e.sourceEvent.key, e.sourceEvent.type == "keydown");
+                        if(this.keyInteract.includes(e.sourceEvent.key)) {
+                        if(StateManager.currectInteractionEntity) {
+                            StateManager.currectInteractionEntity.onInteract(this, e.sourceEvent.key);
+                            }
+                        }
+                        return;
+                    }
+                }
                 if(StateManager.state != State.PLAYING)
                     return;
                 this.inputMap.set(e.sourceEvent.key, e.sourceEvent.type !== "keyup");
-                if(e.sourceEvent.key === this.keyInteract) {
+                if(this.keyInteract.includes(e.sourceEvent.key)) {
                     if(StateManager.currectInteractionEntity) {
-                        StateManager.currectInteractionEntity.onInteract(this);
+                        StateManager.currectInteractionEntity.onInteract(this, e.sourceEvent.key);
                     }
                 }
             })

@@ -14,6 +14,7 @@ import InteractionEntity from '../entities/InteractionEntity';
 import * as TitleAnimation from '../gui/title/TitleAnimation'
 import { AnimationSerializer } from '../utils/json/AnimationSerializer';
 import NPC from '../characters/NPC';
+import Dialogue from '../dialogs/Dialogue';
 
 export default class MyScene extends BaseScene {
 
@@ -44,7 +45,7 @@ export default class MyScene extends BaseScene {
                 } else {
                     this.activeCamera = this.cinematicCamera;
                     StateManager.state = State.CINEMATIC;
-                        this.cinematicCamera.moveTo(this.cinematicCamera.position.add(new Vector3(0,5,0)), 5)
+                        this.cinematicCamera.moveTo(this.cinematicCamera.position, this.cinematicCamera.position.add(new Vector3(0,5,0)), this.cinematicCamera.rotation, new Vector3(0,0,0), 5)
                 }
             }
         })
@@ -108,8 +109,17 @@ export default class MyScene extends BaseScene {
 
 
             }
+            
+            const dialog: Dialogue = new Dialogue("e", "Parler", "Bonjour comment allez vous ?")
+            const dialog1: Dialogue = new Dialogue("r", "Bien et vous ?", "Moi aussi, la vie est paisible.")
+            const dialog2: Dialogue = new Dialogue("t", "Mal", "C'est vrai, le monde va mal.")
+            dialog.addNextDialog(dialog1);
+            dialog.addNextDialog(dialog2);
 
             const testNPC = NPC.CreateAsync(this, new Vector3(5,1,0));
+            testNPC.then(npc => {
+                npc.dialog = dialog;
+            })
 
             this.entityManager.addEntity(collisionEntity);
             StateManager.state = State.PLAYING;
