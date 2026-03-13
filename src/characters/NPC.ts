@@ -97,7 +97,7 @@ export default class NPC extends Entity {
 
         this.interaction.mesh.parent = this.collistionMesh;
 
-        this.physicsAggregate = new PhysicsAggregate(this.collistionMesh, PhysicsShapeType.CAPSULE, { mass: 1, friction: 0, restitution: 0 }, scene);
+        this.physicsAggregate = new PhysicsAggregate(this.collistionMesh, PhysicsShapeType.CAPSULE, { mass: 0, restitution: 0 }, scene);
     
         this.physicsAggregate.body.setMassProperties({ inertia: Vector3.ZeroReadOnly });
         this.physicsAggregate.body.setAngularDamping(100);
