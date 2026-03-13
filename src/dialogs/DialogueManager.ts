@@ -21,6 +21,10 @@ export default class DialogueManager {
         if(this.actualDialogue.nextDialogs[key] == undefined) {
             player.scene.activeCamera = player.playerCamera;
             this.closeDialogue();
+            player.playerHud.dialog.enqueueFront({
+                            text: "",
+                            animation: new TitleAnimation.FadeAnimation(1,1,0)
+                        })
             return;
         }
 
@@ -29,6 +33,7 @@ export default class DialogueManager {
     }
 
     public static closeDialogue() {
+        this.npc.dialogPane.visibility = 0;
         this.npc = undefined;
         this.actualDialogue = undefined
         StateManager.state = State.PLAYING

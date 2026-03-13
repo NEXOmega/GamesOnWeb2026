@@ -19,7 +19,7 @@ export default class NPC extends Entity {
     readonly interaction: InteractionEntity;
 
     public dialog: Dialogue
-    private dialogPane: AbstractMesh;
+    public dialogPane: AbstractMesh;
     
     static async CreateAsync(scene: Scene, position: Vector3 = Vector3.Zero()): Promise<NPC> {
         const result = await SceneLoader.ImportMeshAsync(
