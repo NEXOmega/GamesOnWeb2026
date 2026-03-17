@@ -205,6 +205,8 @@ export default class Player extends Entity implements Collidable {
             move.normalize();
 
             const targetRotation = Quaternion.FromLookDirectionLH(move, Vector3.Up());
+            if(this.model.rotationQuaternion == null) // TODO Workaround because when teleportiong it get removed ? then it cause an error see how we could improve this
+                this.model.rotationQuaternion = Quaternion.Identity();
             this.model.rotationQuaternion = Quaternion.Slerp(this.model.rotationQuaternion, targetRotation, this.rotationSpeed * deltaSeconds);
             
             const velocity = move.scale(this.moveSpeed);
@@ -217,7 +219,22 @@ export default class Player extends Entity implements Collidable {
     }
 
     public setPosition(position: Vector3) {
-        this.impostorMesh.position = position;
+        if (!position) {
+            return; 
+        }
+
+        this.physicsAggregate.body.disablePreStep = false;
+        
+        this.impostorMesh.position.copyFrom(position);
+        
+        this.physicsAggregate.body.setLinearVelocity(Vector3.Zero());
+        this.physicsAggregate.body.setAngularVelocity(Vector3.Zero());
+
+        this.scene.onBeforeRenderObservable.addOnce(() => {
+            if (this.physicsAggregate && this.physicsAggregate.body) {
+                this.physicsAggregate.body.disablePreStep = true;
+            }
+        });
     }
 
     public getCollisionMesh(): AbstractMesh {

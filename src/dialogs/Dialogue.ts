@@ -1,3 +1,4 @@
+import Action from "../actions/Action";
 import NPC from "../characters/NPC";
 import Player from "../characters/Player";
 import * as TitleAnimation from '../gui/title/TitleAnimation'
@@ -8,6 +9,7 @@ export default class Dialogue {
     public key: string;
     public choiceText: string;
     public message: string;
+    public actions: Action[] = [];
 
     //Set to true when the dialog is fully displayed and we can go to next one
     public canChooseNextChoice = true;
@@ -29,6 +31,9 @@ export default class Dialogue {
             text: this.message,
             animation: animation
         })
+        for(const action of this.actions) {
+            action.execute(player);
+        }
         npc.updateDialogPanel(this);
     }
 

@@ -90,7 +90,6 @@ export default class NPC extends Entity {
 
                 DialogueManager.startDialogue(player, this, this.dialog);
             } else {
-                console.log("Next Dialogue")
                 DialogueManager.continueDialogue(player, this, key);
             }
         }

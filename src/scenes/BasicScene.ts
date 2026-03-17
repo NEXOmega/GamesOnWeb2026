@@ -15,6 +15,7 @@ import * as TitleAnimation from '../gui/title/TitleAnimation'
 import { AnimationSerializer } from '../utils/json/AnimationSerializer';
 import NPC from '../characters/NPC';
 import Dialogue from '../dialogs/Dialogue';
+import TeleportAction from '../actions/TeleportAction';
 
 export default class MyScene extends BaseScene {
 
@@ -112,6 +113,7 @@ export default class MyScene extends BaseScene {
             
             const dialog: Dialogue = new Dialogue("e", "Parler", "Bonjour comment allez vous ?")
             const dialog1: Dialogue = new Dialogue("r", "Bien et vous ?", "Moi aussi, la vie est paisible.")
+            dialog1.actions.push(new TeleportAction(new Vector3(10,10,10), new Vector3(0,0,0)))
             const dialog2: Dialogue = new Dialogue("t", "Mal", "C'est vrai, le monde va mal.")
             dialog.addNextDialog(dialog1);
             dialog.addNextDialog(dialog2);
