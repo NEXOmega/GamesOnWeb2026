@@ -39,7 +39,7 @@ export default class Player extends Entity implements Collidable {
     private jumpStarted = false;
     private jumpHoldTime = 0;
     readonly initialJumpImpulse = 40 * 1000;
-    readonly jumpExtendForce = 90 * 1000;
+    readonly jumpExtendForce = 20 * 1000;
     readonly maxJumpHoldTime = 0.2;
 
     private coyoteTimeCounter = 0;
