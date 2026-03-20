@@ -4,7 +4,7 @@ import CollisionEntity from "./CollisionEntity";
 import { StateManager } from "../utils/StateManager";
 
 export default class InteractionEntity extends CollisionEntity {
-    public onInteractFunc: (player: Player, key: string) => void;
+    public onInteractFunc: (player: Player) => void;
 
     public onMeshEntered(actionEvent: any): void {
         super.onMeshEntered(actionEvent);
@@ -17,13 +17,13 @@ export default class InteractionEntity extends CollisionEntity {
             StateManager.currectInteractionEntity = null;
     }
     
-    public onInteract(player: Player, key: string = "e"): void {
+    public onInteract(player: Player): void {
         let distance = Vector3.Distance(player.mesh.position, this.mesh.position);
         if(distance > this.distance) {
             return;
         }
         if (this.onInteractFunc) {
-            this.onInteractFunc(player, key);
+            this.onInteractFunc(player);
         }
     }
 }

@@ -29,7 +29,7 @@ export default class BaseScene extends Scene {
             this.createEnvironment();
             this.doRender();
             InputManager.init(this);
-            DialogueManager.init();
+            DialogueManager.init(this);
         });
     }
 

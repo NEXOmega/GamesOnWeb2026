@@ -1,48 +1,24 @@
 import Action from "../actions/Action";
-import NPC from "../characters/NPC";
-import Player from "../characters/Player";
-import * as TitleAnimation from '../gui/title/TitleAnimation'
 
 export default class Dialogue {
-    public nextDialogs = {}
-
+    public nextDialogs: Record<string, Dialogue> = {};
     public key: string;
     public choiceText: string;
     public message: string;
     public actions: Action[] = [];
-
-    //Set to true when the dialog is fully displayed and we can go to next one
     public canChooseNextChoice = true;
 
     constructor(key: string, choiceText: string, message: string) {
         this.key = key;
-        this.message = message;
         this.choiceText = choiceText;
-    }
-
-    execute(player: Player, npc: NPC) {
-        let animation = new TitleAnimation.AnimationSequence([
-                            new TitleAnimation.FadeAnimation(100, 0, 1),
-                            new TitleAnimation.WaitAnimation(150)
-                            //TODO create a pseudo animation that make canChooseNextChoice
-                        ])
-
-        player.playerHud.dialog.enqueue({
-            text: this.message,
-            animation: animation
-        })
-        for(const action of this.actions) {
-            action.execute(player);
-        }
-        npc.updateDialogPanel(this);
+        this.message = message;
     }
 
     public addNextDialog(dialog: Dialogue) {
-        this.nextDialogs[dialog.key] = dialog;
+        this.nextDialogs[dialog.key.toLowerCase()] = dialog;
     }
 
-    public getNextDialog(key: string) {
-        return this.nextDialogs[key];
+    public getNextDialog(key: string): Dialogue | undefined {
+        return this.nextDialogs[key.toLowerCase()];
     }
-
 }

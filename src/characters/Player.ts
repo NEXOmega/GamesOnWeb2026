@@ -75,7 +75,7 @@ export default class Player extends Entity implements Collidable {
             if (StateManager.state === State.DIALOG) {
                 if (action === "interact" || action === "dialog_next") {
                     if (StateManager.currectInteractionEntity) {
-                        StateManager.currectInteractionEntity.onInteract(this, "e");
+                        StateManager.currectInteractionEntity.onInteract(this);
                     }
                 }
                 return;
@@ -83,7 +83,7 @@ export default class Player extends Entity implements Collidable {
 
             if (StateManager.state === State.PLAYING) {
                 if (action === "interact" && StateManager.currectInteractionEntity) {
-                    StateManager.currectInteractionEntity.onInteract(this, "e");
+                    StateManager.currectInteractionEntity.onInteract(this);
                 }
             }
         });
