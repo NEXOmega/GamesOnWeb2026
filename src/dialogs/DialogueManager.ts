@@ -3,10 +3,38 @@ import Player from "../characters/Player";
 import { State, StateManager } from "../utils/StateManager";
 import Dialogue from "./Dialogue";
 import  * as TitleAnimation  from "../gui/title/TitleAnimation";
+import InputManager from "../utils/InputManager";
 
 export default class DialogueManager {
     public static actualDialogue: Dialogue
     public static npc: NPC
+
+    public static init() {
+        InputManager.onAnyKeyPressed.add((pressedKey) => {
+            if (StateManager.state !== State.DIALOG) return;
+
+            const currentDialogue = DialogueManager.actualDialogue;
+            if (!currentDialogue) return;
+
+            if (!currentDialogue.canChooseNextChoice) return;
+
+            const nextNode = currentDialogue.getNextDialog(pressedKey.toLowerCase());
+
+            if (nextNode) {
+                const player = StateManager.actualPlayer;
+                const npc = DialogueManager.npc; 
+
+                DialogueManager.actualDialogue = nextNode;
+
+                nextNode.execute(player, npc);
+            } else if (Object.keys(currentDialogue.nextDialogs).length === 0) {
+                
+                if (pressedKey.toLowerCase() === "e" || pressedKey.toLowerCase() === "escape") {
+                    DialogueManager.closeDialogue();
+                }
+            }
+        });
+    }
 
     public static startDialogue(player:Player, npc: NPC, dialogue: Dialogue) {
         this.npc = npc;
