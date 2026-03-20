@@ -3,6 +3,8 @@ import HavokPhysics from '@babylonjs/havok'
 import EntityManager from '../entities/EntityManager';
 import { StateManager } from '../utils/StateManager';
 import CinematicCamera from '../camera/CinematicCamera';
+import InputManager from '../utils/InputManager';
+import DialogueManager from '../dialogs/DialogueManager';
 
 export default class BaseScene extends Scene {
     public canvas: HTMLCanvasElement;
@@ -26,6 +28,8 @@ export default class BaseScene extends Scene {
         this.createScene().then(() => {
             this.createEnvironment();
             this.doRender();
+            InputManager.init(this);
+            DialogueManager.init();
         });
     }
 
