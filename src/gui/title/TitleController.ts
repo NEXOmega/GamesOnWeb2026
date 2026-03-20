@@ -1,9 +1,9 @@
-import { AdvancedDynamicTexture, TextBlock } from "@babylonjs/gui";
+import { AdvancedDynamicTexture, Control, TextBlock } from "@babylonjs/gui";
 import * as TitleAnimation from "./TitleAnimation";
 import TitleRequest from "./TitleRequest";
 
 export class TitleController {
-    private text: TextBlock = new TextBlock();
+    public text: TextBlock = new TextBlock();
 
     private queue: TitleRequest[] = [];
     private current: TitleRequest | null = null;

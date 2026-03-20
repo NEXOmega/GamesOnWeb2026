@@ -6,50 +6,52 @@ import HavokPhysics from "@babylonjs/havok";
 
 import BaseScene from './BaseScene';
 import DebugEntity from '../entities/DebugEntity';
-import Camera from '../camera/CinematicCamera';
+import CinematicCamera from '../camera/CinematicCamera';
 import Player from '../characters/Player';
 import CollisionEntity from '../entities/CollisionEntity';
 import { State, StateManager } from '../utils/StateManager';
 import InteractionEntity from '../entities/InteractionEntity';
 import * as TitleAnimation from '../gui/title/TitleAnimation'
 import { AnimationSerializer } from '../utils/json/AnimationSerializer';
+import NPC from '../characters/NPC';
+import Dialogue from '../dialogs/Dialogue';
+import TeleportAction from '../actions/TeleportAction';
 
 export default class MyScene extends BaseScene {
 
     async createScene() : Promise<void> {
-        this.scene = new Scene(this.engine);
-        let camera = new Camera(this.scene, this.canvas);
+        this.cinematicCamera = new CinematicCamera(this, this.canvas);
 
         const havokInstance = await HavokPhysics();
         const havokPlugin = new HavokPlugin(true, havokInstance);
 
-        this.scene.collisionsEnabled = true;
-        this.scene.enablePhysics(new Vector3(0, -100, 0), havokPlugin);
+        this.collisionsEnabled = true;
+        this.enablePhysics(new Vector3(0, -100, 0), havokPlugin);
         // Hide/show the Inspector with Alt+I   
         window.addEventListener("keydown", (ev) => {
             if (ev.altKey && ev.key === 'i') {
-                if (this.scene.debugLayer.isVisible()) {
-                    this.scene.debugLayer.hide();
+                if (this.debugLayer.isVisible()) {
+                    this.debugLayer.hide();
                 } else {
-                    this.scene.debugLayer.show({ embedMode: true });
+                    this.debugLayer.show({ embedMode: true });
                 }
             }
         });
 
         window.addEventListener("keydown", (ev) => {
             if(ev.altKey && ev.key === 'c') {
-                if(this.scene.activeCamera == camera) {
-                    this.scene.activeCamera = StateManager.actualPlayer.playerCamera;
+                if(this.activeCamera == this.cinematicCamera) {
+                    this.activeCamera = StateManager.actualPlayer.playerCamera;
                     StateManager.state = State.PLAYING;
                 } else {
-                    this.scene.activeCamera = camera;
+                    this.activeCamera = this.cinematicCamera;
                     StateManager.state = State.CINEMATIC;
-                        camera.moveTo(camera.position.add(new Vector3(0,5,0)), 5)
+                        this.cinematicCamera.moveTo(this.cinematicCamera.position, this.cinematicCamera.position.add(new Vector3(0,5,0)), this.cinematicCamera.rotation, new Vector3(0,0,0), 5)
                 }
             }
         })
 
-        this.light = new HemisphericLight('light1', new Vector3(0,1,0), this.scene);
+        this.light = new HemisphericLight('light1', new Vector3(0,1,0), this);
     }
 
     async createEnvironment(): Promise<void> {
@@ -57,25 +59,25 @@ export default class MyScene extends BaseScene {
             "",
             "./models/",
             "Prototype_Level.glb",
-            this.scene
+            this
         );
 
         console.log("Level loaded")
         
         meshes.forEach((mesh) => {
             if (mesh.getTotalVertices() > 0) {
-                const physicsAggregate = new PhysicsAggregate(mesh, PhysicsShapeType.MESH, { mass: 0, restitution: 0 }, this.scene);
+                const physicsAggregate = new PhysicsAggregate(mesh, PhysicsShapeType.MESH, { mass: 0, restitution: 0 }, this);
                 mesh.checkCollisions = true;
                 console.log("Physics aggregate created")
             }
         });
 
-        Player.CreateAsync(this.scene, new Vector3(0, 10, 0)).then((player) => {
+        Player.CreateAsync(this, new Vector3(0, 10, 0)).then((player) => {
             StateManager.actualPlayer = player;
             this.entityManager.addEntity(player);
-            this.scene.activeCamera = player.playerCamera;
+            this.activeCamera = player.playerCamera;
 
-            let collisionEntity = new InteractionEntity(player, 1, this.scene);
+            let collisionEntity = new InteractionEntity(player, 1, this, new Vector3(5,2,5));
             collisionEntity.meshEnteredFunc = (actionEvent: any) => {
                 console.log("Entered collision entity");
 
@@ -108,6 +110,19 @@ export default class MyScene extends BaseScene {
 
 
             }
+            
+            const dialog: Dialogue = new Dialogue("e", "Parler", "Bonjour comment allez vous ?")
+            const dialog1: Dialogue = new Dialogue("r", "Bien et vous ?", "Moi aussi, la vie est paisible.")
+            dialog1.actions.push(new TeleportAction(new Vector3(10,10,10), new Vector3(0,0,0)))
+            const dialog2: Dialogue = new Dialogue("t", "Mal", "C'est vrai, le monde va mal.")
+            dialog.addNextDialog(dialog1);
+            dialog.addNextDialog(dialog2);
+
+            const testNPC = NPC.CreateAsync(this, new Vector3(5,1,0));
+            testNPC.then(npc => {
+                npc.dialog = dialog;
+            })
+
             this.entityManager.addEntity(collisionEntity);
             StateManager.state = State.PLAYING;
         });

@@ -1,4 +1,6 @@
 import { UniversalCamera, Scene, Vector3, Animation } from '@babylonjs/core';
+import { Rotation } from '@babylonjs/havok';
+import { getRotationFromPositions } from '../utils/3DUtils'
 
 // Camera used by scene at start
 export default class CinematicCamera extends UniversalCamera {
@@ -17,20 +19,37 @@ export default class CinematicCamera extends UniversalCamera {
         this.position = position;
     }
 
-    public moveTo(position: Vector3, time: number) {
+    public moveTo(fromPosition: Vector3, toPosition: Vector3, fromRotation: Vector3, toRotation: Vector3, time: number, onAnimationEnd = undefined) {
         const moveTo = new Animation("moveTo", "position", this.frameRate, Animation.ANIMATIONTYPE_VECTOR3, Animation.ANIMATIONLOOPMODE_CYCLE);
-        const keyFrames = [];
-        keyFrames.push({
+        const rotateTo = new Animation("moveTo", "rotation", this.frameRate, Animation.ANIMATIONTYPE_VECTOR3, Animation.ANIMATIONLOOPMODE_CYCLE);
+        const moveKeyFrames = [];
+        moveKeyFrames.push({
             frame: 0,
-            value: new Vector3(0,5,-10)
+            value: fromPosition
         })
-        keyFrames.push({
+        moveKeyFrames.push({
             frame: time * this.frameRate,
-            value: new Vector3(5,5,-10)
+            value: toPosition
         })
-        moveTo.setKeys(keyFrames);
+        moveTo.setKeys(moveKeyFrames);
+        const rotateKeyFrames = [];
+        rotateKeyFrames.push({
+            frame: 0,
+            value: fromRotation
+        })
+        rotateKeyFrames.push({
+            frame: time * this.frameRate,
+            value: toRotation
+        })
+        rotateTo.setKeys(rotateKeyFrames);
 
-        this.getScene().beginDirectAnimation(this, [moveTo], 0, time * this.frameRate, true);
+        let animatable = this.getScene().beginDirectAnimation(this, [moveTo, rotateTo], 0, time * this.frameRate, false);
+        if(onAnimationEnd != undefined)
+            animatable.onAnimationEnd = onAnimationEnd;
     }
 
+    public lookAt(position: Vector3) {
+        this.rotation = getRotationFromPositions(this.position, position)
+    }
+    
 }

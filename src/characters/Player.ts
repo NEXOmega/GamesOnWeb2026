@@ -39,7 +39,7 @@ export default class Player extends Entity implements Collidable {
     private jumpStarted = false;
     private jumpHoldTime = 0;
     readonly initialJumpImpulse = 40 * 1000;
-    readonly jumpExtendForce = 90 * 1000;
+    readonly jumpExtendForce = 20 * 1000;
     readonly maxJumpHoldTime = 0.2;
 
     private coyoteTimeCounter = 0;
@@ -58,7 +58,7 @@ export default class Player extends Entity implements Collidable {
     keyLeft = "q";
     keyRight = "d";
     keyJump = " ";
-    keyInteract = "e";
+    keyInteract = ["e", 'r', 't'];
 
 
     static async CreateAsync(scene: Scene, position: Vector3 = Vector3.Zero()): Promise<Player> {
@@ -99,18 +99,36 @@ export default class Player extends Entity implements Collidable {
 
         scene.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, (e) => {
-                if(StateManager.state === State.PLAYING)
-                    this.inputMap.set(e.sourceEvent.key, e.sourceEvent.type == "keydown");
+                if(StateManager.state == State.DIALOG) {
+                    if(this.keyInteract.includes(e.sourceEvent.key)) {
+                        this.inputMap.set(e.sourceEvent.key, e.sourceEvent.type == "keydown");
+                        return;
+                    }
+                }
+                if(StateManager.state != State.PLAYING)
+                    return;
+                this.inputMap.set(e.sourceEvent.key, e.sourceEvent.type == "keydown");
             })
         );
         scene.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, (e) => {
+                if(StateManager.state == State.DIALOG) {
+                    if(this.keyInteract.includes(e.sourceEvent.key)) {
+                        this.inputMap.set(e.sourceEvent.key, e.sourceEvent.type == "keydown");
+                        if(this.keyInteract.includes(e.sourceEvent.key)) {
+                        if(StateManager.currectInteractionEntity) {
+                            StateManager.currectInteractionEntity.onInteract(this, e.sourceEvent.key);
+                            }
+                        }
+                        return;
+                    }
+                }
                 if(StateManager.state != State.PLAYING)
                     return;
                 this.inputMap.set(e.sourceEvent.key, e.sourceEvent.type !== "keyup");
-                if(e.sourceEvent.key === this.keyInteract) {
+                if(this.keyInteract.includes(e.sourceEvent.key)) {
                     if(StateManager.currectInteractionEntity) {
-                        StateManager.currectInteractionEntity.onInteract(this);
+                        StateManager.currectInteractionEntity.onInteract(this, e.sourceEvent.key);
                     }
                 }
             })
@@ -187,6 +205,8 @@ export default class Player extends Entity implements Collidable {
             move.normalize();
 
             const targetRotation = Quaternion.FromLookDirectionLH(move, Vector3.Up());
+            if(this.model.rotationQuaternion == null) // TODO Workaround because when teleportiong it get removed ? then it cause an error see how we could improve this
+                this.model.rotationQuaternion = Quaternion.Identity();
             this.model.rotationQuaternion = Quaternion.Slerp(this.model.rotationQuaternion, targetRotation, this.rotationSpeed * deltaSeconds);
             
             const velocity = move.scale(this.moveSpeed);
@@ -199,7 +219,22 @@ export default class Player extends Entity implements Collidable {
     }
 
     public setPosition(position: Vector3) {
-        this.impostorMesh.position = position;
+        if (!position) {
+            return; 
+        }
+
+        this.physicsAggregate.body.disablePreStep = false;
+        
+        this.impostorMesh.position.copyFrom(position);
+        
+        this.physicsAggregate.body.setLinearVelocity(Vector3.Zero());
+        this.physicsAggregate.body.setAngularVelocity(Vector3.Zero());
+
+        this.scene.onBeforeRenderObservable.addOnce(() => {
+            if (this.physicsAggregate && this.physicsAggregate.body) {
+                this.physicsAggregate.body.disablePreStep = true;
+            }
+        });
     }
 
     public getCollisionMesh(): AbstractMesh {

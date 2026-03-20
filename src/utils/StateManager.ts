@@ -26,7 +26,7 @@ export class Stats {
     }
 }
 export enum State {
-    PLAYING, CINEMATIC, LOADING
+    PLAYING, CINEMATIC, LOADING, DIALOG
 }
 
 export class StateManager {
