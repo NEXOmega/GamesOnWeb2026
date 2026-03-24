@@ -17,6 +17,7 @@ import NPC from '../characters/NPC';
 import Dialogue from '../dialogs/Dialogue';
 import TeleportAction from '../actions/TeleportAction';
 import SceneManager from './SceneManager';
+import SaveManager from '../utils/SaveManager';
 
 export default class MyScene extends BaseScene {
 
@@ -104,9 +105,38 @@ export default class MyScene extends BaseScene {
                 console.log(deserialized)
 
                 player.playerHud.title.enqueue({
-                    text: "Test de serialization",
+                    text: "Clearing Save",
                     animation: deserialized
                 })
+                SaveManager.clearSave()
+            }
+
+            let saveEntity = new InteractionEntity(player, 1, this, new Vector3(-5,2,5));
+
+            saveEntity.onInteract = (player: Player) => {
+                player.playerHud.title.enqueue({
+                    text: "",
+                    animation: new TitleAnimation.SetTextInfoAnimation(0, "white", 130, 0)
+                })
+                
+                let animation = new TitleAnimation.AnimationSequence([
+                                new TitleAnimation.FadeAnimation(100, 0, 1),
+                                new TitleAnimation.WaitAnimation(150),
+                                new TitleAnimation.FadeAnimation(100, 1, 0)
+                            ])
+                const serialized = AnimationSerializer.Serialize(animation)
+                const deserialized = AnimationSerializer.Deserialize(serialized)
+                console.log(deserialized)
+
+                player.playerHud.title.enqueue({
+                    text: "Save",
+                    animation: deserialized
+                })
+                SaveManager.save({sceneId: "BunkerScene", playerPosition: {
+                    x: 5,
+                    y: 5,
+                    z: 10
+                }})
             }
             
             const dialog: Dialogue = new Dialogue("e", "Parler", "Bonjour comment allez vous ?")

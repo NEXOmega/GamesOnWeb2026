@@ -6,6 +6,10 @@ export interface GameSaveData {
 export default class SaveManager {
     private static readonly SAVE_KEY = "saloon_save";
 
+    public static hasSave(): boolean {
+        return !!localStorage.getItem(this.SAVE_KEY);
+    }
+
     public static save(data: GameSaveData): void {
         try {
             const jsonString = JSON.stringify(data);
