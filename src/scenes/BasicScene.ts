@@ -16,6 +16,7 @@ import { AnimationSerializer } from '../utils/json/AnimationSerializer';
 import NPC from '../characters/NPC';
 import Dialogue from '../dialogs/Dialogue';
 import TeleportAction from '../actions/TeleportAction';
+import SceneManager from './SceneManager';
 
 export default class MyScene extends BaseScene {
 
@@ -80,7 +81,12 @@ export default class MyScene extends BaseScene {
             let collisionEntity = new InteractionEntity(player, 1, this, new Vector3(5,2,5));
             collisionEntity.meshEnteredFunc = (actionEvent: any) => {
                 console.log("Entered collision entity");
-
+                SceneManager.changeScene("basic_scene", async () => {
+                        const firstScene = new MyScene(SceneManager.engine, 'renderCanvas');
+                        await firstScene.initScene();
+                        
+                        return firstScene;
+                    });
             }
             
             collisionEntity.meshExitedFunc = (actionEvent: any) => {
