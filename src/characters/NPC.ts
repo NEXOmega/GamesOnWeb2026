@@ -49,11 +49,11 @@ export default class NPC extends Entity {
         this.model.position.y = -1;
 
         this.interaction = new InteractionEntity(StateManager.actualPlayer, 5, scene);
-        this.interaction.meshEnteredAction = new SendFrontTitleRequest({
+        this.interaction.addMeshEnteredAction(new SendFrontTitleRequest({
                 text: "Hey !",
                 animation: new TitleAnimation.FadeAnimation(1,0,1)
-            })
-        this.interaction.meshExitedAction = new CloseDialogueAction(this);
+            }));
+        this.interaction.addMeshExitedAction(new CloseDialogueAction(this));
 
         this.interaction.onInteractFunc = (player) => {
             if (StateManager.state !== State.DIALOG) {
