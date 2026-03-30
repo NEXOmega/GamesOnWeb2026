@@ -11,6 +11,8 @@ export default class Entity implements Tickable {
         this.mesh.position = position || Vector3.Zero();
         this.mesh.rotation = rotation || Vector3.Zero();
         this.mesh.scaling = scale || Vector3.One();
+        this.mesh.metadata = this.mesh.metadata || {};
+        this.mesh.metadata.entity = this;
         this.scene = scene;
     }
 

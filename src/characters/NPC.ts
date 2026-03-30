@@ -10,6 +10,8 @@ import Dialogue from "../dialogs/Dialogue";
 import DialogueManager from "../dialogs/DialogueManager";
 import { AdvancedDynamicTexture, Rectangle, StackPanel, TextBlock } from "@babylonjs/gui";
 import { getRotationFromPositions } from "../utils/3DUtils";
+import SendFrontTitleRequest from "../actions/SendFrontTitleRequest";
+import CloseDialogueAction from "../actions/CloseDialogueAction";
 
 export default class NPC extends Entity {
 
@@ -47,29 +49,12 @@ export default class NPC extends Entity {
         this.model.position.y = -1;
 
         this.interaction = new InteractionEntity(StateManager.actualPlayer, 5, scene);
-        this.interaction.meshEnteredFunc = async (actionEvent) => {
-            if(this.interaction.target != StateManager.actualPlayer)
-                return;
-            const player = this.interaction.target as Player;
-            player.playerHud.dialog.enqueueFront({
+        this.interaction.meshEnteredAction = new SendFrontTitleRequest({
                 text: "Hey !",
                 animation: new TitleAnimation.FadeAnimation(1,0,1)
             })
-        }
+        this.interaction.meshExitedAction = new CloseDialogueAction(this);
 
-        this.interaction.meshExitedFunc = (actionEvent) => {
-            if(this.interaction.target != StateManager.actualPlayer)
-                return;
-            const player = this.interaction.target as Player;
-
-            player.playerHud.dialog.enqueueFront({
-                text: "",
-                animation: new TitleAnimation.FadeAnimation(1,1,0)
-            })
-            if(DialogueManager.npc === this) {
-                DialogueManager.closeDialogue();
-            }
-        }
         this.interaction.onInteractFunc = (player) => {
             if (StateManager.state !== State.DIALOG) {
                 let cinematicCamera = (this.scene as BaseScene).cinematicCamera;
