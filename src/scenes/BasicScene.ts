@@ -87,9 +87,9 @@ export default class MyScene extends BaseScene {
             this.activeCamera = player.playerCamera;
 
             let collisionEntity = new InteractionEntity(player, 1, this, new Vector3(5,2,5));
-            collisionEntity.meshEnteredAction = new ConsoleLogAction("Entered Collision Entity")
+            collisionEntity.addMeshEnteredAction(new ConsoleLogAction("Entered Collision Entity"))
             
-            collisionEntity.meshExitedAction = new ConsoleLogAction("Exited Collision Entity")
+            collisionEntity.addMeshExitedAction(new ConsoleLogAction("Exited Collision Entity"))
 
             collisionEntity.onInteract = (player: Player) => {
                 console.log("Player interacted with collision entity");

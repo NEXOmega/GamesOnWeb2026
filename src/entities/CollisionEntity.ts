@@ -12,8 +12,8 @@ import Action from "../actions/Action";
  */
 export default class CollisionEntity extends Entity implements Collidable {
     //TODO Utiliser des Action plutot que des lambdas
-    public meshEnteredAction: Action;
-    public meshExitedAction: Action;
+    private meshEnteredActions: Action[] = [];
+    private meshExitedActions: Action[] = [];
     public meshIsInside: boolean = false;
 
     public distance: number = 0;
@@ -56,15 +56,26 @@ export default class CollisionEntity extends Entity implements Collidable {
         super.update(delta);
     }
 
+    public addMeshEnteredAction(action: Action) {
+        this.meshEnteredActions.push(action);
+    }
+
+    public addMeshExitedAction(action: Action) {
+        this.meshEnteredActions.push(action);
+    }
+
     /**
      * Triggered when target mesh enter our own mesh
      * @param actionEvent the ActionEvent may be used for some info
      */
     public onMeshEntered() {
         this.meshIsInside = true;
-        if (this.meshEnteredAction) {
-            if(this.target.getCollisionMesh().metadata.entity instanceof Player)
-                this.meshEnteredAction.execute(this.target.getCollisionMesh().metadata.entity);
+        if (this.meshEnteredActions.length > 0) {
+            if(this.target.getCollisionMesh().metadata.entity instanceof Player) {
+                for(const action of this.meshEnteredActions) {
+                    action.execute(this.target.getCollisionMesh().metadata.entity);
+                }
+            }
         }
     }
 
@@ -74,9 +85,12 @@ export default class CollisionEntity extends Entity implements Collidable {
      */
     public onMeshExited() {
         this.meshIsInside = false;
-        if (this.meshExitedAction) {
-            if(this.target.getCollisionMesh().metadata.entity instanceof Player)
-                this.meshExitedAction.execute(this.target.getCollisionMesh().metadata.entity);
+        if (this.meshExitedActions.length > 0) {
+            if(this.target.getCollisionMesh().metadata.entity instanceof Player) {
+                for(const action of this.meshExitedActions) {
+                    action.execute(this.target.getCollisionMesh().metadata.entity);
+                }
+            }
         }
     }
 }
