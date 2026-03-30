@@ -18,6 +18,7 @@ import Dialogue from '../dialogs/Dialogue';
 import TeleportAction from '../actions/TeleportAction';
 import SceneManager from './SceneManager';
 import SaveManager from '../utils/SaveManager';
+import ConsoleLogAction from '../actions/ConsoleLogAction';
 
 export default class MyScene extends BaseScene {
 
@@ -60,7 +61,7 @@ export default class MyScene extends BaseScene {
         const { meshes } = await SceneLoader.ImportMeshAsync(
             "",
             "./models/",
-            "Prototype_Level.glb",
+            "TestLevel.glb",
             this
         );
 
@@ -68,6 +69,12 @@ export default class MyScene extends BaseScene {
         
         meshes.forEach((mesh) => {
             if (mesh.getTotalVertices() > 0) {
+
+                console.log("------- Mesh : " + mesh.name + "-------");
+                console.log(mesh.isEnabled());
+                if(mesh.metadata.gltf) {
+                    console.log(mesh.metadata.gltf.extras)
+                }
                 const physicsAggregate = new PhysicsAggregate(mesh, PhysicsShapeType.MESH, { mass: 0, restitution: 0 }, this);
                 mesh.checkCollisions = true;
                 console.log("Physics aggregate created")
@@ -80,13 +87,9 @@ export default class MyScene extends BaseScene {
             this.activeCamera = player.playerCamera;
 
             let collisionEntity = new InteractionEntity(player, 1, this, new Vector3(5,2,5));
-            collisionEntity.meshEnteredFunc = (actionEvent: any) => {
-                console.log("Entered collision entity");
-            }
+            collisionEntity.meshEnteredAction = new ConsoleLogAction("Entered Collision Entity")
             
-            collisionEntity.meshExitedFunc = (actionEvent: any) => {
-                console.log("Exited collision entity");
-            }
+            collisionEntity.meshExitedAction = new ConsoleLogAction("Exited Collision Entity")
 
             collisionEntity.onInteract = (player: Player) => {
                 console.log("Player interacted with collision entity");

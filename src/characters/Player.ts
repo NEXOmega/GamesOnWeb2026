@@ -61,6 +61,7 @@ export default class Player extends Entity implements Collidable {
         this.impostorMesh.position = position;
         this.impostorMesh.visibility = 0.1;
         this.impostorMesh.rotationQuaternion = Quaternion.Identity();
+        this.impostorMesh.metadata = this.mesh.metadata;
 
         this.model = mesh;
         this.model.parent = this.impostorMesh;

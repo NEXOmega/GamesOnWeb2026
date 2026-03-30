@@ -6,13 +6,13 @@ import { StateManager } from "../utils/StateManager";
 export default class InteractionEntity extends CollisionEntity {
     public onInteractFunc: (player: Player) => void;
 
-    public onMeshEntered(actionEvent: any): void {
-        super.onMeshEntered(actionEvent);
+    public onMeshEntered(): void {
+        super.onMeshEntered();
         StateManager.currectInteractionEntity = this;
     }
 
-    public onMeshExited(actionEvent: any): void {
-        super.onMeshExited(actionEvent);
+    public onMeshExited(): void {
+        super.onMeshExited();
         if(StateManager.currectInteractionEntity === this)
             StateManager.currectInteractionEntity = null;
     }
