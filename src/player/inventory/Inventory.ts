@@ -11,7 +11,7 @@ export default class Inventory {
         this.maxSlots = maxSlots;
     }
 
-    public addItem(itemId: string, quantity: number): boolean {
+    public addItem(itemId: string, quantity: number = 1): boolean {
         const remainingSlots = this.maxSlots - this.items.keys.length;
 
         if (remainingSlots <= 0) {
@@ -27,11 +27,13 @@ export default class Inventory {
         return true;
     }
 
-    public removeItem(slotIndex: number) {
-        if (this.items[slotIndex] !== null) {
-            this.items[slotIndex] = null;
-            this.onInventoryChanged.notifyObservers();
-        }
+    public removeItem(itemId: string, quantity: number) : boolean {
+        if(!this.items.has(itemId))
+            return false;
+        this.items.set(itemId, this.items.get(itemId) - quantity);
+        if(this.items.get(itemId) <= 0)
+            this.items.delete(itemId);
+        return true;
     }
 
     public serialize(): Record<string, number> {
