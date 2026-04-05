@@ -19,10 +19,17 @@ import TeleportAction from '../actions/TeleportAction';
 import SceneManager from './SceneManager';
 import SaveManager from '../utils/SaveManager';
 import ConsoleLogAction from '../actions/ConsoleLogAction';
+import ItemRegistry from '../utils/ItemRegistry';
 
 export default class MyScene extends BaseScene {
 
     async createScene() : Promise<void> {
+        ItemRegistry.registerItem({
+                id: "health_potion",
+                name: "Potion de Soin",
+                description: "Une potion simple",
+                iconUrl: "./images/potion.png"
+            })
         this.cinematicCamera = new CinematicCamera(this, this.canvas);
 
         const havokInstance = await HavokPhysics();
@@ -157,13 +164,7 @@ export default class MyScene extends BaseScene {
             this.entityManager.addEntity(collisionEntity);
             StateManager.state = State.PLAYING;
 
-            player.playerInventory.addItem({
-                id: "health_potion",
-                name: "Potion de Soin",
-                description: "Une potion simple",
-                iconUrl: "./images/potion.png",
-                quantity: 1
-            });
+            StateManager.inventory.addItem("test_item", 4);
         });
     }
 }

@@ -2,28 +2,29 @@ import { Observable } from "@babylonjs/core";
 import { Item } from "./Item";
 
 export default class Inventory {
-    public items: (Item | null)[] = [];
+    public items: Map<string, number> = new Map();
     public readonly maxSlots: number;
 
     public onInventoryChanged = new Observable<void>();
 
     constructor(maxSlots: number = 16) {
         this.maxSlots = maxSlots;
-        for (let i = 0; i < maxSlots; i++) {
-            this.items.push(null);
-        }
     }
 
-    public addItem(newItem: Item): boolean {
-        const emptySlotIndex = this.items.findIndex(item => item === null);
+    public addItem(itemId: string, quantity: number): boolean {
+        const remainingSlots = this.maxSlots - this.items.keys.length;
 
-        if (emptySlotIndex !== -1) {
-            this.items[emptySlotIndex] = newItem;
-            this.onInventoryChanged.notifyObservers();
-            return true;
+        if (remainingSlots <= 0) {
+            return false;
         }
 
-        return false;
+        if(this.items.has(itemId))
+            this.items.set(itemId, this.items.get(itemId)+quantity)
+        else
+            this.items.set(itemId, quantity)
+
+        this.onInventoryChanged.notifyObservers();
+        return true;
     }
 
     public removeItem(slotIndex: number) {

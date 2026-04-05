@@ -43,8 +43,7 @@ export default class Player extends Entity implements Collidable {
     readonly playerCamera: PlayerCamera;
     public readonly playerHud: PlayerHud = new PlayerHud();
     
-    public playerInventory = new Inventory(16);
-    private inventoryUI = new InventoryUI(this.playerInventory, this.scene);
+    private inventoryUI = new InventoryUI(StateManager.inventory, this.scene);
 
     static async CreateAsync(scene: Scene, position: Vector3 = Vector3.Zero()): Promise<Player> {
         const result = await SceneLoader.ImportMeshAsync("", "./models/", "Character.glb", scene);

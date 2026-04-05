@@ -3,5 +3,4 @@ export interface Item {
     name: string;
     description: string;
     iconUrl: string;
-    quantity: number;
 }

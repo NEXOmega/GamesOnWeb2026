@@ -3,6 +3,7 @@ import { Scene } from "@babylonjs/core";
 import Inventory from "../../player/inventory/Inventory";
 import { Item } from "../../player/inventory/Item";
 import { State, StateManager } from "../../utils/StateManager";
+import ItemRegistry from "../../utils/ItemRegistry";
 
 export default class InventoryUI {
     private texture: AdvancedDynamicTexture;
@@ -59,7 +60,7 @@ export default class InventoryUI {
         this.mainContainer.isVisible = !this.mainContainer.isVisible;
         
         const canvas = this.scene.getEngine().getRenderingCanvas();
-
+        console.log(this.inventory.items.size)
         if (this.mainContainer.isVisible) {
             document.exitPointerLock();
             StateManager.state = State.IN_INVENTORY;
@@ -74,15 +75,13 @@ export default class InventoryUI {
     private renderList() {
         this.listPanel.children.slice().forEach(child => child.dispose());
 
-        this.inventory.items.forEach((item) => {
-            if (item) {
-                const btn = this.createListItem(item);
-                this.listPanel.addControl(btn);
-            }
+        this.inventory.items.forEach((value, key) => {
+            const btn = this.createListItem(ItemRegistry.getItem(key), value);
+            this.listPanel.addControl(btn);
         });
     }
 
-    private createListItem(item: Item): Rectangle {
+    private createListItem(item: Item, quantity: number): Rectangle {
         const btn = new Rectangle(`btn_${item.id}`);
         btn.height = "60px";
         btn.width = "100%";
@@ -100,7 +99,7 @@ export default class InventoryUI {
         });
 
         const text = new TextBlock();
-        text.text = `${item.name} (x${item.quantity})`;
+        text.text = `${item.name} (x${quantity})`;
         text.color = "white";
         text.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
         text.paddingLeft = "20px";
