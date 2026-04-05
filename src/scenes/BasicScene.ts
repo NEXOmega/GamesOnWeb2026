@@ -156,6 +156,14 @@ export default class MyScene extends BaseScene {
 
             this.entityManager.addEntity(collisionEntity);
             StateManager.state = State.PLAYING;
+
+            player.playerInventory.addItem({
+                id: "health_potion",
+                name: "Potion de Soin",
+                description: "Une potion simple",
+                iconUrl: "./images/potion.png",
+                quantity: 1
+            });
         });
     }
 }

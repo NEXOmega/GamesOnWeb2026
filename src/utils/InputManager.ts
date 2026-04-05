@@ -7,6 +7,7 @@ export type InputAction =
     | "move_right" 
     | "jump"
     | "interact" 
+    | "open_inventory"
     | "dialog_next" 
     | "dialog_skip";
 
@@ -18,6 +19,7 @@ export default class InputManager {
         "move_right": ["d", "arrowright"],
         "jump": [" "],
         "interact": ["e"],
+        "open_inventory": ["i"],
         "dialog_next": ["r", " ", "enter"],
         "dialog_skip": ["escape"]
     };

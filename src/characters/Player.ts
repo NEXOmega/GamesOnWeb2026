@@ -17,6 +17,8 @@ import { State, StateManager } from '../utils/StateManager';
 import PlayerHud from '../gui/PlayerHud';
 import PlayerCamera from '../camera/PlayerCamera';
 import InputManager from '../utils/InputManager'; // Ajuste le chemin selon où tu as créé le fichier
+import Inventory from '../player/inventory/Inventory';
+import InventoryUI from '../gui/inventory/InventoryHud';
 
 export default class Player extends Entity implements Collidable {
 
@@ -40,6 +42,9 @@ export default class Player extends Entity implements Collidable {
     
     readonly playerCamera: PlayerCamera;
     public readonly playerHud: PlayerHud = new PlayerHud();
+    
+    public playerInventory = new Inventory(16);
+    private inventoryUI = new InventoryUI(this.playerInventory, this.scene);
 
     static async CreateAsync(scene: Scene, position: Vector3 = Vector3.Zero()): Promise<Player> {
         const result = await SceneLoader.ImportMeshAsync("", "./models/", "Character.glb", scene);
@@ -86,6 +91,14 @@ export default class Player extends Entity implements Collidable {
                 if (action === "interact" && StateManager.currectInteractionEntity) {
                     StateManager.currectInteractionEntity.onInteract(this);
                 }
+            }
+        });
+
+        InputManager.onActionJustPressed.add((action) => {
+            if(action == "open_inventory") {
+                if(StateManager.state != State.PLAYING && StateManager.state != State.IN_INVENTORY)
+                    return
+                this.inventoryUI.toggle();
             }
         });
 

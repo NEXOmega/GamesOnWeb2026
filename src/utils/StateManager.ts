@@ -3,7 +3,7 @@ import InteractionEntity from "../entities/InteractionEntity";
 import { Stats } from "./Stats";
 
 export enum State {
-    PLAYING, CINEMATIC, LOADING, DIALOG
+    PLAYING, CINEMATIC, LOADING, DIALOG, IN_INVENTORY
 }
 
 export class StateManager {
