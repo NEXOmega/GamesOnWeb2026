@@ -24,12 +24,6 @@ import ItemRegistry from '../utils/ItemRegistry';
 export default class MyScene extends BaseScene {
 
     async createScene() : Promise<void> {
-        ItemRegistry.registerItem({
-                id: "health_potion",
-                name: "Potion de Soin",
-                description: "Une potion simple",
-                iconUrl: "./images/potion.png"
-            })
         this.cinematicCamera = new CinematicCamera(this, this.canvas);
 
         const havokInstance = await HavokPhysics();
@@ -142,11 +136,12 @@ export default class MyScene extends BaseScene {
                     text: "Save",
                     animation: deserialized
                 })
+                console.log(StateManager.inventory.items)
                 SaveManager.save({sceneId: "BunkerScene", playerPosition: {
                     x: 5,
                     y: 5,
                     z: 10
-                }})
+                }, inventory: StateManager.inventory.serialize()})
             }
             
             const dialog: Dialogue = new Dialogue("e", "Parler", "Bonjour comment allez vous ?")
@@ -163,8 +158,6 @@ export default class MyScene extends BaseScene {
 
             this.entityManager.addEntity(collisionEntity);
             StateManager.state = State.PLAYING;
-
-            StateManager.inventory.addItem("test_item", 4);
         });
     }
 }

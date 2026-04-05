@@ -33,4 +33,15 @@ export default class Inventory {
             this.onInventoryChanged.notifyObservers();
         }
     }
+
+    public serialize(): Record<string, number> {
+        return Object.fromEntries(this.items);
+    }
+
+    public deserialize(savedData: Record<string, number>) {
+        this.items = new Map(Object.entries(savedData));
+        
+        this.onInventoryChanged.notifyObservers();
+        console.log("Loaded Invetory fro msave")
+    }
 }

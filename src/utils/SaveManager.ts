@@ -1,6 +1,7 @@
 export interface GameSaveData {
     sceneId: string;
     playerPosition: { x: number, y: number, z: number };
+    inventory: Record<string, number>;
 }
 
 export default class SaveManager {
@@ -13,6 +14,8 @@ export default class SaveManager {
     public static save(data: GameSaveData): void {
         try {
             const jsonString = JSON.stringify(data);
+            console.log("Save : ")
+            console.log(jsonString)
             const base64String = btoa(jsonString);
             
             localStorage.setItem(this.SAVE_KEY, base64String);
