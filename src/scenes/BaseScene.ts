@@ -8,12 +8,14 @@ export default class BaseScene extends Scene {
     public canvas: HTMLCanvasElement;
     public cinematicCamera: CinematicCamera;
     public light: Light;
-
     public entityManager: EntityManager;
 
-    constructor(canvasElement : string, pointerLock : boolean = true) {
-        super(new Engine(document.getElementById(canvasElement) as unknown as HTMLCanvasElement))
+    public onSwitchScene?: (sceneName: string) => void;
+    constructor(canvasElement : string, engine?: Engine,  pointerLock : boolean = true) {
+
         // Create canvas and engine.
+        const canvas = document.getElementById(canvasElement) as HTMLCanvasElement;
+        super(engine ?? new Engine(canvas));
         this.canvas = document.getElementById(canvasElement) as unknown as HTMLCanvasElement;
         this.entityManager = new EntityManager();
 
@@ -47,4 +49,12 @@ export default class BaseScene extends Scene {
             this.getEngine().resize();
         });
     }
+
+        disposeScene(): void {
+        this.getEngine().stopRenderLoop();
+        this.entityManager.clear();       // à implémenter si pas déjà fait
+        StateManager.actualPlayer = null;
+        this.dispose();                    // Scene.dispose() de Babylon
+    }
+
 }
