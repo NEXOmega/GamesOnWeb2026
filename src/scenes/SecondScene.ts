@@ -60,7 +60,7 @@ export default class BunkerScene extends BaseScene {
         const { meshes } = await SceneLoader.ImportMeshAsync(
             "",
             "./models/",
-            "Bunker_Level.glb",    // ← ton fichier 3D
+            "Bunker.glb",    // ← ton fichier 3D
             this
         );
 
