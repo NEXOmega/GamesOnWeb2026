@@ -11,7 +11,6 @@ import Action from "../actions/Action";
  * @todo Improve and implements the possibility of having different mesh type instead of just a sphere
  */
 export default class CollisionEntity extends Entity implements Collidable {
-    //TODO Utiliser des Action plutot que des lambdas
     private meshEnteredActions: Action[] = [];
     private meshExitedActions: Action[] = [];
     public meshIsInside: boolean = false;
