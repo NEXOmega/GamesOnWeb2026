@@ -12,12 +12,9 @@ import Player from '../characters/Player';
 import { State, StateManager } from '../utils/StateManager';
 import NPC from '../characters/NPC';
 import Dialogue from '../dialogs/Dialogue';
+import SceneManager from './SceneManager';
 
 export default class BunkerScene extends BaseScene {
-
-    constructor(canvasElement: string, engine?: Engine) {
-        super(canvasElement, engine, true);
-    }
 
     async createScene(): Promise<void> {
         // 1. Caméra cinématique
@@ -43,7 +40,7 @@ export default class BunkerScene extends BaseScene {
         // 4. Retour menu (Escape)
         window.addEventListener("keydown", (ev) => {
             if (ev.key === "Escape") {
-                this.onSwitchScene?.("menu");
+                SceneManager.changeScene("menu")
             }
         });
 
@@ -63,7 +60,7 @@ export default class BunkerScene extends BaseScene {
         const { meshes } = await SceneLoader.ImportMeshAsync(
             "",
             "./models/",
-            "Bunker.glb",    // ← ton fichier 3D
+            "Bunker_Level.glb",    // ← ton fichier 3D
             this
         );
 
