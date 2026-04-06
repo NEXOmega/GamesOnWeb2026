@@ -64,7 +64,7 @@ export default class NPC extends Entity {
         this.interaction.addInteractAction(new MoveCinematicCamera(this.scene as BaseScene, this.collistionMesh));
         this.interaction.addInteractAction(new StartDialogueAction(this, this.dialog));
 
-        this.interaction.mesh.parent = this.collistionMesh;
+        this.addChild(this.interaction)
 
         this.physicsAggregate = new PhysicsAggregate(this.collistionMesh, PhysicsShapeType.CAPSULE, { mass: 0, restitution: 0 }, scene);
     

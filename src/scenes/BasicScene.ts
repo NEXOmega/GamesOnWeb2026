@@ -20,6 +20,7 @@ import SceneManager from './SceneManager';
 import SaveManager from '../utils/SaveManager';
 import ConsoleLogAction from '../actions/ConsoleLogAction';
 import ItemRegistry from '../utils/ItemRegistry';
+import Pickable from '../entities/Pickable';
 
 export default class MyScene extends BaseScene {
 
@@ -153,8 +154,11 @@ export default class MyScene extends BaseScene {
 
             const testNPC = NPC.CreateAsync(this, new Vector3(5,1,0), dialog);
 
-            this.entityManager.addEntity(collisionEntity);
             StateManager.state = State.PLAYING;
+
+
+            Pickable.CreateAsync(this, new Vector3(-5,2,5), "health_potion", 5);
         });
+
     }
 }

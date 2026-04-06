@@ -31,4 +31,10 @@ export default class InteractionEntity extends CollisionEntity {
             action.execute(player);
         }
     }
+
+    public dispose(): void {
+        if(StateManager.currectInteractionEntity === this)
+            StateManager.currectInteractionEntity = null;
+        super.dispose();
+    }
 }

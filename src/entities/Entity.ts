@@ -1,6 +1,7 @@
 import { AbstractMesh, Scene, Vector3 } from '@babylonjs/core';
 import Tickable from '../utils/Tickable';
 import BaseScene from '../scenes/BaseScene';
+import { StateManager } from '../utils/StateManager';
 
 export default class Entity implements Tickable {
     public mesh: AbstractMesh;
@@ -43,8 +44,12 @@ export default class Entity implements Tickable {
     }
 
     public dispose(): void {
+        this.scene.entityManager.removeEntity(this)
         if (this.mesh) {
+
             this.mesh.dispose();
+            for(const child of this.childs)
+                child.dispose();
         }
     }
 }
