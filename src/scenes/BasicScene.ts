@@ -151,10 +151,7 @@ export default class MyScene extends BaseScene {
             dialog.addNextDialog(dialog1);
             dialog.addNextDialog(dialog2);
 
-            const testNPC = NPC.CreateAsync(this, new Vector3(5,1,0));
-            testNPC.then(npc => {
-                npc.dialog = dialog;
-            })
+            const testNPC = NPC.CreateAsync(this, new Vector3(5,1,0), dialog);
 
             this.entityManager.addEntity(collisionEntity);
             StateManager.state = State.PLAYING;
