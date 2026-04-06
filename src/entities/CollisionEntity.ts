@@ -60,7 +60,7 @@ export default class CollisionEntity extends Entity implements Collidable {
     }
 
     public addMeshExitedAction(action: Action) {
-        this.meshEnteredActions.push(action);
+        this.meshExitedActions.push(action);
     }
 
     /**
