@@ -19,6 +19,7 @@ import PlayerCamera from '../camera/PlayerCamera';
 import InputManager from '../utils/InputManager'; // Ajuste le chemin selon où tu as créé le fichier
 import Inventory from '../player/inventory/Inventory';
 import InventoryUI from '../gui/inventory/InventoryHud';
+import BaseScene from '../scenes/BaseScene';
 
 export default class Player extends Entity implements Collidable {
 
@@ -45,7 +46,7 @@ export default class Player extends Entity implements Collidable {
     
     private inventoryUI = new InventoryUI(StateManager.inventory, this.scene);
 
-    static async CreateAsync(scene: Scene, position: Vector3 = Vector3.Zero()): Promise<Player> {
+    static async CreateAsync(scene: BaseScene, position: Vector3 = Vector3.Zero()): Promise<Player> {
         const result = await SceneLoader.ImportMeshAsync("", "./models/", "Character.glb", scene);
         const model = result.meshes[0];
         
@@ -58,7 +59,7 @@ export default class Player extends Entity implements Collidable {
         return new Player(model, camera, scene, position);
     }
 
-    constructor(mesh: AbstractMesh, camera: PlayerCamera, scene: Scene, position: Vector3) {
+    constructor(mesh: AbstractMesh, camera: PlayerCamera, scene: BaseScene, position: Vector3) {
         super(mesh, scene);
         
         this.impostorMesh = MeshBuilder.CreateCapsule("CharacterTransform", {height: 2, radius: 0.5}, scene);

@@ -25,7 +25,7 @@ export default class NPC extends Entity {
 
     public dialog: Dialogue
     
-    static async CreateAsync(scene: Scene, position: Vector3 = Vector3.Zero(), dialog: Dialogue): Promise<NPC> {
+    static async CreateAsync(scene: BaseScene, position: Vector3 = Vector3.Zero(), dialog: Dialogue): Promise<NPC> {
         const result = await SceneLoader.ImportMeshAsync(
             "",
             "./models/",
@@ -38,7 +38,7 @@ export default class NPC extends Entity {
         return new NPC(model, scene, dialog, position);
     }
 
-    constructor(mesh: AbstractMesh, scene: Scene, dialog: Dialogue, position: Vector3 = Vector3.Zero(), rotation: Vector3 = Vector3.Zero()) {
+    constructor(mesh: AbstractMesh, scene: BaseScene, dialog: Dialogue, position: Vector3 = Vector3.Zero(), rotation: Vector3 = Vector3.Zero()) {
         super(mesh, scene, Vector3.Zero(), rotation);
         this.dialog = dialog;
 

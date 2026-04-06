@@ -1,12 +1,13 @@
 import { AbstractMesh, Scene, Vector3 } from '@babylonjs/core';
 import Tickable from '../utils/Tickable';
+import BaseScene from '../scenes/BaseScene';
 
 export default class Entity implements Tickable {
     public mesh: AbstractMesh;
-    public scene: Scene;
+    public scene: BaseScene;
     public childs = new Array<Entity>();
 
-    constructor(mesh: AbstractMesh, scene: Scene, position?: Vector3, rotation?: Vector3, scale?: Vector3) {
+    constructor(mesh: AbstractMesh, scene: BaseScene, position?: Vector3, rotation?: Vector3, scale?: Vector3) {
         this.mesh = mesh;
         this.mesh.position = position || Vector3.Zero();
         this.mesh.rotation = rotation || Vector3.Zero();
