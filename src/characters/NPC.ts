@@ -14,6 +14,7 @@ import SendFrontTitleRequest from "../actions/SendFrontTitleRequest";
 import CloseDialogueAction from "../actions/CloseDialogueAction";
 import StartDialogueAction from "../actions/StartDialogue";
 import MoveCinematicCamera from "../actions/MoveCinematicCamera";
+import ClearDialog from "../actions/ClearDialogAction";
 
 export default class NPC extends Entity {
 
@@ -57,6 +58,7 @@ export default class NPC extends Entity {
                 animation: new TitleAnimation.FadeAnimation(1,0,1)
             }));
         this.interaction.addMeshExitedAction(new CloseDialogueAction(this));
+        this.interaction.addMeshExitedAction(new ClearDialog());
 
 
         this.interaction.addInteractAction(new MoveCinematicCamera(this.scene as BaseScene, this.collistionMesh));
