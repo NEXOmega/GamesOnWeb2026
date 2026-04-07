@@ -17,7 +17,6 @@ export default class DialogueManager {
     public static ui: DialogueUI;
 
     public static init(scene: Scene) {
-        this.loadAll();
         this.ui = new DialogueUI(scene);
 
         InputManager.onAnyKeyPressed.add((pressedKey) => {
@@ -36,12 +35,20 @@ export default class DialogueManager {
         });
     }
 
-    public static startDialogue(player: Player, npc: NPC, rootDialogue: Dialogue) {
+    public static startDialogue(player: Player, npc: NPC, dialogueId: string) {
+        const rootDialogue = this.getDialog(dialogueId);
+
+        if (!rootDialogue) {
+            console.error(`Impossible de lancer le dialogue : L'ID "${dialogueId}" est introuvable`);
+            console.log("Dialogues disponibles :", Object.keys(this.dialogs));
+            return;
+        }
+
         this.npc = npc;
         StateManager.state = State.DIALOG;
         
-        this.ui.attachTo(npc.collistionMesh);
-        
+        this.ui.attachTo(npc.mesh);
+
         this.goToDialogue(rootDialogue);
     }
 
@@ -49,8 +56,10 @@ export default class DialogueManager {
         this.actualDialogue = dialogue;
         const player = StateManager.actualPlayer;
 
-        for(const action of dialogue.actions) {
-            action.execute(StateManager.actualPlayer);
+        if (dialogue.actions) {
+            for(const action of dialogue.actions) {
+                action.execute(StateManager.actualPlayer);
+            }
         }
 
         let animation = new TitleAnimation.AnimationSequence([

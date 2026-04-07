@@ -174,10 +174,9 @@ export class StartDialogueAction extends Action {
 
     public execute(player: Player) {
         const npc : NPC = player.scene.entityManager.getEntityById(this.npcId) as NPC;
-        const dialog : Dialogue = DialogueManager.getDialog(this.dialogId);
         
         if (StateManager.state !== State.DIALOG) {
-            DialogueManager.startDialogue(player, npc, dialog);
+            DialogueManager.startDialogue(player, npc, this.dialogId);
         }
     }
 }

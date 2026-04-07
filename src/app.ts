@@ -5,12 +5,14 @@ import SceneManager from './scenes/SceneManager';
 import ItemRegistry from './utils/ItemRegistry';
 import SaveManager, { GameSaveData } from './utils/SaveManager';
 import { StateManager } from './utils/StateManager';
+import DialogueManager from './dialogs/DialogueManager';
 
 let game: BaseScene;
 
 window.addEventListener('DOMContentLoaded', async () => {
     
     await ItemRegistry.loadFromJson("items.json")
+    await DialogueManager.loadAll();
 
     SceneManager.init('renderCanvas');
 
