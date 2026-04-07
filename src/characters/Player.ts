@@ -5,33 +5,24 @@ import {
     Scene,
     TransformNode,
     Vector3,
-    ArcRotateCamera,
     MeshBuilder,
     Quaternion,
-    Camera,
-    Scalar,
-    PhysicsRaycastResult,
-    Ray
+    PhysicsRaycastResult
 } from '@babylonjs/core';
-import { ActionManager, ExecuteCodeAction } from "@babylonjs/core/Actions";
 import "@babylonjs/loaders";
 import { SceneLoader } from '@babylonjs/core/Loading/sceneLoader';
 import Entity from '../entities/Entity';
 import { Collidable } from '../entities/CollidableInterface';
 import { State, StateManager } from '../utils/StateManager';
-import { AdvancedDynamicTexture, Button } from '@babylonjs/gui';
 import PlayerHud from '../gui/PlayerHud';
 import PlayerCamera from '../camera/PlayerCamera';
+import InputManager from '../utils/InputManager'; // Ajuste le chemin selon où tu as créé le fichier
 
 export default class Player extends Entity implements Collidable {
 
-    //Model mesh for animation and visuals
     readonly model: AbstractMesh;
-    //Impostor mesh for physics
     public readonly impostorMesh: AbstractMesh;
-
     readonly physicsAggregate: PhysicsAggregate;
-
 
     readonly moveSpeed = 14;
     readonly rotationSpeed = 6;
@@ -46,29 +37,12 @@ export default class Player extends Entity implements Collidable {
     readonly coyoteTimeThreshold = 0.1;
 
     readonly animationBlendSpeed = 4.0;
-
-    readonly inputMap: Map<string, boolean>;
     
     readonly playerCamera: PlayerCamera;
-
     public readonly playerHud: PlayerHud = new PlayerHud();
 
-    keyForward = "z";
-    keyBackward = "s";
-    keyLeft = "q";
-    keyRight = "d";
-    keyJump = " ";
-    keyInteract = ["e", 'r', 't'];
-
-
     static async CreateAsync(scene: Scene, position: Vector3 = Vector3.Zero()): Promise<Player> {
-        const result = await SceneLoader.ImportMeshAsync(
-            "",
-            "./models/",
-            "Character.glb",
-            scene
-        );
-
+        const result = await SceneLoader.ImportMeshAsync("", "./models/", "Character.glb", scene);
         const model = result.meshes[0];
         
         const cameraAttachPoint = new TransformNode("cameraAttachPoint", scene);
@@ -82,60 +56,40 @@ export default class Player extends Entity implements Collidable {
 
     constructor(mesh: AbstractMesh, camera: PlayerCamera, scene: Scene, position: Vector3) {
         super(mesh, scene);
+        
         this.impostorMesh = MeshBuilder.CreateCapsule("CharacterTransform", {height: 2, radius: 0.5}, scene);
         this.impostorMesh.position = position;
         this.impostorMesh.visibility = 0.1;
         this.impostorMesh.rotationQuaternion = Quaternion.Identity();
+        this.impostorMesh.metadata = this.mesh.metadata;
 
         this.model = mesh;
         this.model.parent = this.impostorMesh;
-        this.model.rotate(Vector3.Up(), Math.PI)
-        this.model.position.y = -1
+        this.model.rotate(Vector3.Up(), Math.PI);
+        this.model.position.y = -1;
+        
+        this.model.rotationQuaternion = Quaternion.Identity(); 
 
         this.playerCamera = camera;
 
-        this.inputMap = new Map();
-        scene.actionManager = new ActionManager(scene);
+        InputManager.onActionJustPressed.add((action) => {
+            if (StateManager.state === State.DIALOG) {
+                if (action === "interact" || action === "dialog_next") {
+                    if (StateManager.currectInteractionEntity) {
+                        StateManager.currectInteractionEntity.onInteract(this);
+                    }
+                }
+                return;
+            }
 
-        scene.actionManager.registerAction(
-            new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, (e) => {
-                if(StateManager.state == State.DIALOG) {
-                    if(this.keyInteract.includes(e.sourceEvent.key)) {
-                        this.inputMap.set(e.sourceEvent.key, e.sourceEvent.type == "keydown");
-                        return;
-                    }
+            if (StateManager.state === State.PLAYING) {
+                if (action === "interact" && StateManager.currectInteractionEntity) {
+                    StateManager.currectInteractionEntity.onInteract(this);
                 }
-                if(StateManager.state != State.PLAYING)
-                    return;
-                this.inputMap.set(e.sourceEvent.key, e.sourceEvent.type == "keydown");
-            })
-        );
-        scene.actionManager.registerAction(
-            new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, (e) => {
-                if(StateManager.state == State.DIALOG) {
-                    if(this.keyInteract.includes(e.sourceEvent.key)) {
-                        this.inputMap.set(e.sourceEvent.key, e.sourceEvent.type == "keydown");
-                        if(this.keyInteract.includes(e.sourceEvent.key)) {
-                        if(StateManager.currectInteractionEntity) {
-                            StateManager.currectInteractionEntity.onInteract(this, e.sourceEvent.key);
-                            }
-                        }
-                        return;
-                    }
-                }
-                if(StateManager.state != State.PLAYING)
-                    return;
-                this.inputMap.set(e.sourceEvent.key, e.sourceEvent.type !== "keyup");
-                if(this.keyInteract.includes(e.sourceEvent.key)) {
-                    if(StateManager.currectInteractionEntity) {
-                        StateManager.currectInteractionEntity.onInteract(this, e.sourceEvent.key);
-                    }
-                }
-            })
-        );
+            }
+        });
 
         this.physicsAggregate = new PhysicsAggregate(this.impostorMesh, PhysicsShapeType.CAPSULE, { mass: 1, friction: 0, restitution: 0 }, scene);
-    
         this.physicsAggregate.body.setMassProperties({ inertia: Vector3.ZeroReadOnly });
         this.physicsAggregate.body.setAngularDamping(100);
         this.physicsAggregate.body.setLinearDamping(1);
@@ -143,6 +97,11 @@ export default class Player extends Entity implements Collidable {
     
     public update(delta: number): void {
         const deltaSeconds = delta / 1000;
+
+        if (StateManager.state !== State.PLAYING) {
+            this.physicsAggregate.body.setLinearVelocity(new Vector3(0, this.physicsAggregate.body.getLinearVelocity().y, 0));
+            return;
+        }
 
         const cameraForward = this.playerCamera.getForwardRay().direction;
         const cameraRight = this.playerCamera.getDirection(Vector3.Right());
@@ -152,18 +111,10 @@ export default class Player extends Entity implements Collidable {
 
         let move = Vector3.Zero();
 
-        if (this.inputMap.get(this.keyForward)) {
-            move.addInPlace(forward);
-        }
-        if (this.inputMap.get(this.keyBackward)) {
-            move.subtractInPlace(forward);
-        }
-        if (this.inputMap.get(this.keyLeft)) {
-            move.subtractInPlace(right);
-        }
-        if (this.inputMap.get(this.keyRight)) {
-            move.addInPlace(right);
-        }
+        if (InputManager.isActionPressed("move_forward")) move.addInPlace(forward);
+        if (InputManager.isActionPressed("move_backward")) move.subtractInPlace(forward);
+        if (InputManager.isActionPressed("move_left")) move.subtractInPlace(right);
+        if (InputManager.isActionPressed("move_right")) move.addInPlace(right);
 
         const scene = this.impostorMesh.getScene();
         const physicsPlugin = scene.getPhysicsEngine().getPhysicsPlugin();
@@ -182,7 +133,7 @@ export default class Player extends Entity implements Collidable {
             this.coyoteTimeCounter += deltaSeconds;
         }
         
-        const jumpKeyDown = this.inputMap.get(this.keyJump);
+        const jumpKeyDown = InputManager.isActionPressed("jump");
         const canJump = isGrounded || this.coyoteTimeCounter < this.coyoteTimeThreshold;
 
         if (jumpKeyDown && canJump && !this.jumpStarted) {
@@ -193,7 +144,6 @@ export default class Player extends Entity implements Collidable {
             this.jumpStarted = true;
             this.jumpHoldTime = 0;
         }
-        
         else if (jumpKeyDown && this.jumpStarted) {
             if (this.jumpHoldTime < this.maxJumpHoldTime) {
                 this.physicsAggregate.body.applyForce(new Vector3(0, this.jumpExtendForce, 0), this.impostorMesh.getAbsolutePosition());
@@ -205,8 +155,7 @@ export default class Player extends Entity implements Collidable {
             move.normalize();
 
             const targetRotation = Quaternion.FromLookDirectionLH(move, Vector3.Up());
-            if(this.model.rotationQuaternion == null) // TODO Workaround because when teleportiong it get removed ? then it cause an error see how we could improve this
-                this.model.rotationQuaternion = Quaternion.Identity();
+            
             this.model.rotationQuaternion = Quaternion.Slerp(this.model.rotationQuaternion, targetRotation, this.rotationSpeed * deltaSeconds);
             
             const velocity = move.scale(this.moveSpeed);
@@ -224,7 +173,6 @@ export default class Player extends Entity implements Collidable {
         }
 
         this.physicsAggregate.body.disablePreStep = false;
-        
         this.impostorMesh.position.copyFrom(position);
         
         this.physicsAggregate.body.setLinearVelocity(Vector3.Zero());

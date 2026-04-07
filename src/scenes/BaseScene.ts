@@ -1,8 +1,9 @@
-import { Engine, Scene, FreeCamera, Light, HavokPlugin } from '@babylonjs/core';
-import HavokPhysics from '@babylonjs/havok'
+import { Engine, Scene, Light } from '@babylonjs/core';
 import EntityManager from '../entities/EntityManager';
 import { StateManager } from '../utils/StateManager';
 import CinematicCamera from '../camera/CinematicCamera';
+import InputManager from '../utils/InputManager';
+import DialogueManager from '../dialogs/DialogueManager';
 
 export default class BaseScene extends Scene {
     public canvas: HTMLCanvasElement;
@@ -10,13 +11,10 @@ export default class BaseScene extends Scene {
     public light: Light;
     public entityManager: EntityManager;
 
-    public onSwitchScene?: (sceneName: string) => void;
-    constructor(canvasElement : string, engine?: Engine,  pointerLock : boolean = true) {
-
-        // Create canvas and engine.
-        const canvas = document.getElementById(canvasElement) as HTMLCanvasElement;
-        super(engine ?? new Engine(canvas));
-        this.canvas = document.getElementById(canvasElement) as unknown as HTMLCanvasElement;
+    constructor(engine: Engine, canvasElement: string, pointerLock: boolean = true) {
+        super(engine);
+        
+        this.canvas = document.getElementById(canvasElement) as HTMLCanvasElement;
         this.entityManager = new EntityManager();
 
         if(pointerLock) {
@@ -25,36 +23,23 @@ export default class BaseScene extends Scene {
             }
         }
 
-        this.createScene().then(() => {
-            this.createEnvironment();
-            this.doRender();
-        });
-    }
-
-    async createScene() : Promise<void> {
-
-    }
-
-    async createEnvironment(): Promise<void> {}
-
-    doRender() : void {
-        this.getEngine().runRenderLoop(() => {
-            this.render();
-            this.entityManager.update(this.getEngine().getDeltaTime());
+        this.onBeforeRenderObservable.add(() => {
+            const deltaTime = this.getEngine().getDeltaTime();
+            this.entityManager.update(deltaTime);
+            
             if(StateManager.actualPlayer != null) {
-                StateManager.actualPlayer.playerHud.update(this.getEngine().getDeltaTime());
+                StateManager.actualPlayer.playerHud.update(deltaTime);
             }
         });
-        window.addEventListener('resize', () => {
-            this.getEngine().resize();
-        });
     }
 
-        disposeScene(): void {
-        this.getEngine().stopRenderLoop();
-        this.entityManager.clear();       // à implémenter si pas déjà fait
-        StateManager.actualPlayer = null;
-        this.dispose();                    // Scene.dispose() de Babylon
+    public async initScene(): Promise<void> {
+        await this.createScene();
+        await this.createEnvironment();
+        InputManager.init(this);
+        DialogueManager.init(this);
     }
 
+    async createScene(): Promise<void> {}
+    async createEnvironment(): Promise<void> {}
 }

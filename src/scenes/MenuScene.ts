@@ -4,12 +4,9 @@ import { HemisphericLight, Vector3, FreeCamera, MeshBuilder,
 import { Engine } from '@babylonjs/core';
 import { AdvancedDynamicTexture, TextBlock } from '@babylonjs/gui';
 import BaseScene from './BaseScene';
+import SceneManager from './SceneManager';
 
 export default class MenuScene extends BaseScene {
-
-    constructor(canvasElement: string, engine?: Engine) {
-        super(canvasElement, engine, false);
-    }
 
     async createScene(): Promise<void> {
         const camera = new FreeCamera("menuCam", new Vector3(0, 0, -10), this);
@@ -31,7 +28,7 @@ export default class MenuScene extends BaseScene {
         btn1.actionManager = new ActionManager(this);
         btn1.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnPickTrigger, () => {
-                this.onSwitchScene?.("game");
+                SceneManager.changeScene("game")
             })
         );
 
@@ -55,7 +52,7 @@ export default class MenuScene extends BaseScene {
         btn2.actionManager = new ActionManager(this);
         btn2.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnPickTrigger, () => {
-                this.onSwitchScene?.("scene2");
+                SceneManager.changeScene("bunker")
             })
         );
 
