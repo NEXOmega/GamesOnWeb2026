@@ -13,7 +13,7 @@ import "@babylonjs/loaders";
 import { SceneLoader } from '@babylonjs/core/Loading/sceneLoader';
 import Entity from '../entities/Entity';
 import { Collidable } from '../entities/CollidableInterface';
-import { State, StateManager } from '../utils/StateManager';
+import { State, StateConfig, StateManager } from '../utils/StateManager';
 import PlayerHud from '../gui/PlayerHud';
 import PlayerCamera from '../camera/PlayerCamera';
 import InputManager from '../utils/InputManager'; // Ajuste le chemin selon où tu as créé le fichier
@@ -111,7 +111,7 @@ export default class Player extends Entity implements Collidable {
     public update(delta: number): void {
         const deltaSeconds = delta / 1000;
 
-        if (StateManager.state !== State.PLAYING) {
+        if (!StateConfig[StateManager.state].canMove) {
             this.physicsAggregate.body.setLinearVelocity(new Vector3(0, this.physicsAggregate.body.getLinearVelocity().y, 0));
             return;
         }
