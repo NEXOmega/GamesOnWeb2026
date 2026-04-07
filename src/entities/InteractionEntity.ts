@@ -2,7 +2,7 @@ import { Vector3 } from "@babylonjs/core";
 import Player from "../characters/Player";
 import CollisionEntity from "./CollisionEntity";
 import { StateManager } from "../utils/StateManager";
-import Action from "../actions/Action";
+import {Action} from "../actions/Action";
 
 export default class InteractionEntity extends CollisionEntity {
     private onInteractActions: Action[] = [];

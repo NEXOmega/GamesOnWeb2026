@@ -3,8 +3,8 @@ import Entity from "./Entity";
 import { Collidable } from "./CollidableInterface";
 import { StateManager } from "../utils/StateManager";
 import Player from "../characters/Player";
-import Action from "../actions/Action";
 import BaseScene from "../scenes/BaseScene";
+import { Action } from "../actions/Action";
 
 /**
  * Used for interactions, will call onMeshEntered or onMeshExited when the target enter inside de sphere

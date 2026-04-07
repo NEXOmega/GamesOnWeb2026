@@ -5,10 +5,13 @@ import Dialogue from "../dialogs/Dialogue";
 import DialogueManager from "../dialogs/DialogueManager";
 import BaseScene from "../scenes/BaseScene";
 import { State, StateManager } from "../utils/StateManager";
-import Action from "./Action";
+import {Action} from "./Action";
 import { getRotationFromPositions } from "../utils/3DUtils";
+import { Expose } from "class-transformer";
 
 export default class MoveCinematicCamera extends Action {
+    readonly type = "MoveCinematicCamera";
+
     private scene: BaseScene;
     private npcCollisionMesh: AbstractMesh;
 

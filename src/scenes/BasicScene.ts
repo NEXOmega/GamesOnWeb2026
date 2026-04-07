@@ -15,12 +15,13 @@ import * as TitleAnimation from '../gui/title/TitleAnimation'
 import { AnimationSerializer } from '../utils/json/AnimationSerializer';
 import NPC from '../characters/NPC';
 import Dialogue from '../dialogs/Dialogue';
-import TeleportAction from '../actions/TeleportAction';
 import SceneManager from './SceneManager';
 import SaveManager from '../utils/SaveManager';
-import ConsoleLogAction from '../actions/ConsoleLogAction';
 import ItemRegistry from '../utils/ItemRegistry';
 import Pickable from '../entities/Pickable';
+import ConsoleLogAction from '../actions/ConsoleLogAction';
+import { TeleportAction } from '../actions/Action';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 
 export default class MyScene extends BaseScene {
 
@@ -88,7 +89,7 @@ export default class MyScene extends BaseScene {
             this.entityManager.addEntity(player);
             this.activeCamera = player.playerCamera;
 
-            let collisionEntity = new InteractionEntity(player, 1, this, new Vector3(5,2,5));
+            let collisionEntity = new InteractionEntity(player, 1, this, new Vector3(5,2,10));
             collisionEntity.addMeshEnteredAction(new ConsoleLogAction("Entered Collision Entity"))
             
             collisionEntity.addMeshExitedAction(new ConsoleLogAction("Exited Collision Entity"))
@@ -105,8 +106,8 @@ export default class MyScene extends BaseScene {
                                 new TitleAnimation.WaitAnimation(150),
                                 new TitleAnimation.FadeAnimation(100, 1, 0)
                             ])
-                const serialized = AnimationSerializer.Serialize(animation)
-                const deserialized = AnimationSerializer.Deserialize(serialized)
+                const serialized = AnimationSerializer.serialize(animation)
+                const deserialized = AnimationSerializer.deserialize(serialized)
                 console.log(deserialized)
 
                 player.playerHud.title.enqueue({
@@ -129,8 +130,8 @@ export default class MyScene extends BaseScene {
                                 new TitleAnimation.WaitAnimation(150),
                                 new TitleAnimation.FadeAnimation(100, 1, 0)
                             ])
-                const serialized = AnimationSerializer.Serialize(animation)
-                const deserialized = AnimationSerializer.Deserialize(serialized)
+                const serialized = AnimationSerializer.serialize(animation)
+                const deserialized = AnimationSerializer.deserialize(serialized)
                 console.log(deserialized)
 
                 player.playerHud.title.enqueue({
@@ -152,7 +153,10 @@ export default class MyScene extends BaseScene {
             dialog.addNextDialog(dialog1);
             dialog.addNextDialog(dialog2);
 
-            const testNPC = NPC.CreateAsync(this, new Vector3(5,1,0), dialog);
+            const serialized = JSON.stringify(instanceToPlain(dialog));
+            const deserialized = plainToInstance(Dialogue, JSON.parse(serialized))
+
+            const testNPC = NPC.CreateAsync(this, new Vector3(5,1,0), deserialized);
 
             StateManager.state = State.PLAYING;
 

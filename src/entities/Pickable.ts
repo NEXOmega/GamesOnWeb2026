@@ -6,10 +6,10 @@ import * as TitleAnimation from '../gui/title/TitleAnimation'
 import { StateManager } from "../utils/StateManager";
 import ItemRegistry from "../utils/ItemRegistry";
 import CloseDialogueAction from "../actions/CloseDialogueAction";
-import AddItemToInventory from "../actions/AddItemToInventory";
 import ClearDialog from "../actions/ClearDialogAction";
 import RemoveEntityFromScene from "../actions/RemoveEntityFromScene";
 import BaseScene from "../scenes/BaseScene";
+import { AddItemToInventory } from "../actions/Action";
 
 export default class Pickable extends Entity {
 

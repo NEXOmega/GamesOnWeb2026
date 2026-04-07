@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import BaseScene from './scenes/BaseScene'
 import MyScene from './scenes/BasicScene';
 import SceneManager from './scenes/SceneManager';
