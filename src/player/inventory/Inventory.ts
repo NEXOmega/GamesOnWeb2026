@@ -41,6 +41,7 @@ export default class Inventory {
     }
 
     public deserialize(savedData: Record<string, number>) {
+        if(savedData == undefined) return;
         this.items = new Map(Object.entries(savedData));
         
         this.onInventoryChanged.notifyObservers();
