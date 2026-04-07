@@ -3,10 +3,10 @@ import Player from "../characters/Player";
 import { State, StateManager } from "../utils/StateManager";
 import Dialogue from "./Dialogue";
 import InputManager from "../utils/InputManager";
-import DialogueUI from "../gui/DialogueUI";
 import { Scene } from "@babylonjs/core";
 import * as TitleAnimation from  "../gui/title/TitleAnimation";
 import { plainToInstance } from "class-transformer";
+import DialogueUI from "../gui/DialogUI2";
 
 export default class DialogueManager {
     public static dialogs: Record<string, Dialogue> = {};
@@ -21,6 +21,12 @@ export default class DialogueManager {
 
         InputManager.onAnyKeyPressed.add((pressedKey) => {
             if (StateManager.state !== State.DIALOG || !this.actualDialogue) return;
+
+            if (this.ui.isTyping) {
+                this.ui.finishTyping();
+                return;
+            }
+
             if (!this.actualDialogue.canChooseNextChoice) return;
 
             const nextNode = this.actualDialogue.getNextDialog(pressedKey);
@@ -37,42 +43,38 @@ export default class DialogueManager {
 
     public static startDialogue(player: Player, npc: NPC, dialogueId: string) {
         const rootDialogue = this.getDialog(dialogueId);
-
-        if (!rootDialogue) {
-            console.error(`Impossible de lancer le dialogue : L'ID "${dialogueId}" est introuvable`);
-            console.log("Dialogues disponibles :", Object.keys(this.dialogs));
-            return;
-        }
+        if (!rootDialogue) return;
 
         this.npc = npc;
         StateManager.state = State.DIALOG;
         
-        this.ui.attachTo(npc.mesh);
+        // 1. On affiche l'UI
+        this.ui.show();
+        
+        // Optionnel : si tu veux quand même orienter la caméra vers le NPC
+        // player.camera.setTarget(npc.mesh.position);
 
         this.goToDialogue(rootDialogue);
     }
 
     private static goToDialogue(dialogue: Dialogue) {
         this.actualDialogue = dialogue;
-        const player = StateManager.actualPlayer;
 
+        // 2. On exécute les actions
         if (dialogue.actions) {
             for(const action of dialogue.actions) {
                 action.execute(StateManager.actualPlayer);
             }
         }
 
-        let animation = new TitleAnimation.AnimationSequence([
-            new TitleAnimation.FadeAnimation(100, 0, 1),
-            new TitleAnimation.WaitAnimation(150)
-        ]);
+        // 3. On envoie le texte au RECTANGLE de l'UI au lieu du HUD
+        this.ui.setMessage(dialogue.message);
 
-        player.playerHud.dialog.enqueue({
-            text: dialogue.message,
-            animation: animation
+        // 4. On affiche les choix
+        this.ui.renderChoices(dialogue.nextDialogs, (key) => {
+            const nextNode = this.actualDialogue?.getNextDialog(key);
+            if (nextNode) this.goToDialogue(nextNode);
         });
-
-        this.ui.renderChoices(dialogue.nextDialogs);
     }
 
     public static closeDialogue() {
