@@ -60,7 +60,7 @@ export default class Player extends Entity implements Collidable {
     }
 
     constructor(mesh: AbstractMesh, camera: PlayerCamera, scene: BaseScene, position: Vector3) {
-        super(mesh, scene);
+        super("player", mesh, scene);
         
         this.impostorMesh = MeshBuilder.CreateCapsule("CharacterTransform", {height: 2, radius: 0.5}, scene);
         this.impostorMesh.position = position;

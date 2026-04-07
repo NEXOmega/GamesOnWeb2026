@@ -19,7 +19,7 @@ export default class Pickable extends Entity {
         readonly physicsAggregate: PhysicsAggregate;
         readonly interaction: InteractionEntity;
         
-    static async CreateAsync(scene: BaseScene, position: Vector3 = Vector3.Zero(), itemId: string, quantity: number): Promise<Pickable> {
+    static async CreateAsync(id: string, scene: BaseScene, position: Vector3 = Vector3.Zero(), itemId: string, quantity: number): Promise<Pickable> {
         const result = await SceneLoader.ImportMeshAsync(
             "",
             "./models/",
@@ -29,11 +29,11 @@ export default class Pickable extends Entity {
 
         const model = result.meshes[0];
 
-        return new Pickable(model, scene, position, itemId, quantity);
+        return new Pickable(id, model, scene, position, itemId, quantity);
     }
 
-    constructor(mesh: AbstractMesh, scene: BaseScene, position: Vector3 = Vector3.Zero(), itemId: string, quantity: number, rotation: Vector3 = Vector3.Zero()) {
-        super(mesh, scene, position, rotation);
+    constructor(id: string, mesh: AbstractMesh, scene: BaseScene, position: Vector3 = Vector3.Zero(), itemId: string, quantity: number, rotation: Vector3 = Vector3.Zero()) {
+        super(id, mesh, scene, position, rotation);
 
         this.collistionMesh = MeshBuilder.CreateCapsule("CharacterTransform", {height: 2, radius: 0.5}, scene);
         this.collistionMesh.visibility = 0.1;
@@ -45,7 +45,7 @@ export default class Pickable extends Entity {
         this.collistionMesh.position = position;
         this.model.position.y = -1;
         
-        this.interaction = new InteractionEntity(StateManager.actualPlayer, 5, scene);
+        this.interaction = new InteractionEntity(id+"_interaction", StateManager.actualPlayer, 5, scene);
         this.interaction.addMeshEnteredAction(new SendFrontTitleRequest({
                 text: "Pickup " + ItemRegistry.getItem(itemId).name,
                 animation: new TitleAnimation.FadeAnimation(1,0,1)

@@ -25,7 +25,7 @@ export default class NPC extends Entity {
 
     public dialog: Dialogue
     
-    static async CreateAsync(scene: BaseScene, position: Vector3 = Vector3.Zero(), dialog: Dialogue): Promise<NPC> {
+    static async CreateAsync(id: string, scene: BaseScene, position: Vector3 = Vector3.Zero(), dialog: Dialogue): Promise<NPC> {
         const result = await SceneLoader.ImportMeshAsync(
             "",
             "./models/",
@@ -35,11 +35,11 @@ export default class NPC extends Entity {
 
         const model = result.meshes[0];
 
-        return new NPC(model, scene, dialog, position);
+        return new NPC(id, model, scene, dialog, position);
     }
 
-    constructor(mesh: AbstractMesh, scene: BaseScene, dialog: Dialogue, position: Vector3 = Vector3.Zero(), rotation: Vector3 = Vector3.Zero()) {
-        super(mesh, scene, Vector3.Zero(), rotation);
+    constructor(id: string, mesh: AbstractMesh, scene: BaseScene, dialog: Dialogue, position: Vector3 = Vector3.Zero(), rotation: Vector3 = Vector3.Zero()) {
+        super(id, mesh, scene, Vector3.Zero(), rotation);
         this.dialog = dialog;
 
         this.collistionMesh = MeshBuilder.CreateCapsule("CharacterTransform", {height: 2, radius: 0.5}, scene);
@@ -52,7 +52,7 @@ export default class NPC extends Entity {
         this.collistionMesh.position = position;
         this.model.position.y = -1;
 
-        this.interaction = new InteractionEntity(StateManager.actualPlayer, 5, scene);
+        this.interaction = new InteractionEntity(id+"_interaction",StateManager.actualPlayer, 5, scene);
         this.interaction.addMeshEnteredAction(new SendFrontTitleRequest({
                 text: "Hey !",
                 animation: new TitleAnimation.FadeAnimation(1,0,1)

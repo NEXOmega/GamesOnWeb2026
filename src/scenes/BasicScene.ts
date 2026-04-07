@@ -5,7 +5,6 @@ import { SceneLoader } from '@babylonjs/core/Loading/sceneLoader';
 import HavokPhysics from "@babylonjs/havok";
 
 import BaseScene from './BaseScene';
-import DebugEntity from '../entities/DebugEntity';
 import CinematicCamera from '../camera/CinematicCamera';
 import Player from '../characters/Player';
 import CollisionEntity from '../entities/CollisionEntity';
@@ -89,7 +88,7 @@ export default class MyScene extends BaseScene {
             this.entityManager.addEntity(player);
             this.activeCamera = player.playerCamera;
 
-            let collisionEntity = new InteractionEntity(player, 1, this, new Vector3(5,2,10));
+            let collisionEntity = new InteractionEntity("clear_save_entity", player, 1, this, new Vector3(5,2,10));
             collisionEntity.addMeshEnteredAction(new ConsoleLogAction("Entered Collision Entity"))
             
             collisionEntity.addMeshExitedAction(new ConsoleLogAction("Exited Collision Entity"))
@@ -117,7 +116,7 @@ export default class MyScene extends BaseScene {
                 SaveManager.clearSave()
             }
 
-            let saveEntity = new InteractionEntity(player, 1, this, new Vector3(-5,2,5));
+            let saveEntity = new InteractionEntity("save_entity", player, 1, this, new Vector3(-5,2,5));
 
             saveEntity.onInteract = (player: Player) => {
                 player.playerHud.title.enqueue({
@@ -156,12 +155,12 @@ export default class MyScene extends BaseScene {
             const serialized = JSON.stringify(instanceToPlain(dialog));
             const deserialized = plainToInstance(Dialogue, JSON.parse(serialized))
 
-            const testNPC = NPC.CreateAsync(this, new Vector3(5,1,0), deserialized);
+            const testNPC = NPC.CreateAsync("igor", this, new Vector3(5,1,0), deserialized);
 
             StateManager.state = State.PLAYING;
 
 
-            Pickable.CreateAsync(this, new Vector3(-5,2,5), "health_potion", 5);
+            Pickable.CreateAsync("health_potion", this, new Vector3(-5,2,5), "health_potion", 5);
         });
 
     }
