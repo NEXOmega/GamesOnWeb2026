@@ -1,0 +1,39 @@
+{
+  "key": "e",
+  "choiceText": "Parler",
+  "message": "Bonjour comment allez vous ?",
+  "actions": [],
+  "canChooseNextChoice": true,
+  "nextDialogs": {
+    "r": {
+      "key": "r",
+      "choiceText": "Bien et vous ?",
+      "message": "Moi aussi, la vie est paisible.",
+      "actions": [
+        {
+          "type": "TeleportAction",
+          "position": {
+            "x": 10,
+            "y": 10,
+            "z": 10
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "canChooseNextChoice": true,
+      "nextDialogs": {}
+    },
+    "t": {
+      "key": "t",
+      "choiceText": "Mal",
+      "message": "C'est vrai, le monde va mal.",
+      "actions": [],
+      "canChooseNextChoice": true,
+      "nextDialogs": {}
+    }
+  }
+}

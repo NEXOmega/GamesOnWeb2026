@@ -18,8 +18,7 @@ import SceneManager from './SceneManager';
 import SaveManager from '../utils/SaveManager';
 import ItemRegistry from '../utils/ItemRegistry';
 import Pickable from '../entities/Pickable';
-import ConsoleLogAction from '../actions/ConsoleLogAction';
-import { TeleportAction } from '../actions/Action';
+import { ConsoleLogAction, TeleportAction } from '../actions/Action';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 
 export default class MyScene extends BaseScene {
@@ -153,9 +152,10 @@ export default class MyScene extends BaseScene {
             dialog.addNextDialog(dialog2);
 
             const serialized = JSON.stringify(instanceToPlain(dialog));
+            console.log(serialized)
             const deserialized = plainToInstance(Dialogue, JSON.parse(serialized))
 
-            const testNPC = NPC.CreateAsync("igor", this, new Vector3(5,1,0), deserialized);
+            const testNPC = NPC.CreateAsync("igor", this, new Vector3(5,1,0), "test_npc");
 
             StateManager.state = State.PLAYING;
 

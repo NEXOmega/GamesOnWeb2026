@@ -5,11 +5,8 @@ import SendFrontTitleRequest from "../actions/SendFrontTitleRequest";
 import * as TitleAnimation from '../gui/title/TitleAnimation'
 import { StateManager } from "../utils/StateManager";
 import ItemRegistry from "../utils/ItemRegistry";
-import CloseDialogueAction from "../actions/CloseDialogueAction";
-import ClearDialog from "../actions/ClearDialogAction";
-import RemoveEntityFromScene from "../actions/RemoveEntityFromScene";
 import BaseScene from "../scenes/BaseScene";
-import { AddItemToInventory } from "../actions/Action";
+import { AddItemToInventory, ClearDialog, RemoveEntityFromScene } from "../actions/Action";
 
 export default class Pickable extends Entity {
 
@@ -53,7 +50,7 @@ export default class Pickable extends Entity {
         this.interaction.addMeshExitedAction(new ClearDialog());
 
         this.interaction.addInteractAction(new AddItemToInventory(itemId, quantity));
-        this.interaction.addInteractAction(new RemoveEntityFromScene(this))
+        this.interaction.addInteractAction(new RemoveEntityFromScene(this.id))
         this.interaction.addInteractAction(new ClearDialog());
         
         this.addChild(this.interaction);

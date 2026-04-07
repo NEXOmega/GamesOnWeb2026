@@ -4,6 +4,10 @@ import Entity from '../entities/Entity';
 export default class EntityManager {
     private entities: Entity[] = [];
 
+    public getEntityById(id: string) : Entity {
+        return  this.entities.find(entity => entity.id === id)
+    }
+
     public addEntity(entity: Entity): void {
         this.entities.push(entity);
     }
