@@ -160,7 +160,8 @@ export default class MyScene extends BaseScene {
             StateManager.state = State.PLAYING;
 
 
-            Pickable.CreateAsync("health_potion", this, new Vector3(-5,2,5), "health_potion", 5);
+            Pickable.CreateAsync("health_potion", this, new Vector3(-5,3,5), "health_potion", 5).then(hp => this.entityManager.addEntity(hp))
+            
         });
 
     }

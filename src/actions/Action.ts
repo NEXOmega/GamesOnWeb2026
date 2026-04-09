@@ -134,6 +134,7 @@ export class RemoveEntityFromScene extends Action {
     }
 
     public execute(player: Player) {
+        console.log("Disposing of : " + this.entityId)
         const entity : Entity = player.scene.entityManager.getEntityById(this.entityId);
         entity.dispose();
     }

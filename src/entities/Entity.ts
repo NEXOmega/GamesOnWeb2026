@@ -10,6 +10,7 @@ export default class Entity implements Tickable {
     public childs = new Array<Entity>();
 
     constructor(id: string, mesh: AbstractMesh, scene: BaseScene, position?: Vector3, rotation?: Vector3, scale?: Vector3) {
+        this.id = id;
         this.mesh = mesh;
         this.mesh.position = position || Vector3.Zero();
         this.mesh.rotation = rotation || Vector3.Zero();
