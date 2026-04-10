@@ -5,7 +5,6 @@ import { SceneLoader } from '@babylonjs/core/Loading/sceneLoader';
 import HavokPhysics from "@babylonjs/havok";
 
 import BaseScene from './BaseScene';
-import DebugEntity from '../entities/DebugEntity';
 import CinematicCamera from '../camera/CinematicCamera';
 import Player from '../characters/Player';
 import CollisionEntity from '../entities/CollisionEntity';
@@ -15,10 +14,12 @@ import * as TitleAnimation from '../gui/title/TitleAnimation'
 import { AnimationSerializer } from '../utils/json/AnimationSerializer';
 import NPC from '../characters/NPC';
 import Dialogue from '../dialogs/Dialogue';
-import TeleportAction from '../actions/TeleportAction';
 import SceneManager from './SceneManager';
 import SaveManager from '../utils/SaveManager';
-import ConsoleLogAction from '../actions/ConsoleLogAction';
+import ItemRegistry from '../utils/ItemRegistry';
+import Pickable from '../entities/Pickable';
+import { ConsoleLogAction, TeleportAction } from '../actions/Action';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 
 export default class MyScene extends BaseScene {
 
@@ -86,7 +87,7 @@ export default class MyScene extends BaseScene {
             this.entityManager.addEntity(player);
             this.activeCamera = player.playerCamera;
 
-            let collisionEntity = new InteractionEntity(player, 1, this, new Vector3(5,2,5));
+            let collisionEntity = new InteractionEntity("clear_save_entity", player, 1, this, new Vector3(5,2,10));
             collisionEntity.addMeshEnteredAction(new ConsoleLogAction("Entered Collision Entity"))
             
             collisionEntity.addMeshExitedAction(new ConsoleLogAction("Exited Collision Entity"))
@@ -103,8 +104,8 @@ export default class MyScene extends BaseScene {
                                 new TitleAnimation.WaitAnimation(150),
                                 new TitleAnimation.FadeAnimation(100, 1, 0)
                             ])
-                const serialized = AnimationSerializer.Serialize(animation)
-                const deserialized = AnimationSerializer.Deserialize(serialized)
+                const serialized = AnimationSerializer.serialize(animation)
+                const deserialized = AnimationSerializer.deserialize(serialized)
                 console.log(deserialized)
 
                 player.playerHud.title.enqueue({
@@ -114,7 +115,7 @@ export default class MyScene extends BaseScene {
                 SaveManager.clearSave()
             }
 
-            let saveEntity = new InteractionEntity(player, 1, this, new Vector3(-5,2,5));
+            let saveEntity = new InteractionEntity("save_entity", player, 1, this, new Vector3(-5,2,5));
 
             saveEntity.onInteract = (player: Player) => {
                 player.playerHud.title.enqueue({
@@ -127,19 +128,20 @@ export default class MyScene extends BaseScene {
                                 new TitleAnimation.WaitAnimation(150),
                                 new TitleAnimation.FadeAnimation(100, 1, 0)
                             ])
-                const serialized = AnimationSerializer.Serialize(animation)
-                const deserialized = AnimationSerializer.Deserialize(serialized)
+                const serialized = AnimationSerializer.serialize(animation)
+                const deserialized = AnimationSerializer.deserialize(serialized)
                 console.log(deserialized)
 
                 player.playerHud.title.enqueue({
                     text: "Save",
                     animation: deserialized
                 })
+                console.log(StateManager.inventory.items)
                 SaveManager.save({sceneId: "BunkerScene", playerPosition: {
                     x: 5,
                     y: 5,
                     z: 10
-                }})
+                }, inventory: StateManager.inventory.serialize()})
             }
             
             const dialog: Dialogue = new Dialogue("e", "Parler", "Bonjour comment allez vous ?")
@@ -149,13 +151,18 @@ export default class MyScene extends BaseScene {
             dialog.addNextDialog(dialog1);
             dialog.addNextDialog(dialog2);
 
-            const testNPC = NPC.CreateAsync(this, new Vector3(5,1,0));
-            testNPC.then(npc => {
-                npc.dialog = dialog;
-            })
+            const serialized = JSON.stringify(instanceToPlain(dialog));
+            console.log(serialized)
+            const deserialized = plainToInstance(Dialogue, JSON.parse(serialized))
 
-            this.entityManager.addEntity(collisionEntity);
+            const testNPC = NPC.CreateAsync("igor", this, new Vector3(5,1,0), "test_npc");
+
             StateManager.state = State.PLAYING;
+
+
+            Pickable.CreateAsync("health_potion", this, new Vector3(-5,3,5), "health_potion", 5).then(hp => this.entityManager.addEntity(hp))
+            
         });
+
     }
 }

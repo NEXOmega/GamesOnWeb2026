@@ -3,7 +3,8 @@ import Entity from "./Entity";
 import { Collidable } from "./CollidableInterface";
 import { StateManager } from "../utils/StateManager";
 import Player from "../characters/Player";
-import Action from "../actions/Action";
+import BaseScene from "../scenes/BaseScene";
+import { Action } from "../actions/Action";
 
 /**
  * Used for interactions, will call onMeshEntered or onMeshExited when the target enter inside de sphere
@@ -24,8 +25,8 @@ export default class CollisionEntity extends Entity implements Collidable {
      * @param distance Radius of the sphere
      * @param scene Scene so we can create the the entity and action manager
      */
-    constructor(target: Collidable, distance: number, scene: Scene, position: Vector3 = Vector3.Zero()) {
-        super(MeshBuilder.CreateSphere("debugEntity", { diameter: distance }, scene), scene);
+    constructor(id: string, target: Collidable, distance: number, scene: BaseScene, position: Vector3 = Vector3.Zero()) {
+        super(id, MeshBuilder.CreateSphere("debugEntity", { diameter: distance }, scene), scene);
         this.distance = distance;
             this.target = target;
 
@@ -60,7 +61,7 @@ export default class CollisionEntity extends Entity implements Collidable {
     }
 
     public addMeshExitedAction(action: Action) {
-        this.meshEnteredActions.push(action);
+        this.meshExitedActions.push(action);
     }
 
     /**

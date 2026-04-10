@@ -1,6 +1,6 @@
 import { Engine, Scene, Light } from '@babylonjs/core';
 import EntityManager from '../entities/EntityManager';
-import { StateManager } from '../utils/StateManager';
+import { State, StateConfig, StateManager } from '../utils/StateManager';
 import CinematicCamera from '../camera/CinematicCamera';
 import InputManager from '../utils/InputManager';
 import DialogueManager from '../dialogs/DialogueManager';
@@ -19,7 +19,8 @@ export default class BaseScene extends Scene {
 
         if(pointerLock) {
             this.canvas.onclick = () => {
-                this.canvas.requestPointerLock();
+                if(StateConfig[StateManager.state].pointerLock)
+                    this.canvas.requestPointerLock();
             }
         }
 

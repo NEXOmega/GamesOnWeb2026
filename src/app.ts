@@ -1,12 +1,19 @@
+import 'reflect-metadata';
 import BaseScene from './scenes/BaseScene'
 import MyScene from './scenes/BasicScene';
 import SceneManager from './scenes/SceneManager';
-import SaveManager from './utils/SaveManager';
+import ItemRegistry from './utils/ItemRegistry';
+import SaveManager, { GameSaveData } from './utils/SaveManager';
+import { StateManager } from './utils/StateManager';
+import DialogueManager from './dialogs/DialogueManager';
 
 let game: BaseScene;
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
     
+    await ItemRegistry.loadFromJson("items.json")
+    await DialogueManager.loadAll();
+
     SceneManager.init('renderCanvas');
 
     SceneManager.registerScene("BunkerScene", async () => {
@@ -17,8 +24,10 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     if(SaveManager.hasSave()) {
-        SceneManager.loadFromSave(SaveManager.load());
-        console.log("Save chargé depuis le local storage")
+        const gameSaveData : GameSaveData = SaveManager.load();
+        StateManager.inventory.deserialize(gameSaveData.inventory);
+        SceneManager.loadFromSave(gameSaveData);
+        console.log("Save chargé depuis le local storage");
         return;
     }
     console.log("Aucune sauvegarde trouvée")
