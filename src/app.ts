@@ -15,7 +15,7 @@ window.addEventListener('DOMContentLoaded', () => {
     
     SceneManager.init('renderCanvas');
 
-<<<<<<< HEAD
+<<<<<<<             
     SceneManager.registerScene("game", async () => {
 =======
     SceneManager.registerScene("BunkerScene", async () => {
