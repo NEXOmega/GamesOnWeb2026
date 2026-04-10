@@ -11,7 +11,8 @@ import DialogueManager from "../dialogs/DialogueManager";
 import { AdvancedDynamicTexture, Rectangle, StackPanel, TextBlock } from "@babylonjs/gui";
 import { getRotationFromPositions } from "../utils/3DUtils";
 import SendFrontTitleRequest from "../actions/SendFrontTitleRequest";
-import CloseDialogueAction from "../actions/CloseDialogueAction";
+import MoveCinematicCamera from "../actions/MoveCinematicCamera";
+import { ClearDialog, CloseDialogueAction, StartDialogueAction } from "../actions/Action";
 
 export default class NPC extends Entity {
 
@@ -20,9 +21,9 @@ export default class NPC extends Entity {
     readonly physicsAggregate: PhysicsAggregate;
     readonly interaction: InteractionEntity;
 
-    public dialog: Dialogue
+    public dialogId: string
     
-    static async CreateAsync(scene: Scene, position: Vector3 = Vector3.Zero()): Promise<NPC> {
+    static async CreateAsync(id: string, scene: BaseScene, position: Vector3 = Vector3.Zero(), dialogId: string): Promise<NPC> {
         const result = await SceneLoader.ImportMeshAsync(
             "",
             "./models/",
@@ -32,11 +33,12 @@ export default class NPC extends Entity {
 
         const model = result.meshes[0];
 
-        return new NPC(model, scene, position);
+        return new NPC(id, model, scene, dialogId, position);
     }
 
-    constructor(mesh: AbstractMesh, scene: Scene, position: Vector3 = Vector3.Zero(), rotation: Vector3 = Vector3.Zero()) {
-        super(mesh, scene, Vector3.Zero(), rotation);
+    constructor(id: string, mesh: AbstractMesh, scene: BaseScene, dialogId: string, position: Vector3 = Vector3.Zero(), rotation: Vector3 = Vector3.Zero()) {
+        super(id, mesh, scene, Vector3.Zero(), rotation);
+        this.dialogId = dialogId;
 
         this.collistionMesh = MeshBuilder.CreateCapsule("CharacterTransform", {height: 2, radius: 0.5}, scene);
         this.collistionMesh.visibility = 0.1;
@@ -48,27 +50,19 @@ export default class NPC extends Entity {
         this.collistionMesh.position = position;
         this.model.position.y = -1;
 
-        this.interaction = new InteractionEntity(StateManager.actualPlayer, 5, scene);
+        this.interaction = new InteractionEntity(id+"_interaction",StateManager.actualPlayer, 5, scene);
         this.interaction.addMeshEnteredAction(new SendFrontTitleRequest({
                 text: "Hey !",
                 animation: new TitleAnimation.FadeAnimation(1,0,1)
             }));
-        this.interaction.addMeshExitedAction(new CloseDialogueAction(this));
+        this.interaction.addMeshExitedAction(new CloseDialogueAction(this.id));
+        this.interaction.addMeshExitedAction(new ClearDialog());
 
-        this.interaction.onInteractFunc = (player) => {
-            if (StateManager.state !== State.DIALOG) {
-                let cinematicCamera = (this.scene as BaseScene).cinematicCamera;
-                    
-                cinematicCamera.teleport(player.impostorMesh.position);
-                scene.activeCamera = cinematicCamera;
-                const targetRot = getRotationFromPositions(this.collistionMesh.position.add(new Vector3(3,2,3)), this.collistionMesh.position.add(new Vector3(0,1.5,0)))
-                cinematicCamera.moveTo(player.impostorMesh.position, this.collistionMesh.position.add(new Vector3(3,2,3)), cinematicCamera.rotation, targetRot, 1)
 
-                DialogueManager.startDialogue(player, this, this.dialog);
-            }
-        }
+        this.interaction.addInteractAction(new MoveCinematicCamera(this.scene as BaseScene, this.collistionMesh));
+        this.interaction.addInteractAction(new StartDialogueAction(this.id, dialogId));
 
-        this.interaction.mesh.parent = this.collistionMesh;
+        this.addChild(this.interaction)
 
         this.physicsAggregate = new PhysicsAggregate(this.collistionMesh, PhysicsShapeType.CAPSULE, { mass: 0, restitution: 0 }, scene);
     

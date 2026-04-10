@@ -13,10 +13,13 @@ import "@babylonjs/loaders";
 import { SceneLoader } from '@babylonjs/core/Loading/sceneLoader';
 import Entity from '../entities/Entity';
 import { Collidable } from '../entities/CollidableInterface';
-import { State, StateManager } from '../utils/StateManager';
+import { State, StateConfig, StateManager } from '../utils/StateManager';
 import PlayerHud from '../gui/PlayerHud';
 import PlayerCamera from '../camera/PlayerCamera';
 import InputManager from '../utils/InputManager'; // Ajuste le chemin selon où tu as créé le fichier
+import Inventory from '../player/inventory/Inventory';
+import InventoryUI from '../gui/inventory/InventoryHud';
+import BaseScene from '../scenes/BaseScene';
 
 export default class Player extends Entity implements Collidable {
 
@@ -40,8 +43,10 @@ export default class Player extends Entity implements Collidable {
     
     readonly playerCamera: PlayerCamera;
     public readonly playerHud: PlayerHud = new PlayerHud();
+    
+    private inventoryUI = new InventoryUI(StateManager.inventory, this.scene);
 
-    static async CreateAsync(scene: Scene, position: Vector3 = Vector3.Zero()): Promise<Player> {
+    static async CreateAsync(scene: BaseScene, position: Vector3 = Vector3.Zero()): Promise<Player> {
         const result = await SceneLoader.ImportMeshAsync("", "./models/", "Character.glb", scene);
         const model = result.meshes[0];
         
@@ -54,8 +59,8 @@ export default class Player extends Entity implements Collidable {
         return new Player(model, camera, scene, position);
     }
 
-    constructor(mesh: AbstractMesh, camera: PlayerCamera, scene: Scene, position: Vector3) {
-        super(mesh, scene);
+    constructor(mesh: AbstractMesh, camera: PlayerCamera, scene: BaseScene, position: Vector3) {
+        super("player", mesh, scene);
         
         this.impostorMesh = MeshBuilder.CreateCapsule("CharacterTransform", {height: 2, radius: 0.5}, scene);
         this.impostorMesh.position = position;
@@ -89,6 +94,14 @@ export default class Player extends Entity implements Collidable {
             }
         });
 
+        InputManager.onActionJustPressed.add((action) => {
+            if(action == "open_inventory") {
+                if(StateManager.state != State.PLAYING && StateManager.state != State.IN_INVENTORY)
+                    return
+                this.inventoryUI.toggle();
+            }
+        });
+
         this.physicsAggregate = new PhysicsAggregate(this.impostorMesh, PhysicsShapeType.CAPSULE, { mass: 1, friction: 0, restitution: 0 }, scene);
         this.physicsAggregate.body.setMassProperties({ inertia: Vector3.ZeroReadOnly });
         this.physicsAggregate.body.setAngularDamping(100);
@@ -98,7 +111,7 @@ export default class Player extends Entity implements Collidable {
     public update(delta: number): void {
         const deltaSeconds = delta / 1000;
 
-        if (StateManager.state !== State.PLAYING) {
+        if (!StateConfig[StateManager.state].canMove) {
             this.physicsAggregate.body.setLinearVelocity(new Vector3(0, this.physicsAggregate.body.getLinearVelocity().y, 0));
             return;
         }

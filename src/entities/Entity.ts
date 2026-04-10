@@ -1,12 +1,16 @@
 import { AbstractMesh, Scene, Vector3 } from '@babylonjs/core';
 import Tickable from '../utils/Tickable';
+import BaseScene from '../scenes/BaseScene';
+import { StateManager } from '../utils/StateManager';
 
 export default class Entity implements Tickable {
+    public id: string;
     public mesh: AbstractMesh;
-    public scene: Scene;
+    public scene: BaseScene;
     public childs = new Array<Entity>();
 
-    constructor(mesh: AbstractMesh, scene: Scene, position?: Vector3, rotation?: Vector3, scale?: Vector3) {
+    constructor(id: string, mesh: AbstractMesh, scene: BaseScene, position?: Vector3, rotation?: Vector3, scale?: Vector3) {
+        this.id = id;
         this.mesh = mesh;
         this.mesh.position = position || Vector3.Zero();
         this.mesh.rotation = rotation || Vector3.Zero();
@@ -42,8 +46,12 @@ export default class Entity implements Tickable {
     }
 
     public dispose(): void {
+        this.scene.entityManager.removeEntity(this)
         if (this.mesh) {
+
             this.mesh.dispose();
+            for(const child of this.childs)
+                child.dispose();
         }
     }
 }

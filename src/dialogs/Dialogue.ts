@@ -1,12 +1,38 @@
-import Action from "../actions/Action";
+import { Expose, plainToInstance, Transform, Type } from "class-transformer";
+import { Action, ALL_ACTIONS } from "../actions/Action";
 
 export default class Dialogue {
-    public nextDialogs: Record<string, Dialogue> = {};
+
+    @Expose()
     public key: string;
+    @Expose()
     public choiceText: string;
+    @Expose()
     public message: string;
+
+    @Type(() => Object, {
+        discriminator: {
+            property: 'type',
+            subTypes: ALL_ACTIONS
+        }
+    })
+    @Expose()
     public actions: Action[] = [];
+    @Expose()
     public canChooseNextChoice = true;
+
+    @Transform(({ value }) => {
+        const dict: Record<string, Dialogue> = {};
+        
+        if (value) {
+            for (const key in value) {
+                dict[key] = plainToInstance(Dialogue, value[key]);
+            }
+        }
+        return dict;
+    })
+    @Expose()
+    public nextDialogs: Record<string, Dialogue> = {};
 
     constructor(key: string, choiceText: string, message: string) {
         this.key = key;

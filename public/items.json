@@ -1,0 +1,20 @@
+[
+    {
+        "id": "health_potion",
+        "name": "Potion de Soin",
+        "description": "Un liquide rouge qui sent la fraise. Restaure 50 PV.",
+        "iconUrl": "./textures/items/potion.png"
+    },
+    {
+        "id": "iron_sword",
+        "name": "Épée en fer",
+        "description": "Une lame simple mais robuste.",
+        "iconUrl": "./textures/items/sword.png"
+    },
+    {
+        "id": "gold_coin",
+        "name": "Pièce d'or",
+        "description": "Monnaie d'échange universelle.",
+        "iconUrl": "./textures/items/gold.png"
+    }
+]
