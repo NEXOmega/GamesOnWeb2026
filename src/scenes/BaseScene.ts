@@ -42,3 +42,4 @@ export default class BaseScene extends Scene {
 
     async createScene(): Promise<void> {}
     async createEnvironment(): Promise<void> {}
+}
