@@ -69,6 +69,8 @@ export default class NPC extends Entity {
         this.physicsAggregate.body.setMassProperties({ inertia: Vector3.ZeroReadOnly });
         this.physicsAggregate.body.setAngularDamping(100);
         this.physicsAggregate.body.setLinearDamping(1);
+
+        this.scene.entityManager.addEntity(this);
     }
 
 }
