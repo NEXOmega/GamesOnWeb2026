@@ -21,7 +21,7 @@ import Pickable from '../entities/Pickable';
 import { ConsoleLogAction, TeleportAction } from '../actions/Action';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 
-export default class MyScene extends BaseScene {
+export default class DebugScene extends BaseScene {
 
     async createScene() : Promise<void> {
         this.cinematicCamera = new CinematicCamera(this, this.canvas);

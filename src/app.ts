@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import BaseScene from './scenes/BaseScene'
-import MyScene from './scenes/BasicScene';
+import DebugScene from './scenes/DebugScene';
 import SceneManager from './scenes/SceneManager';
 import ItemRegistry from './utils/ItemRegistry';
 import SaveManager, { GameSaveData } from './utils/SaveManager';
@@ -17,7 +17,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     SceneManager.init('renderCanvas');
 
     SceneManager.registerScene("BunkerScene", async () => {
-        const firstScene = new MyScene(SceneManager.engine, 'renderCanvas');
+        const firstScene = new DebugScene(SceneManager.engine, 'renderCanvas');
         await firstScene.initScene();
         
         return firstScene;
