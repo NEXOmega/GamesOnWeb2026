@@ -20,6 +20,7 @@ import ItemRegistry from '../utils/ItemRegistry';
 import Pickable from '../entities/Pickable';
 import { ConsoleLogAction, TeleportAction } from '../actions/Action';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
+import { loadMesh } from './SceneUtils';
 
 export default class DebugScene extends BaseScene {
 
@@ -147,40 +148,7 @@ export default class DebugScene extends BaseScene {
         });
         
         meshes.forEach((mesh) => {
-            const extras = mesh.metadata?.gltf?.extras;
-
-            if (extras && extras.spawn_type) {
-                if (extras.spawn_type === "item") {
-                    
-                        Pickable.CreateAsync(
-                            extras.spawn_uuid, 
-                            this, 
-                            mesh.getAbsolutePosition(),
-                            extras.type, 
-                            extras.quantity
-                        ).then(item => this.entityManager.addEntity(item));
-                }
-                else if (extras.spawn_type === "npc") {
-                    NPC.CreateAsync(
-                        extras.spawn_uuid, 
-                        this, 
-                        mesh.getAbsolutePosition(), 
-                        extras.dialog_id
-                    );
-                }
-                mesh.dispose();
-            } else 
-            if (mesh.getTotalVertices() > 0) {
-
-                console.log("------- Mesh : " + mesh.name + "-------");
-                console.log(mesh.isEnabled());
-                if(mesh.metadata.gltf) {
-                    console.log(mesh.metadata.gltf.extras)
-                }
-                const physicsAggregate = new PhysicsAggregate(mesh, PhysicsShapeType.MESH, { mass: 0, restitution: 0 }, this);
-                mesh.checkCollisions = true;
-                console.log("Physics aggregate created")
-            }
+            loadMesh(this, mesh);
         });
 
     }

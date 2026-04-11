@@ -1,6 +1,9 @@
 import { Scene, HemisphericLight, DirectionalLight, Vector3, MeshBuilder, Color3, SceneLoader, CascadedShadowGenerator, PhysicsAggregate, PhysicsShapeType, AbstractMesh } from '@babylonjs/core';
 import { SkyMaterial } from '@babylonjs/materials';
 import { MapConfig } from './MapConfig';
+import NPC from '../characters/NPC';
+import Pickable from '../entities/Pickable';
+import BaseScene from './BaseScene';
 
 export async function loadEnvironmentFromConfig(configPath: string, scene: Scene) {
     const response = await fetch(configPath);
@@ -65,6 +68,33 @@ export async function loadEnvironmentFromConfig(configPath: string, scene: Scene
     return { meshes, sun, ambient };
 }
 
+
+export async function loadMesh(scene: BaseScene, mesh: AbstractMesh) {
+    const extras = mesh.metadata?.gltf?.extras;
+
+    if (extras && extras.spawn_type) {
+        if (extras.spawn_type === "item") {        
+            Pickable.CreateAsync(
+                extras.spawn_uuid, 
+                scene, 
+                mesh.getAbsolutePosition(),
+                extras.type, 
+                extras.quantity
+            );
+        } else if (extras.spawn_type === "npc") {
+            NPC.CreateAsync(
+                extras.spawn_uuid, 
+                scene, 
+                mesh.getAbsolutePosition(), 
+                extras.dialog_id
+            );
+        }
+        mesh.dispose();
+    } else if (mesh.getTotalVertices() > 0) {
+        const physicsAggregate = new PhysicsAggregate(mesh, PhysicsShapeType.MESH, { mass: 0, restitution: 0 }, this);
+        mesh.checkCollisions = true;
+    }
+}
 
 export function scaleMap(rootMesh: AbstractMesh, scaleFactor: number) {
         rootMesh.scaling = new Vector3(scaleFactor, scaleFactor, scaleFactor);

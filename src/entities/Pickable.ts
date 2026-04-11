@@ -54,5 +54,7 @@ export default class Pickable extends Entity {
         this.interaction.addInteractAction(new ClearDialog());
         
         this.addChild(this.interaction);
+
+        this.scene.entityManager.addEntity(this);
     }
 }
