@@ -9,13 +9,13 @@ export default class InteractionEntity extends CollisionEntity {
 
     public onMeshEntered(): void {
         super.onMeshEntered();
-        StateManager.currectInteractionEntity = this;
+        this.scene.currectInteractionEntity = this;
     }
 
     public onMeshExited(): void {
         super.onMeshExited();
-        if(StateManager.currectInteractionEntity === this)
-            StateManager.currectInteractionEntity = null;
+        if(this.scene.currectInteractionEntity === this)
+            this.scene.currectInteractionEntity = null;
     }
 
     public addInteractAction(action: Action) {
@@ -33,8 +33,8 @@ export default class InteractionEntity extends CollisionEntity {
     }
 
     public dispose(): void {
-        if(StateManager.currectInteractionEntity === this)
-            StateManager.currectInteractionEntity = null;
+        if(this.scene.currectInteractionEntity === this)
+            this.scene.currectInteractionEntity = null;
         super.dispose();
     }
 }

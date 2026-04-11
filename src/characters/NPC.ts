@@ -50,7 +50,7 @@ export default class NPC extends Entity {
         this.collistionMesh.position = position;
         this.model.position.y = -1;
 
-        this.interaction = new InteractionEntity(id+"_interaction",StateManager.actualPlayer, 5, scene);
+        this.interaction = new InteractionEntity(id+"_interaction",this.scene.actualPlayer, 5, scene);
         this.interaction.addMeshEnteredAction(new SendFrontTitleRequest({
                 text: "Hey !",
                 animation: new TitleAnimation.FadeAnimation(1,0,1)

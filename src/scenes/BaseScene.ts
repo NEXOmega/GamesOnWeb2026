@@ -4,12 +4,18 @@ import { State, StateConfig, StateManager } from '../utils/StateManager';
 import CinematicCamera from '../camera/CinematicCamera';
 import InputManager from '../utils/InputManager';
 import DialogueManager from '../dialogs/DialogueManager';
+import InteractionEntity from '../entities/InteractionEntity';
+import Player from '../characters/Player';
 
 export default class BaseScene extends Scene {
     public canvas: HTMLCanvasElement;
     public cinematicCamera: CinematicCamera;
     public light: Light;
     public entityManager: EntityManager;
+
+
+    public actualPlayer: Player | null = null;
+    public currectInteractionEntity: InteractionEntity | null = null;
 
     constructor(engine: Engine, canvasElement: string, pointerLock: boolean = true) {
         super(engine);
@@ -28,8 +34,8 @@ export default class BaseScene extends Scene {
             const deltaTime = this.getEngine().getDeltaTime();
             this.entityManager.update(deltaTime);
             
-            if(StateManager.actualPlayer != null) {
-                StateManager.actualPlayer.playerHud.update(deltaTime);
+            if(this.actualPlayer != null) {
+                this.actualPlayer.playerHud.update(deltaTime);
             }
         });
     }

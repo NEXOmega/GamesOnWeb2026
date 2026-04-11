@@ -117,7 +117,7 @@ export default class SceneManager {
 
         this.changeScene(gameSaveData.sceneId).then((scene) => {
             const playerPosition = new Vector3(gameSaveData.playerPosition.x, gameSaveData.playerPosition.y, gameSaveData.playerPosition.z);
-            StateManager.actualPlayer.setPosition(playerPosition);
+            this.currentScene.actualPlayer.setPosition(playerPosition);
         });
     }
 

@@ -42,7 +42,7 @@ export default class Pickable extends Entity {
         this.collistionMesh.position = position;
         this.model.position.y = -1;
         
-        this.interaction = new InteractionEntity(id+"_interaction", StateManager.actualPlayer, 5, scene);
+        this.interaction = new InteractionEntity(id+"_interaction", this.scene.actualPlayer, 5, scene);
         this.interaction.addMeshEnteredAction(new SendFrontTitleRequest({
                 text: "Pickup " + ItemRegistry.getItem(itemId).name,
                 animation: new TitleAnimation.FadeAnimation(1,0,1)

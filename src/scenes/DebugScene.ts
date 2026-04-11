@@ -45,7 +45,7 @@ export default class DebugScene extends BaseScene {
         window.addEventListener("keydown", (ev) => {
             if(ev.altKey && ev.key === 'c') {
                 if(this.activeCamera == this.cinematicCamera) {
-                    this.activeCamera = StateManager.actualPlayer.playerCamera;
+                    this.activeCamera = this.actualPlayer.playerCamera;
                     StateManager.state = State.PLAYING;
                 } else {
                     this.activeCamera = this.cinematicCamera;
@@ -83,7 +83,7 @@ export default class DebugScene extends BaseScene {
         });
 
         Player.CreateAsync(this, new Vector3(0, 10, 0)).then((player) => {
-            StateManager.actualPlayer = player;
+            this.actualPlayer = player;
             this.entityManager.addEntity(player);
             this.activeCamera = player.playerCamera;
 

@@ -80,16 +80,16 @@ export default class Player extends Entity implements Collidable {
         InputManager.onActionJustPressed.add((action) => {
             if (StateManager.state === State.DIALOG) {
                 if (action === "interact" || action === "dialog_next") {
-                    if (StateManager.currectInteractionEntity) {
-                        StateManager.currectInteractionEntity.onInteract(this);
+                    if (this.scene.currectInteractionEntity) {
+                        this.scene.currectInteractionEntity.onInteract(this);
                     }
                 }
                 return;
             }
 
             if (StateManager.state === State.PLAYING) {
-                if (action === "interact" && StateManager.currectInteractionEntity) {
-                    StateManager.currectInteractionEntity.onInteract(this);
+                if (action === "interact" && this.scene.currectInteractionEntity) {
+                    this.scene.currectInteractionEntity.onInteract(this);
                 }
             }
         });
