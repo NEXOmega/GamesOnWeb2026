@@ -69,6 +69,7 @@ export async function loadEnvironmentFromConfig(configPath: string, scene: Scene
 }
 
 
+//TODO t oprevent multiple is else we could make a ObjectFactory which will register multiple type then take extras as entry and create objects
 export async function loadMesh(scene: BaseScene, mesh: AbstractMesh) {
     const extras = mesh.metadata?.gltf?.extras;
 
