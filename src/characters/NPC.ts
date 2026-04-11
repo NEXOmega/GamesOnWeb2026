@@ -38,6 +38,8 @@ export default class NPC extends Entity {
 
     constructor(id: string, mesh: AbstractMesh, scene: BaseScene, dialogId: string, position: Vector3 = Vector3.Zero(), rotation: Vector3 = Vector3.Zero()) {
         super(id, mesh, scene, Vector3.Zero(), rotation);
+        if(!DialogueManager.getDialog(dialogId))
+            throw new Error(`Dialog ${dialogId} for ${id} not found in DialogueManager !`)
         this.dialogId = dialogId;
 
         this.collistionMesh = MeshBuilder.CreateCapsule("CharacterTransform", {height: 2, radius: 0.5}, scene);

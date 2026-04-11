@@ -67,22 +67,8 @@ export default class DebugScene extends BaseScene {
         );
 
         console.log("Level loaded")
-        
-        meshes.forEach((mesh) => {
-            if (mesh.getTotalVertices() > 0) {
 
-                console.log("------- Mesh : " + mesh.name + "-------");
-                console.log(mesh.isEnabled());
-                if(mesh.metadata.gltf) {
-                    console.log(mesh.metadata.gltf.extras)
-                }
-                const physicsAggregate = new PhysicsAggregate(mesh, PhysicsShapeType.MESH, { mass: 0, restitution: 0 }, this);
-                mesh.checkCollisions = true;
-                console.log("Physics aggregate created")
-            }
-        });
-
-        Player.CreateAsync(this, new Vector3(0, 10, 0)).then((player) => {
+        await Player.CreateAsync(this, new Vector3(0, 10, 0)).then((player) => {
             this.actualPlayer = player;
             this.entityManager.addEntity(player);
             this.activeCamera = player.playerCamera;
@@ -158,10 +144,43 @@ export default class DebugScene extends BaseScene {
             const testNPC = NPC.CreateAsync("igor", this, new Vector3(5,1,0), "test_npc");
 
             StateManager.state = State.PLAYING;
+        });
+        
+        meshes.forEach((mesh) => {
+            const extras = mesh.metadata?.gltf?.extras;
 
+            if (extras && extras.spawn_type) {
+                if (extras.spawn_type === "item") {
+                    
+                        Pickable.CreateAsync(
+                            extras.spawn_uuid, 
+                            this, 
+                            mesh.getAbsolutePosition(),
+                            extras.type, 
+                            extras.quantity
+                        ).then(item => this.entityManager.addEntity(item));
+                }
+                else if (extras.spawn_type === "npc") {
+                    NPC.CreateAsync(
+                        extras.spawn_uuid, 
+                        this, 
+                        mesh.getAbsolutePosition(), 
+                        extras.dialog_id
+                    );
+                }
+                mesh.dispose();
+            } else 
+            if (mesh.getTotalVertices() > 0) {
 
-            Pickable.CreateAsync("health_potion", this, new Vector3(-5,3,5), "health_potion", 5).then(hp => this.entityManager.addEntity(hp))
-            
+                console.log("------- Mesh : " + mesh.name + "-------");
+                console.log(mesh.isEnabled());
+                if(mesh.metadata.gltf) {
+                    console.log(mesh.metadata.gltf.extras)
+                }
+                const physicsAggregate = new PhysicsAggregate(mesh, PhysicsShapeType.MESH, { mass: 0, restitution: 0 }, this);
+                mesh.checkCollisions = true;
+                console.log("Physics aggregate created")
+            }
         });
 
     }
