@@ -17,7 +17,7 @@ export default class InventoryUI {
         this.inventory = inventory;
         this.scene = scene;
         
-        this.texture = AdvancedDynamicTexture.CreateFullscreenUI("InventoryUI");
+        this.texture = AdvancedDynamicTexture.CreateFullscreenUI("InventoryUI", true, this.scene);
 
         this.mainContainer = new Rectangle("InventoryContainer");
         this.mainContainer.width = "100%";
@@ -49,8 +49,14 @@ export default class InventoryUI {
         this.detailsPanel.height = "80%";
         layoutGrid.addControl(this.detailsPanel, 0, 1);
 
-        this.inventory.onInventoryChanged.add(() => {
+        const observer = this.inventory.onInventoryChanged.add(() => {
             this.renderList();
+        });
+
+        this.scene.onDisposeObservable.add(() => {
+            this.inventory.onInventoryChanged.remove(observer);
+            
+            this.texture.dispose();
         });
 
         this.renderList();
