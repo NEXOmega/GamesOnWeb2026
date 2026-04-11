@@ -130,19 +130,6 @@ export default class DebugScene extends BaseScene {
                     z: 10
                 }, inventory: StateManager.inventory.serialize()})
             }
-            
-            const dialog: Dialogue = new Dialogue("e", "Parler", "Bonjour comment allez vous ?")
-            const dialog1: Dialogue = new Dialogue("r", "Bien et vous ?", "Moi aussi, la vie est paisible.")
-            dialog1.actions.push(new TeleportAction(new Vector3(10,10,10), new Vector3(0,0,0)))
-            const dialog2: Dialogue = new Dialogue("t", "Mal", "C'est vrai, le monde va mal.")
-            dialog.addNextDialog(dialog1);
-            dialog.addNextDialog(dialog2);
-
-            const serialized = JSON.stringify(instanceToPlain(dialog));
-            console.log(serialized)
-            const deserialized = plainToInstance(Dialogue, JSON.parse(serialized))
-
-            const testNPC = NPC.CreateAsync("igor", this, new Vector3(5,1,0), "test_npc");
 
             StateManager.state = State.PLAYING;
         });
