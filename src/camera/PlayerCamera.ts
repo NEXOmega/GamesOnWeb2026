@@ -1,6 +1,7 @@
 import { ArcRotateCamera, PhysicsRaycastResult, Scalar, Scene, TransformNode, Vector3 } from "@babylonjs/core";
 import { StateManager } from "../utils/StateManager";
 import Player from "../characters/Player";
+import BaseScene from "../scenes/BaseScene";
 
 export default class PlayerCamera extends ArcRotateCamera {
     desiredRadius: number;
@@ -40,8 +41,8 @@ export default class PlayerCamera extends ArcRotateCamera {
         
         physicsPlugin.raycast(origin, targetEndPos, result);
 
-        const impostorMesh = StateManager.actualPlayer.impostorMesh;
-        const model = StateManager.actualPlayer.model;
+        const impostorMesh = (this._scene as BaseScene).actualPlayer.impostorMesh;
+        const model = (this._scene as BaseScene).actualPlayer.model;
 
         if (result.hasHit) {
         const hitBody = result.body;

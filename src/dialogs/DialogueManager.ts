@@ -63,7 +63,7 @@ export default class DialogueManager {
         // 2. On exécute les actions
         if (dialogue.actions) {
             for(const action of dialogue.actions) {
-                action.execute(StateManager.actualPlayer);
+                action.execute(this.npc.scene.actualPlayer);
             }
         }
 
@@ -80,7 +80,7 @@ export default class DialogueManager {
     public static closeDialogue() {
         this.ui.hide();
         
-        const player = StateManager.actualPlayer;
+        const player = this.npc.scene.actualPlayer;
         player.scene.activeCamera = player.playerCamera;
         player.playerHud.dialog.enqueueFront({ text: "", animation: new TitleAnimation.FadeAnimation(0,0,0) });
 

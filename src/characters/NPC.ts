@@ -38,6 +38,8 @@ export default class NPC extends Entity {
 
     constructor(id: string, mesh: AbstractMesh, scene: BaseScene, dialogId: string, position: Vector3 = Vector3.Zero(), rotation: Vector3 = Vector3.Zero()) {
         super(id, mesh, scene, Vector3.Zero(), rotation);
+        if(!DialogueManager.getDialog(dialogId))
+            throw new Error(`Dialog ${dialogId} for ${id} not found in DialogueManager !`)
         this.dialogId = dialogId;
 
         this.collistionMesh = MeshBuilder.CreateCapsule("CharacterTransform", {height: 2, radius: 0.5}, scene);
@@ -50,7 +52,7 @@ export default class NPC extends Entity {
         this.collistionMesh.position = position;
         this.model.position.y = -1;
 
-        this.interaction = new InteractionEntity(id+"_interaction",StateManager.actualPlayer, 5, scene);
+        this.interaction = new InteractionEntity(id+"_interaction",this.scene.actualPlayer, 5, scene);
         this.interaction.addMeshEnteredAction(new SendFrontTitleRequest({
                 text: "Hey !",
                 animation: new TitleAnimation.FadeAnimation(1,0,1)
@@ -69,6 +71,8 @@ export default class NPC extends Entity {
         this.physicsAggregate.body.setMassProperties({ inertia: Vector3.ZeroReadOnly });
         this.physicsAggregate.body.setAngularDamping(100);
         this.physicsAggregate.body.setLinearDamping(1);
+
+        this.scene.entityManager.addEntity(this);
     }
 
 }

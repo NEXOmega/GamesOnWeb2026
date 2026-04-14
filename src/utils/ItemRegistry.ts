@@ -14,7 +14,7 @@ export default class ItemRegistry {
             const data: Item[] = await response.json();
 
             data.forEach(item => {
-                this.items.set(item.id, item);
+                this.registerItem(item);
             });
 
             console.log(`ItemRegistry : ${this.items.size} objets chargés avec succès !`);

@@ -1,4 +1,5 @@
-import { Vector3 } from "@babylonjs/core";
+import { AbstractMesh, Mesh, Vector3 } from "@babylonjs/core";
+import BaseScene from "../scenes/BaseScene";
 
 export function getRotationFromPositions(from: Vector3, to: Vector3): Vector3 {
     
