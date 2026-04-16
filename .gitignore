@@ -1,3 +1,6 @@
 /node_modules
 /public/dist
 /babylon-project
+/modelsBlender/bunker/
+/modelsBlender/desert/
+/modelsBlender/forest/
