@@ -3,6 +3,7 @@ import BaseScene from "./BaseScene";
 import { GameSaveData } from "../utils/SaveManager";
 import { StateManager } from "../utils/StateManager";
 import DebugHUD from "../gui/DebugHUD";
+import SoundManager from "../sounds/SoundManager";
 
 export type SceneFactory = () => Promise<BaseScene>;
 
@@ -76,6 +77,7 @@ export default class SceneManager {
                     this.currentScene.dispose();
                     this.sceneCache.delete(this.currentSceneId);
                 } else {
+                    this.currentScene.onSleep();
                     this.sceneCache.set(this.currentSceneId, this.currentScene);
                 }
             }
@@ -100,8 +102,11 @@ export default class SceneManager {
             this.currentScene = nextScene;
             this.currentSceneId = targetSceneId;
             
+            this.currentScene.onWakeUp()
             this.currentScene.attachControl(true);
 
+            SoundManager.setListenerToCamera(this.currentScene.activeCamera);
+            
             this.debugHUD = new DebugHUD(this.currentScene);
             if (this.showDebugOnLoad) {
                 this.debugHUD.toggle();

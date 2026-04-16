@@ -21,6 +21,7 @@ import Pickable from '../entities/Pickable';
 import { ConsoleLogAction, TeleportAction } from '../actions/Action';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { loadMesh } from './SceneUtils';
+import SoundManager from '../sounds/SoundManager';
 
 export default class DebugScene extends BaseScene {
 
@@ -73,6 +74,7 @@ export default class DebugScene extends BaseScene {
             this.actualPlayer = player;
             this.entityManager.addEntity(player);
             this.activeCamera = player.playerCamera;
+            SoundManager.setListenerToCamera(this.activeCamera);
 
             let collisionEntity = new InteractionEntity("clear_save_entity", player, 1, this, new Vector3(5,2,10));
             collisionEntity.addMeshEnteredAction(new ConsoleLogAction("Entered Collision Entity"))
@@ -131,6 +133,13 @@ export default class DebugScene extends BaseScene {
                 }, inventory: StateManager.inventory.serialize()})
             }
 
+            let soundEntity = new InteractionEntity("sound_entity", player, 1, this, new Vector3(-5,2,0));
+
+            soundEntity.onInteract = (player: Player) => {
+                console.log("Playing buzz sound")
+                soundEntity.scene.attachSpatialSound(soundEntity.mesh, "drone_buzz", "./assets/sounds/drone_buzz.mp3", 50)
+            }
+
             StateManager.state = State.PLAYING;
         });
         
@@ -138,5 +147,6 @@ export default class DebugScene extends BaseScene {
             loadMesh(this, mesh);
         });
 
+        this.playSceneMusic("./assets/sounds/jeune_morty_priilick.mp3", true)
     }
 }

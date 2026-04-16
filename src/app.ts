@@ -7,6 +7,8 @@ import SaveManager, { GameSaveData } from './utils/SaveManager';
 import { StateManager } from './utils/StateManager';
 import DialogueManager from './dialogs/DialogueManager';
 import Dust2Scene from './scenes/Dust2Scene';
+import { CreateAudioEngineAsync } from '@babylonjs/core/AudioV2';
+import SoundManager from './sounds/SoundManager';
 
 let game: BaseScene;
 
@@ -16,6 +18,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     await DialogueManager.loadAll();
 
     SceneManager.init('renderCanvas');
+    await SoundManager.initAudio()
 
     SceneManager.registerScene("BunkerScene", async () => {
         const firstScene = new DebugScene(SceneManager.engine, 'renderCanvas');
@@ -39,9 +42,10 @@ window.addEventListener('DOMContentLoaded', async () => {
         return;
     }
     console.log("Aucune sauvegarde trouvée")
-    SceneManager.changeScene("Dust2")
+    SceneManager.changeScene("BunkerScene")
 
 });
+
 window.addEventListener('resize', () => {
     SceneManager.engine.resize();
 });
