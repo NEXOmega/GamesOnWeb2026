@@ -2,6 +2,8 @@ import { Engine, Scene, Vector3 } from "@babylonjs/core";
 import BaseScene from "./BaseScene";
 import { GameSaveData } from "../utils/SaveManager";
 import { StateManager } from "../utils/StateManager";
+import DebugHUD from "../gui/DebugHUD";
+import SoundManager from "../sounds/SoundManager";
 
 export type SceneFactory = () => Promise<BaseScene>;
 
@@ -16,6 +18,9 @@ export default class SceneManager {
     private static sceneCache: Map<string, BaseScene> = new Map();
     private static currentSceneId: string | null = null;
 
+    private static debugHUD: DebugHUD | null = null;
+    private static showDebugOnLoad: boolean = false;
+
     public static init(canvasId: string) {
         this.canvas = document.getElementById(canvasId) as HTMLCanvasElement;
         this.engine = new Engine(this.canvas, true);
@@ -28,6 +33,16 @@ export default class SceneManager {
 
         window.addEventListener('resize', () => {
             this.engine.resize();
+        });
+
+        window.addEventListener("keydown", (ev) => {
+            if (ev.key === "F3") {
+                if (this.debugHUD) {
+                    this.debugHUD.toggle();
+                    // On mémorise l'état pour le garder ouvert après un chargement
+                    this.showDebugOnLoad = !this.showDebugOnLoad; 
+                }
+            }
         });
     }
 
@@ -55,8 +70,6 @@ export default class SceneManager {
             this.setFade(1);
             await this.wait(500);
 
-            this.engine.stopRenderLoop();
-
             if (this.currentScene && this.currentSceneId) {
                 this.currentScene.detachControl();
 
@@ -64,6 +77,7 @@ export default class SceneManager {
                     this.currentScene.dispose();
                     this.sceneCache.delete(this.currentSceneId);
                 } else {
+                    this.currentScene.onSleep();
                     this.sceneCache.set(this.currentSceneId, this.currentScene);
                 }
             }
@@ -88,11 +102,15 @@ export default class SceneManager {
             this.currentScene = nextScene;
             this.currentSceneId = targetSceneId;
             
+            this.currentScene.onWakeUp()
             this.currentScene.attachControl(true);
 
-            this.engine.runRenderLoop(() => {
-                this.currentScene?.render();
-            });
+            SoundManager.setListenerToCamera(this.currentScene.activeCamera);
+            
+            this.debugHUD = new DebugHUD(this.currentScene);
+            if (this.showDebugOnLoad) {
+                this.debugHUD.toggle();
+            }
 
             this.setFade(0);
     }
@@ -104,7 +122,7 @@ export default class SceneManager {
 
         this.changeScene(gameSaveData.sceneId).then((scene) => {
             const playerPosition = new Vector3(gameSaveData.playerPosition.x, gameSaveData.playerPosition.y, gameSaveData.playerPosition.z);
-            StateManager.actualPlayer.setPosition(playerPosition);
+            this.currentScene.actualPlayer.setPosition(playerPosition);
         });
     }
 
@@ -121,4 +139,17 @@ export default class SceneManager {
         }
         console.log("RAM libérée !");
     }
+
+    public static getRegisteredScenes(): string[] {
+        return Array.from(this.sceneRegistry.keys());
+    }
+
+    public static getCachedScenes(): string[] {
+        return Array.from(this.sceneCache.keys());
+    }
+
+    public static getCurrentSceneId(): string | null {
+        return this.currentSceneId;
+    }
+
 }

@@ -20,8 +20,10 @@ import ItemRegistry from '../utils/ItemRegistry';
 import Pickable from '../entities/Pickable';
 import { ConsoleLogAction, TeleportAction } from '../actions/Action';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
+import { loadMesh } from './SceneUtils';
+import SoundManager from '../sounds/SoundManager';
 
-export default class MyScene extends BaseScene {
+export default class DebugScene extends BaseScene {
 
     async createScene() : Promise<void> {
         this.cinematicCamera = new CinematicCamera(this, this.canvas);
@@ -45,7 +47,7 @@ export default class MyScene extends BaseScene {
         window.addEventListener("keydown", (ev) => {
             if(ev.altKey && ev.key === 'c') {
                 if(this.activeCamera == this.cinematicCamera) {
-                    this.activeCamera = StateManager.actualPlayer.playerCamera;
+                    this.activeCamera = this.actualPlayer.playerCamera;
                     StateManager.state = State.PLAYING;
                 } else {
                     this.activeCamera = this.cinematicCamera;
@@ -67,25 +69,12 @@ export default class MyScene extends BaseScene {
         );
 
         console.log("Level loaded")
-        
-        meshes.forEach((mesh) => {
-            if (mesh.getTotalVertices() > 0) {
 
-                console.log("------- Mesh : " + mesh.name + "-------");
-                console.log(mesh.isEnabled());
-                if(mesh.metadata.gltf) {
-                    console.log(mesh.metadata.gltf.extras)
-                }
-                const physicsAggregate = new PhysicsAggregate(mesh, PhysicsShapeType.MESH, { mass: 0, restitution: 0 }, this);
-                mesh.checkCollisions = true;
-                console.log("Physics aggregate created")
-            }
-        });
-
-        Player.CreateAsync(this, new Vector3(0, 10, 0)).then((player) => {
-            StateManager.actualPlayer = player;
+        await Player.CreateAsync(this, new Vector3(0, 10, 0)).then((player) => {
+            this.actualPlayer = player;
             this.entityManager.addEntity(player);
             this.activeCamera = player.playerCamera;
+            SoundManager.setListenerToCamera(this.activeCamera);
 
             let collisionEntity = new InteractionEntity("clear_save_entity", player, 1, this, new Vector3(5,2,10));
             collisionEntity.addMeshEnteredAction(new ConsoleLogAction("Entered Collision Entity"))
@@ -143,26 +132,21 @@ export default class MyScene extends BaseScene {
                     z: 10
                 }, inventory: StateManager.inventory.serialize()})
             }
-            
-            const dialog: Dialogue = new Dialogue("e", "Parler", "Bonjour comment allez vous ?")
-            const dialog1: Dialogue = new Dialogue("r", "Bien et vous ?", "Moi aussi, la vie est paisible.")
-            dialog1.actions.push(new TeleportAction(new Vector3(10,10,10), new Vector3(0,0,0)))
-            const dialog2: Dialogue = new Dialogue("t", "Mal", "C'est vrai, le monde va mal.")
-            dialog.addNextDialog(dialog1);
-            dialog.addNextDialog(dialog2);
 
-            const serialized = JSON.stringify(instanceToPlain(dialog));
-            console.log(serialized)
-            const deserialized = plainToInstance(Dialogue, JSON.parse(serialized))
+            let soundEntity = new InteractionEntity("sound_entity", player, 1, this, new Vector3(-5,2,0));
 
-            const testNPC = NPC.CreateAsync("igor", this, new Vector3(5,1,0), "test_npc");
+            soundEntity.onInteract = (player: Player) => {
+                console.log("Playing buzz sound")
+                soundEntity.scene.attachSpatialSound(soundEntity.mesh, "drone_buzz", "./assets/sounds/drone_buzz.mp3", 50)
+            }
 
             StateManager.state = State.PLAYING;
-
-
-            Pickable.CreateAsync("health_potion", this, new Vector3(-5,3,5), "health_potion", 5).then(hp => this.entityManager.addEntity(hp))
-            
+        });
+        
+        meshes.forEach((mesh) => {
+            loadMesh(this, mesh);
         });
 
+        this.playSceneMusic("./assets/sounds/jeune_morty_priilick.mp3", true)
     }
 }
