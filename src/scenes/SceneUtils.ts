@@ -5,13 +5,12 @@ import NPC from '../characters/NPC';
 import Pickable from '../entities/Pickable';
 import BaseScene from './BaseScene';
 
-export async function loadEnvironmentFromConfig(configPath: string, scene: Scene) {
+export async function loadEnvironmentFromConfig(configPath: string, scene: BaseScene) {
     const response = await fetch(configPath);
     if (!response.ok) throw new Error(`Impossible de charger la config map : ${configPath}`);
     const config: MapConfig = await response.json();
 
-    console.log(`Génération de l'environnement pour : ${config.model}...`);
-
+    // 1. Lumières et Ciel
     const skybox = MeshBuilder.CreateBox("skyBox", { size: 1000.0 }, scene);
     const skyMaterial = new SkyMaterial("skyMaterial", scene);
     skyMaterial.backFaceCulling = false;
@@ -40,11 +39,13 @@ export async function loadEnvironmentFromConfig(configPath: string, scene: Scene
         scene.fogColor = new Color3(config.fog.color[0], config.fog.color[1], config.fog.color[2]);
     }
 
-    const folderPath = configPath.substring(0, configPath.lastIndexOf('/') + 1); // Extrait "./models/"
+    // 2. Chargement du GLB
+    const folderPath = configPath.substring(0, configPath.lastIndexOf('/') + 1);
     const { meshes } = await SceneLoader.ImportMeshAsync("", folderPath, config.model, scene);
     
     const rootMesh = meshes[0];
 
+    // On applique l'échelle et le centrage AVANT de créer la physique
     if (config.scale !== 1) scaleMap(rootMesh, config.scale);
     if (config.centerMap) centerMap(rootMesh);
 
@@ -52,62 +53,62 @@ export async function loadEnvironmentFromConfig(configPath: string, scene: Scene
     shadowGenerator.bias = config.lighting.shadowBias;
     shadowGenerator.normalBias = config.lighting.shadowNormalBias;
 
-    meshes.forEach((mesh) => {
-        if (mesh.getTotalVertices() > 0 && mesh.name !== "skyBox") {
-            mesh.receiveShadows = true;
-            shadowGenerator.addShadowCaster(mesh);
+    // 3. Traitement de chaque mesh (Spawns, Physique, Ombres)
+    // On utilise Promise.all pour s'assurer que tous les chargements d'entités sont lancés
+    const meshPromises = meshes.map(mesh => 
+        loadMesh(scene, mesh, shadowGenerator, config.physicsEnabled)
+    );
+    
+    await Promise.all(meshPromises);
 
-            if (config.physicsEnabled) {
-                new PhysicsAggregate(mesh, PhysicsShapeType.MESH, { mass: 0, restitution: 0 }, scene);
-                mesh.checkCollisions = true;
-            }
-        }
-    });
-
-    console.log(`Map ${config.model} chargée et configurée !`);
     return { meshes, sun, ambient };
 }
 
+export async function loadMesh(
+    scene: BaseScene, 
+    mesh: AbstractMesh, 
+    shadowGenerator?: CascadedShadowGenerator, 
+    physicsEnabled: boolean = true
+) {
 
-//TODO t oprevent multiple is else we could make a ObjectFactory which will register multiple type then take extras as entry and create objects
-export async function loadMesh(scene: BaseScene, mesh: AbstractMesh) {
+    if (!mesh.isEnabled()) {
+        mesh.dispose(); 
+        return;
+    }
     const extras = mesh.metadata?.gltf?.extras;
 
     if (extras && extras.spawn_type) {
         if (extras.spawn_type === "item") {        
-            Pickable.CreateAsync(
-                extras.spawn_uuid, 
-                scene, 
-                mesh.getAbsolutePosition(),
-                extras.type, 
-                extras.quantity
-            );
+            await Pickable.CreateAsync(extras.spawn_uuid, scene, mesh.getAbsolutePosition(), extras.type, extras.quantity);
         } else if (extras.spawn_type === "npc") {
-            NPC.CreateAsync(
-                extras.spawn_uuid, 
-                scene, 
-                mesh.getAbsolutePosition(), 
-                extras.dialog_id
-            );
+            await NPC.CreateAsync(extras.spawn_uuid, scene, mesh.getAbsolutePosition(), extras.dialog_id);
         }
         mesh.dispose();
-    } else if (mesh.getTotalVertices() > 0) {
-        const physicsAggregate = new PhysicsAggregate(mesh, PhysicsShapeType.MESH, { mass: 0, restitution: 0 }, this);
-        mesh.checkCollisions = true;
+    } 
+
+    else if (mesh.getTotalVertices() > 0 && mesh.name !== "skyBox") {
+        if (shadowGenerator) {
+            mesh.receiveShadows = true;
+            shadowGenerator.addShadowCaster(mesh);
+        }
+
+        if (physicsEnabled) {
+            new PhysicsAggregate(mesh, PhysicsShapeType.MESH, { mass: 0, restitution: 0 }, scene);
+            mesh.checkCollisions = true;
+        }
     }
 }
 
 export function scaleMap(rootMesh: AbstractMesh, scaleFactor: number) {
-        rootMesh.scaling = new Vector3(scaleFactor, scaleFactor, scaleFactor);
-        rootMesh.computeWorldMatrix(true);
+    rootMesh.scaling = new Vector3(scaleFactor, scaleFactor, scaleFactor);
+    rootMesh.computeWorldMatrix(true);
 }
+
 export function centerMap(rootMesh: AbstractMesh) {
-        
-                const boundingInfo = rootMesh.getHierarchyBoundingVectors();
-        
-                const centerX = (boundingInfo.max.x + boundingInfo.min.x) / 2;
-                const centerZ = (boundingInfo.max.z + boundingInfo.min.z) / 2;
-                rootMesh.position = new Vector3(-centerX, -boundingInfo.min.y, -centerZ);
-        
-                rootMesh.computeWorldMatrix(true);
+    const boundingInfo = rootMesh.getHierarchyBoundingVectors();
+    const centerX = (boundingInfo.max.x + boundingInfo.min.x) / 2;
+    const centerZ = (boundingInfo.max.z + boundingInfo.min.z) / 2;
+    // On place le bas du modèle à Y=0 pour que le joueur ne tombe pas
+    rootMesh.position = new Vector3(-centerX, -boundingInfo.min.y, -centerZ);
+    rootMesh.computeWorldMatrix(true);
 }

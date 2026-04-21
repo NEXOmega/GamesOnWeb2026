@@ -9,6 +9,8 @@ import DialogueManager from './dialogs/DialogueManager';
 import Dust2Scene from './scenes/Dust2Scene';
 import { CreateAudioEngineAsync } from '@babylonjs/core/AudioV2';
 import SoundManager from './sounds/SoundManager';
+import BunkerScene from './scenes/SecondScene';
+import FirstLevel from './scenes/FirstLevel';
 
 let game: BaseScene;
 
@@ -20,7 +22,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     SceneManager.init('renderCanvas');
     await SoundManager.initAudio()
 
-    SceneManager.registerScene("BunkerScene", async () => {
+    SceneManager.registerScene("DebugScene", async () => {
         const firstScene = new DebugScene(SceneManager.engine, 'renderCanvas');
         await firstScene.initScene();
         
@@ -34,6 +36,20 @@ window.addEventListener('DOMContentLoaded', async () => {
         return firstScene;
     });
 
+    SceneManager.registerScene("BunkerScene", async () => {
+        const firstScene = new BunkerScene(SceneManager.engine, 'renderCanvas');
+        await firstScene.initScene();
+        
+        return firstScene;
+    });
+
+    SceneManager.registerScene("FirstLevel", async () => {
+        const firstScene = new FirstLevel(SceneManager.engine, 'renderCanvas');
+        await firstScene.initScene();
+        
+        return firstScene;
+    });
+
     if(SaveManager.hasSave()) {
         const gameSaveData : GameSaveData = SaveManager.load();
         StateManager.inventory.deserialize(gameSaveData.inventory);
@@ -42,7 +58,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         return;
     }
     console.log("Aucune sauvegarde trouvée")
-    SceneManager.changeScene("BunkerScene")
+    SceneManager.changeScene("FirstLevel")
 
 });
 

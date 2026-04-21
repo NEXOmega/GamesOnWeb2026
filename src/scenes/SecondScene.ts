@@ -76,15 +76,12 @@ export default class BunkerScene extends BaseScene {
 
         // 8. Spawne le joueur
         Player.CreateAsync(this, new Vector3(0, 5, 0)).then((player) => {
-            StateManager.actualPlayer = player;
+            this.actualPlayer = player;
             this.entityManager.addEntity(player);
             this.activeCamera = player.playerCamera;
 
             // 9. Ajoute un NPC dans le bunker
-            const dialog = new Dialogue("e", "Parler", "Bienvenue dans le bunker.");
-            NPC.CreateAsync(this, new Vector3(3, 1, 2)).then(npc => {
-                npc.dialog = dialog;
-            });
+            NPC.CreateAsync("bunker_npc", this, new Vector3(3, 1, 2), "test_npc");
 
             // 10. TODO : ajoute tes interactions, objets, ennemis ici
 
