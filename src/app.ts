@@ -9,6 +9,7 @@ import DialogueManager from './dialogs/DialogueManager';
 import Dust2Scene from './scenes/Dust2Scene';
 import { CreateAudioEngineAsync } from '@babylonjs/core/AudioV2';
 import SoundManager from './sounds/SoundManager';
+import MainMenuScene from './scenes/MainMenuScene';
 import BunkerScene from './scenes/SecondScene';
 import FirstLevel from './scenes/FirstLevel';
 
@@ -21,6 +22,13 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     SceneManager.init('renderCanvas');
     await SoundManager.initAudio()
+
+    SceneManager.registerScene("MainMenu", async () => {
+        const scene = new MainMenuScene(SceneManager.engine, 'renderCanvas');
+        await scene.initScene();
+
+        return scene;
+});
 
     SceneManager.registerScene("DebugScene", async () => {
         const firstScene = new DebugScene(SceneManager.engine, 'renderCanvas');
@@ -57,8 +65,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         console.log("Save chargé depuis le local storage");
         return;
     }
+
     console.log("Aucune sauvegarde trouvée")
-    SceneManager.changeScene("FirstLevel")
+    SceneManager.changeScene("MainMenu")
 
 });
 
