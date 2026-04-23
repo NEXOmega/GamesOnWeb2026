@@ -1,5 +1,5 @@
 import { AdvancedDynamicTexture, Rectangle, StackPanel, TextBlock, Button, Control, ScrollViewer } from "@babylonjs/gui";
-import { Scene } from "@babylonjs/core";
+import { Scene, Observer } from "@babylonjs/core";
 import SceneManager from "../scenes/SceneManager";
 
 export default class DebugHUD {
@@ -7,12 +7,16 @@ export default class DebugHUD {
     private mainContainer: Rectangle;
     private listPanel: StackPanel;
     private isVisible: boolean = false;
+    
+    private fpsText: TextBlock;
+    private renderObserver: Observer<Scene>;
+    private scene: Scene;
 
     constructor(scene: Scene) {
-        // On crée l'UI attachée à la scène courante
+        this.scene = scene;
+
         this.texture = AdvancedDynamicTexture.CreateFullscreenUI("DebugHUD", true, scene);
 
-        // Le conteneur principal (à droite de l'écran)
         this.mainContainer = new Rectangle("DebugContainer");
         this.mainContainer.width = "300px";
         this.mainContainer.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
@@ -22,7 +26,6 @@ export default class DebugHUD {
         this.mainContainer.isVisible = this.isVisible;
         this.texture.addControl(this.mainContainer);
 
-        // Un ScrollViewer au cas où tu aurais beaucoup de scènes
         const scrollViewer = new ScrollViewer();
         scrollViewer.thickness = 0;
         this.mainContainer.addControl(scrollViewer);
@@ -33,12 +36,56 @@ export default class DebugHUD {
         this.listPanel.spacing = 10;
         scrollViewer.addControl(this.listPanel);
 
-        // Titre
         const title = new TextBlock("title", "🛠️ SCENE DEBUG");
         title.height = "40px";
         title.color = "cyan";
         title.fontSize = 24;
         this.listPanel.addControl(title);
+        
+        this.fpsText = new TextBlock("fpsText", "FPS: 60");
+        this.fpsText.height = "30px";
+        this.fpsText.color = "lime"; 
+        this.fpsText.fontSize = 20;
+        this.fpsText.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+        this.fpsText.paddingBottom = "70px";
+        this.mainContainer.addControl(this.fpsText);
+
+        const verticesText = new TextBlock("vertText", "Vertices: 0");
+        verticesText.height = "30px";
+        verticesText.color = "white"; 
+        verticesText.fontSize = 18;
+        verticesText.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+        verticesText.paddingBottom = "40px";
+        this.mainContainer.addControl(verticesText);
+
+        const drawCallsText = new TextBlock("drawText", "Draw Calls: 0");
+        drawCallsText.height = "30px";
+        drawCallsText.color = "white"; 
+        drawCallsText.fontSize = 18;
+        drawCallsText.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+        drawCallsText.paddingBottom = "10px";
+        this.mainContainer.addControl(drawCallsText);
+
+        this.renderObserver = this.scene.onAfterRenderObservable.add(() => {
+            if (this.isVisible) {
+                const engine = this.scene.getEngine();
+                const fps = engine.getFps().toFixed(0);
+                this.fpsText.text = `FPS: ${fps}`;
+                
+                if (Number(fps) >= 50) this.fpsText.color = "lime";
+                else if (Number(fps) >= 30) this.fpsText.color = "orange";
+                else this.fpsText.color = "red";
+
+                const activeVertices = this.scene.getTotalVertices() / 1000;
+                verticesText.text = `Vertices : ${activeVertices.toFixed(1)}k`;
+                verticesText.color = activeVertices > 300 ? "red" : "white";
+
+                const activeMeshes = this.scene.getActiveMeshes().length;
+                drawCallsText.text = `Meshes Actifs : ${activeMeshes}`;
+
+                drawCallsText.color = activeMeshes > 150 ? "red" : "white";
+            }
+        });
 
         this.updateList();
     }
@@ -47,34 +94,31 @@ export default class DebugHUD {
         this.isVisible = !this.isVisible;
         this.mainContainer.isVisible = this.isVisible;
         if (this.isVisible) {
-            this.updateList(); // On rafraîchit les données à chaque ouverture
+            this.updateList();
         }
     }
 
     public updateList() {
-        // 1. On nettoie les anciens boutons (sauf le titre qui est le premier enfant)
         while (this.listPanel.children.length > 1) {
             this.listPanel.children[1].dispose();
         }
 
-        // 2. On récupère les états depuis le SceneManager
         const allScenes = SceneManager.getRegisteredScenes();
         const cachedScenes = SceneManager.getCachedScenes();
         const currentScene = SceneManager.getCurrentSceneId();
 
-        // 3. On génère les boutons dynamiquement
         allScenes.forEach(sceneId => {
             const isCurrent = (sceneId === currentScene);
             const isCached = cachedScenes.includes(sceneId);
 
-            let bgColor = "#444444"; // Gris par défaut (Non chargée)
+            let bgColor = "#444444";
             let statusText = " (Dispo)";
 
             if (isCurrent) {
-                bgColor = "#2ecc71"; // Vert (Actuelle)
+                bgColor = "#2ecc71"; 
                 statusText = " (Actuelle)";
             } else if (isCached) {
-                bgColor = "#f39c12"; // Orange (En RAM)
+                bgColor = "#f39c12"; 
                 statusText = " (En RAM)";
             }
 
@@ -83,13 +127,11 @@ export default class DebugHUD {
             btn.height = "50px";
             btn.color = "white";
             btn.background = bgColor;
-            btn.thickness = isCurrent ? 2 : 0; // Bordure plus épaisse pour la scène actuelle
+            btn.thickness = isCurrent ? 2 : 0; 
 
-            // Action du bouton
             if (!isCurrent) {
                 btn.onPointerUpObservable.add(() => {
                     console.log(`[Debug] Basculement forcé vers : ${sceneId}`);
-                    // On garde la scène actuelle en RAM par défaut via le debug
                     SceneManager.changeScene(sceneId, true); 
                 });
             }
@@ -97,7 +139,6 @@ export default class DebugHUD {
             this.listPanel.addControl(btn);
         });
 
-        // 4. Ajout d'un bouton pour vider la RAM manuellement
         const clearBtn = Button.CreateSimpleButton("btnClear", "🗑️ Vider le Cache RAM");
         clearBtn.width = "260px";
         clearBtn.height = "40px";
@@ -106,8 +147,13 @@ export default class DebugHUD {
         clearBtn.paddingTop = "20px";
         clearBtn.onPointerUpObservable.add(() => {
             SceneManager.clearCache();
-            this.updateList(); // On met à jour l'UI visuellement
+            this.updateList(); 
         });
         this.listPanel.addControl(clearBtn);
+    }
+
+    public dispose() {
+        this.scene.onBeforeRenderObservable.remove(this.renderObserver);
+        this.texture.dispose();
     }
 }

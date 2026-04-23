@@ -68,14 +68,15 @@ export async function loadMesh(
     scene: BaseScene, 
     mesh: AbstractMesh, 
     shadowGenerator?: CascadedShadowGenerator, 
-    physicsEnabled: boolean = true
+    physicsGlobalEnabled: boolean = true
 ) {
 
     if (!mesh.isEnabled()) {
         mesh.dispose(); 
         return;
     }
-    const extras = mesh.metadata?.gltf?.extras;
+    const extras = mesh.metadata?.gltf?.extras || {};
+    
 
     if (extras && extras.spawn_type) {
         if (extras.spawn_type === "item") {        
@@ -87,14 +88,30 @@ export async function loadMesh(
     } 
 
     else if (mesh.getTotalVertices() > 0 && mesh.name !== "skyBox") {
-        if (shadowGenerator) {
-            mesh.receiveShadows = true;
-            shadowGenerator.addShadowCaster(mesh);
-        }
+        const physicsType = extras.physics_type || "box"; 
 
-        if (physicsEnabled) {
-            new PhysicsAggregate(mesh, PhysicsShapeType.MESH, { mass: 0, restitution: 0 }, scene);
-            mesh.checkCollisions = true;
+        if (physicsType === "collider") {
+            mesh.isVisible = false; 
+            if (physicsGlobalEnabled) {
+                new PhysicsAggregate(mesh, PhysicsShapeType.MESH, { mass: 0, restitution: 0 }, scene);
+                mesh.checkCollisions = true;
+            }
+        } 
+        else if (physicsType === "none") {
+            if (shadowGenerator) {
+                mesh.receiveShadows = true;
+                shadowGenerator.addShadowCaster(mesh);
+            }
+        }
+        else {
+            if (shadowGenerator) {
+                mesh.receiveShadows = true;
+                shadowGenerator.addShadowCaster(mesh);
+            }
+            if (physicsGlobalEnabled) {
+                new PhysicsAggregate(mesh, PhysicsShapeType.BOX, { mass: 0, restitution: 0 }, scene);
+                mesh.checkCollisions = true;
+            }
         }
     }
 }
