@@ -49,14 +49,13 @@ export default class DialogueUI {
 
     public setMessage(text: string) {
         this.fullText = text;
-        this.messageText.text = ""; // On commence avec un texte vide
+        this.messageText.text = ""; 
         this.isTyping = true;
 
-        // Si une ancienne animation était en cours, on l'arrête
         if (this.typingTimer) clearInterval(this.typingTimer);
 
         let currentIndex = 0;
-        const typingSpeed = 30; // Vitesse : 30ms par lettre (à ajuster selon tes goûts !)
+        const typingSpeed = 30; 
 
         this.typingTimer = setInterval(() => {
             this.messageText.text += this.fullText[currentIndex];
@@ -69,13 +68,12 @@ export default class DialogueUI {
         }, typingSpeed);
     }
 
-    // NOUVELLE MÉTHODE : Pour afficher le texte d'un coup (si le joueur est impatient)
     public finishTyping() {
         if (this.typingTimer) {
             clearInterval(this.typingTimer);
             this.typingTimer = null;
         }
-        this.messageText.text = this.fullText; // Affiche tout d'un coup
+        this.messageText.text = this.fullText; 
         this.isTyping = false;
     }
 

@@ -6,7 +6,7 @@ import InputManager from "../utils/InputManager";
 import { Scene } from "@babylonjs/core";
 import * as TitleAnimation from  "../gui/title/TitleAnimation";
 import { plainToInstance } from "class-transformer";
-import DialogueUI from "../gui/DialogUI2";
+import DialogueUI from "../gui/DialogUI";
 
 export default class DialogueManager {
     public static dialogs: Record<string, Dialogue> = {};
