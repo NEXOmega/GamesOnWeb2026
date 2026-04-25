@@ -78,14 +78,14 @@ export async function loadMesh(
         return;
     }
     const extras = mesh.metadata?.gltf?.extras || {};
-
+    
     if (extras && extras.spawn_type) {
         if (extras.spawn_type === "item") {        
             await Pickable.CreateAsync(extras.spawn_uuid, scene, mesh.getAbsolutePosition(), extras.type, extras.quantity);
         } else if (extras.spawn_type === "npc") {
             await NPC.CreateAsync(extras.spawn_uuid, scene, mesh.getAbsolutePosition(), extras.dialog_id);
         } else if(extras.spawn_type === "interactable") {
-            await Interactable.CreateAsync(extras.spawn_uuid, scene, mesh.getAbsolutePosition(), extras.interaction_action);
+            await Interactable.CreateAsync(extras.spawn_uuid, scene, mesh, extras.interaction_action);
         }
     } 
 
