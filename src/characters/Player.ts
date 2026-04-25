@@ -150,6 +150,8 @@ export default class Player extends Entity implements Collidable {
         const canJump = isGrounded || this.coyoteTimeCounter < this.coyoteTimeThreshold;
 
         if (jumpKeyDown && canJump && !this.jumpStarted) {
+            this.physicsAggregate.body.setGravityFactor(1);
+
             const currentVel = this.physicsAggregate.body.getLinearVelocity();
             this.physicsAggregate.body.setLinearVelocity(new Vector3(currentVel.x, 0, currentVel.z));
 
@@ -167,6 +169,8 @@ export default class Player extends Entity implements Collidable {
         if (move.lengthSquared() > 0) {
             move.normalize();
 
+            this.physicsAggregate.body.setGravityFactor(1);
+
             const targetRotation = Quaternion.FromLookDirectionLH(move, Vector3.Up());
             
             this.model.rotationQuaternion = Quaternion.Slerp(this.model.rotationQuaternion, targetRotation, this.rotationSpeed * deltaSeconds);
@@ -174,7 +178,13 @@ export default class Player extends Entity implements Collidable {
             const velocity = move.scale(this.moveSpeed);
             this.physicsAggregate.body.setLinearVelocity(new Vector3(velocity.x, this.physicsAggregate.body.getLinearVelocity().y, velocity.z));
         } else {
-            this.physicsAggregate.body.setLinearVelocity(new Vector3(0, this.physicsAggregate.body.getLinearVelocity().y, 0));
+            if (isGrounded && !this.jumpStarted) {
+                this.physicsAggregate.body.setGravityFactor(0);
+                this.physicsAggregate.body.setLinearVelocity(Vector3.Zero());
+            } else {
+                this.physicsAggregate.body.setGravityFactor(1);
+                this.physicsAggregate.body.setLinearVelocity(new Vector3(0, this.physicsAggregate.body.getLinearVelocity().y, 0));
+            }
         }
 
         this.playerCamera.handleCameraOcclusion(this, this.impostorMesh.getScene());
