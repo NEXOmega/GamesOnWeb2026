@@ -58,9 +58,6 @@ export default class FirstLevel extends BaseScene {
     }
 
     async createEnvironment(): Promise<void> {
-        await loadEnvironmentFromConfig("./models/first_level.json", this);
-
-
         await Player.CreateAsync(this, new Vector3(0, 100, 0)).then((player) => {
             this.actualPlayer = player;
             this.entityManager.addEntity(player);
@@ -69,5 +66,6 @@ export default class FirstLevel extends BaseScene {
             StateManager.state = State.PLAYING;
         });
 
+        await loadEnvironmentFromConfig("./models/first_level.json", this);
     }
 }

@@ -4,6 +4,8 @@ import { MapConfig } from './MapConfig';
 import NPC from '../characters/NPC';
 import Pickable from '../entities/Pickable';
 import BaseScene from './BaseScene';
+import InteractionEntity from '../entities/InteractionEntity';
+import Interactable from '../entities/Interactable';
 
 export async function loadEnvironmentFromConfig(configPath: string, scene: BaseScene) {
     const response = await fetch(configPath);
@@ -76,28 +78,21 @@ export async function loadMesh(
         return;
     }
     const extras = mesh.metadata?.gltf?.extras || {};
-    
 
     if (extras && extras.spawn_type) {
         if (extras.spawn_type === "item") {        
             await Pickable.CreateAsync(extras.spawn_uuid, scene, mesh.getAbsolutePosition(), extras.type, extras.quantity);
         } else if (extras.spawn_type === "npc") {
             await NPC.CreateAsync(extras.spawn_uuid, scene, mesh.getAbsolutePosition(), extras.dialog_id);
+        } else if(extras.spawn_type === "interactable") {
+            await Interactable.CreateAsync(extras.spawn_uuid, scene, mesh.getAbsolutePosition(), extras.interaction_action);
         }
-        mesh.dispose();
     } 
 
     else if (mesh.getTotalVertices() > 0 && mesh.name !== "skyBox") {
         const physicsType = extras.physics_type || "box"; 
 
-        if (physicsType === "collider") {
-            mesh.isVisible = false; 
-            if (physicsGlobalEnabled) {
-                new PhysicsAggregate(mesh, PhysicsShapeType.MESH, { mass: 0, restitution: 0 }, scene);
-                mesh.checkCollisions = true;
-            }
-        } 
-        else if (physicsType === "none") {
+         if (physicsType === "none") {
             if (shadowGenerator) {
                 mesh.receiveShadows = true;
                 shadowGenerator.addShadowCaster(mesh);
@@ -109,7 +104,7 @@ export async function loadMesh(
                 shadowGenerator.addShadowCaster(mesh);
             }
             if (physicsGlobalEnabled) {
-                new PhysicsAggregate(mesh, PhysicsShapeType.BOX, { mass: 0, restitution: 0 }, scene);
+                new PhysicsAggregate(mesh, PhysicsShapeType.MESH, { mass: 0, restitution: 0 }, scene);
                 mesh.checkCollisions = true;
             }
         }

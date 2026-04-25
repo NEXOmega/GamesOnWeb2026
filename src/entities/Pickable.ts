@@ -15,16 +15,14 @@ export default class Pickable extends Entity {
         public readonly model: AbstractMesh;
         readonly interaction: InteractionEntity;
         
-    static async CreateAsync(id: string, scene: BaseScene, position: Vector3 = Vector3.Zero(), itemId: string, quantity: number): Promise<Pickable> {
+    static async CreateAsync(id: string, scene: BaseScene, position: Vector3, itemId: string, quantity: number): Promise<Pickable> {
         const result = await SceneLoader.ImportMeshAsync(
-            "",
-            "./models/",
-            "Character.glb",
-            scene
-        );
-
-        const model = result.meshes[0];
-
+                    "",
+                    "./models/",
+                    "Character.glb",
+                    scene
+                );
+const model = result.meshes[0];
         return new Pickable(id, model, scene, position, itemId, quantity);
     }
 
