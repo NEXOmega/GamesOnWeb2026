@@ -32,8 +32,8 @@ export default class Player extends Entity implements Collidable {
 
     private jumpStarted = false;
     private jumpHoldTime = 0;
-    readonly initialJumpImpulse = 40 * 1000;
-    readonly jumpExtendForce = 20 * 1000;
+    readonly initialJumpImpulse = 6 * 1000;
+    readonly jumpExtendForce = 4 * 1000;
     readonly maxJumpHoldTime = 0.2;
 
     private coyoteTimeCounter = 0;
@@ -62,7 +62,7 @@ export default class Player extends Entity implements Collidable {
     constructor(mesh: AbstractMesh, camera: PlayerCamera, scene: BaseScene, position: Vector3) {
         super("player", mesh, scene);
         
-        this.impostorMesh = MeshBuilder.CreateCapsule("CharacterTransform", {height: 2, radius: 0.5}, scene);
+        this.impostorMesh = MeshBuilder.CreateCapsule("CharacterTransform", {height: 1.30, radius: 0.25}, scene);
         this.impostorMesh.position = position;
         this.impostorMesh.visibility = 0.1;
         this.impostorMesh.rotationQuaternion = Quaternion.Identity();
@@ -70,9 +70,9 @@ export default class Player extends Entity implements Collidable {
 
         this.model = mesh;
         this.model.parent = this.impostorMesh;
-        this.model.rotate(Vector3.Up(), Math.PI);
-        this.model.position.y = -1;
-        
+        this.model.position.y = -0.65;
+        this.model.scaling = new Vector3(0.3, 0.3, 0.3);
+
         this.model.rotationQuaternion = Quaternion.Identity(); 
 
         this.playerCamera = camera;
