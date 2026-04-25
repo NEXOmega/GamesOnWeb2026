@@ -35,7 +35,7 @@ export default class ItemRegistry {
                 id: itemId,
                 name: "Missing Item",
                 description: "Missing Item, try reloading game.",
-                iconUrl: "./images/potion.png"
+                iconUrl: "./textures/items/missing_texture.png"
             }
    }
 }

@@ -78,7 +78,7 @@ export async function loadMesh(
         return;
     }
     const extras = mesh.metadata?.gltf?.extras || {};
-    
+
     if (extras && extras.spawn_type) {
         if (extras.spawn_type === "item") {        
             await Pickable.CreateAsync(extras.spawn_uuid, scene, mesh.getAbsolutePosition(), extras.type, extras.quantity);

@@ -6,15 +6,9 @@
         "iconUrl": "./textures/items/potion.png"
     },
     {
-        "id": "iron_sword",
-        "name": "Épée en fer",
-        "description": "Une lame simple mais robuste.",
-        "iconUrl": "./textures/items/sword.png"
-    },
-    {
-        "id": "gold_coin",
-        "name": "Pièce d'or",
-        "description": "Monnaie d'échange universelle.",
-        "iconUrl": "./textures/items/gold.png"
+        "id": "generator_scrap",
+        "name": "Pièce de générateur",
+        "description": "Une pièce de générateur. Elle est sale, en mauvaise état, mais elle peut toujours être utilisée.",
+        "iconUrl": "./textures/items/missing_texture.png"
     }
 ]

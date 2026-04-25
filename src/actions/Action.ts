@@ -11,6 +11,7 @@ import NPC from '../characters/NPC';
 import { FadeAnimation } from '../gui/title/TitleAnimation';
 import Entity from '../entities/Entity';
 import Dialogue from '../dialogs/Dialogue';
+import SceneManager from '../scenes/SceneManager';
 
 export const ALL_ACTIONS: { value: any, name: string }[] = [];
 
@@ -124,7 +125,7 @@ export class ConsoleLogAction extends Action {
 }
 
 export class RemoveEntityFromScene extends Action {
-    readonly type = "RemvoeEntityFromScene";
+    readonly type = "RemoveEntityFromScene";
 
     private entityId: string;
 
@@ -182,9 +183,21 @@ export class StartDialogueAction extends Action {
     }
 }
 
-ALL_ACTIONS.push({ value: AddItemToInventory, name: "AddItemToInventory" });
-ALL_ACTIONS.push({value: TeleportAction, name: "TeleportAction"})
-ALL_ACTIONS.push({value: CloseDialogueAction, name: "CloseDialogueAction"})
-ALL_ACTIONS.push({value: ClearDialog, name: "ClearDialogue"})
-ALL_ACTIONS.push({value: ConsoleLogAction, name: "ConsoleLogAction"})
-ALL_ACTIONS.push({value: RemoveItemFromInventory, name: "RemoveItemFromInventory"})
+export class ChangeSceneAction extends Action {
+    readonly type = "ChangeSceneAction";
+
+    @Expose()
+    private sceneId: string;
+    @Expose()
+    private keepSceneInRam: boolean;
+
+    constructor(sceneId: string, keepSceneInRam: boolean) {
+        super()
+        this.sceneId = sceneId;
+        this.keepSceneInRam = keepSceneInRam;
+    }
+
+    public execute(player: Player): void {
+        SceneManager.changeScene(this.sceneId, this.keepSceneInRam)
+    }
+}
