@@ -1,5 +1,6 @@
 import { Expose, plainToInstance, Transform, Type } from "class-transformer";
-import { Action, ALL_ACTIONS } from "../actions/Action";
+import { Action } from "../actions/Action";
+import { ALL_ACTIONS } from "../utils/json/ActionSerializer";
 
 export default class Dialogue {
 

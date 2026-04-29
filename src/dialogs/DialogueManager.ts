@@ -7,6 +7,7 @@ import { Scene } from "@babylonjs/core";
 import * as TitleAnimation from  "../gui/title/TitleAnimation";
 import { plainToInstance } from "class-transformer";
 import DialogueUI from "../gui/DialogUI";
+import { ActionSerializer } from '../utils/json/ActionSerializer';
 
 export default class DialogueManager {
     public static dialogs: Record<string, Dialogue> = {};
@@ -61,17 +62,14 @@ export default class DialogueManager {
     private static goToDialogue(dialogue: Dialogue) {
         this.actualDialogue = dialogue;
 
-        // 2. On exécute les actions
         if (dialogue.actions) {
             for(const action of dialogue.actions) {
                 action.execute(this.npc.scene.actualPlayer);
             }
         }
 
-        // 3. On envoie le texte au RECTANGLE de l'UI au lieu du HUD
         this.ui.setMessage(dialogue.message);
 
-        // 4. On affiche les choix
         this.ui.renderChoices(dialogue.nextDialogs, (key) => {
             const nextNode = this.actualDialogue?.getNextDialog(key);
             if (nextNode) this.goToDialogue(nextNode);

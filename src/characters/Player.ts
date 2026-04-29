@@ -165,6 +165,10 @@ export default class Player extends Entity implements Collidable {
 
             this.physicsAggregate.body.setGravityFactor(1);
 
+            if (!this.model.rotationQuaternion) {
+                this.model.rotationQuaternion = Quaternion.Identity();
+            }
+
             const targetRotation = Quaternion.FromLookDirectionLH(move, Vector3.Up());
             
             this.model.rotationQuaternion = Quaternion.Slerp(this.model.rotationQuaternion, targetRotation, this.rotationSpeed * deltaSeconds);
