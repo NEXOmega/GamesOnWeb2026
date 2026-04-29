@@ -20,6 +20,7 @@ import InputManager from '../utils/InputManager'; // Ajuste le chemin selon où 
 import Inventory from '../player/inventory/Inventory';
 import InventoryUI from '../gui/inventory/InventoryHud';
 import BaseScene from '../scenes/BaseScene';
+import SceneManager from '../scenes/SceneManager';
 
 export default class Player extends Entity implements Collidable {
 
@@ -77,31 +78,6 @@ export default class Player extends Entity implements Collidable {
 
         this.playerCamera = camera;
 
-        InputManager.onActionJustPressed.add((action) => {
-            if (StateManager.state === State.DIALOG) {
-                if (action === "interact" || action === "dialog_next") {
-                    if (this.scene.currectInteractionEntity) {
-                        this.scene.currectInteractionEntity.onInteract(this);
-                    }
-                }
-                return;
-            }
-
-            if (StateManager.state === State.PLAYING) {
-                if (action === "interact" && this.scene.currectInteractionEntity) {
-                    this.scene.currectInteractionEntity.onInteract(this);
-                }
-            }
-        });
-
-        InputManager.onActionJustPressed.add((action) => {
-            if(action == "open_inventory") {
-                if(StateManager.state != State.PLAYING && StateManager.state != State.IN_INVENTORY)
-                    return
-                this.inventoryUI.toggle();
-            }
-        });
-
         this.physicsAggregate = new PhysicsAggregate(this.impostorMesh, PhysicsShapeType.CAPSULE, { mass: 1, friction: 0, restitution: 0 }, scene);
         this.physicsAggregate.body.setMassProperties({ inertia: Vector3.ZeroReadOnly });
         this.physicsAggregate.body.setAngularDamping(100);
@@ -110,6 +86,24 @@ export default class Player extends Entity implements Collidable {
     
     public update(delta: number): void {
         const deltaSeconds = delta / 1000;
+
+        if (InputManager.isActionJustPressed("open_inventory")) {
+            if (StateManager.state === State.PLAYING || StateManager.state === State.IN_INVENTORY) {
+                this.inventoryUI.toggle();
+            }
+        }
+
+        if (StateManager.state === State.DIALOG) {
+            if (InputManager.isActionJustPressed("interact") || InputManager.isActionJustPressed("dialog_next")) {
+                if (this.scene.currectInteractionEntity) {
+                    this.scene.currectInteractionEntity.onInteract(this);
+                }
+            }
+        } else if (StateManager.state === State.PLAYING) {
+            if (InputManager.isActionJustPressed("interact") && this.scene.currectInteractionEntity) {
+                this.scene.currectInteractionEntity.onInteract(this);
+            }
+        }
 
         if (!StateConfig[StateManager.state].canMove) {
             this.physicsAggregate.body.setLinearVelocity(new Vector3(0, this.physicsAggregate.body.getLinearVelocity().y, 0));

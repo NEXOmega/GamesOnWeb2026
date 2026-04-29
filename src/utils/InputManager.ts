@@ -26,6 +26,9 @@ export default class InputManager {
 
     private static keysDown: Set<string> = new Set();
     private static actionsDown: Set<InputAction> = new Set();
+
+    private static actionsJustPressed: Set<InputAction> = new Set();
+
     public static onAnyKeyPressed: Observable<string> = new Observable();
 
     public static onActionJustPressed: Observable<InputAction> = new Observable();
@@ -57,6 +60,7 @@ export default class InputManager {
                 if (isPressed) {
                     if (!this.actionsDown.has(inputAction)) {
                         this.actionsDown.add(inputAction);
+                        this.actionsJustPressed.add(inputAction);
                         this.onActionJustPressed.notifyObservers(inputAction); 
                     }
                 } else {
@@ -72,5 +76,13 @@ export default class InputManager {
     
     public static isActionPressed(action: InputAction): boolean {
         return this.actionsDown.has(action);
+    }
+
+    public static isActionJustPressed(action: InputAction): boolean {
+        return this.actionsJustPressed.has(action);
+    }
+
+    public static clearJustPressed() {
+        this.actionsJustPressed.clear();
     }
 }
