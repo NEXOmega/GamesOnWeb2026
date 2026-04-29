@@ -22,6 +22,7 @@ import { ConsoleLogAction, TeleportAction } from '../actions/Action';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { loadMesh } from './SceneUtils';
 import SoundManager from '../sounds/SoundManager';
+import DroneEnemy from '../characters/DroneEnemy';
 
 export default class DebugScene extends BaseScene {
 
@@ -76,69 +77,7 @@ export default class DebugScene extends BaseScene {
             this.activeCamera = player.playerCamera;
             SoundManager.setListenerToCamera(this.activeCamera);
 
-            let collisionEntity = new InteractionEntity("clear_save_entity", player, 1, this, new Vector3(5,2,10));
-            collisionEntity.addMeshEnteredAction(new ConsoleLogAction("Entered Collision Entity"))
-            
-            collisionEntity.addMeshExitedAction(new ConsoleLogAction("Exited Collision Entity"))
-
-            collisionEntity.onInteract = (player: Player) => {
-                console.log("Player interacted with collision entity");
-                player.playerHud.title.enqueue({
-                    text: "",
-                    animation: new TitleAnimation.SetTextInfoAnimation(0, "white", 130, 0)
-                })
-                
-                let animation = new TitleAnimation.AnimationSequence([
-                                new TitleAnimation.FadeAnimation(100, 0, 1),
-                                new TitleAnimation.WaitAnimation(150),
-                                new TitleAnimation.FadeAnimation(100, 1, 0)
-                            ])
-                const serialized = AnimationSerializer.serialize(animation)
-                const deserialized = AnimationSerializer.deserialize(serialized)
-                console.log(deserialized)
-
-                player.playerHud.title.enqueue({
-                    text: "Clearing Save",
-                    animation: deserialized
-                })
-                SaveManager.clearSave()
-            }
-
-            let saveEntity = new InteractionEntity("save_entity", player, 1, this, new Vector3(-5,2,5));
-
-            saveEntity.onInteract = (player: Player) => {
-                player.playerHud.title.enqueue({
-                    text: "",
-                    animation: new TitleAnimation.SetTextInfoAnimation(0, "white", 130, 0)
-                })
-                
-                let animation = new TitleAnimation.AnimationSequence([
-                                new TitleAnimation.FadeAnimation(100, 0, 1),
-                                new TitleAnimation.WaitAnimation(150),
-                                new TitleAnimation.FadeAnimation(100, 1, 0)
-                            ])
-                const serialized = AnimationSerializer.serialize(animation)
-                const deserialized = AnimationSerializer.deserialize(serialized)
-                console.log(deserialized)
-
-                player.playerHud.title.enqueue({
-                    text: "Save",
-                    animation: deserialized
-                })
-                console.log(StateManager.inventory.items)
-                SaveManager.save({sceneId: "BunkerScene", playerPosition: {
-                    x: 5,
-                    y: 5,
-                    z: 10
-                }, inventory: StateManager.inventory.serialize()})
-            }
-
-            let soundEntity = new InteractionEntity("sound_entity", player, 1, this, new Vector3(-5,2,0));
-
-            soundEntity.onInteract = (player: Player) => {
-                console.log("Playing buzz sound")
-                soundEntity.scene.attachSpatialSound(soundEntity.mesh, "drone_buzz", "./assets/sounds/drone_buzz.mp3", 50)
-            }
+            DroneEnemy.CreateAsync("drone_test", this, new Vector3(-7,2,5));
 
             StateManager.state = State.PLAYING;
         });
@@ -147,6 +86,6 @@ export default class DebugScene extends BaseScene {
             loadMesh(this, mesh);
         });
 
-        this.playSceneMusic("./assets/sounds/jeune_morty_priilick.mp3", true)
+        // this.playSceneMusic("./assets/sounds/jeune_morty_priilick.mp3", true)
     }
 }
