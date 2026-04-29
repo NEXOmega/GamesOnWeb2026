@@ -25,8 +25,9 @@ export default class InputManager {
     };
 
     private static keysDown: Set<string> = new Set();
-    private static actionsDown: Set<InputAction> = new Set();
+    private static keysJustPressed: Set<string> = new Set();
 
+    private static actionsDown: Set<InputAction> = new Set();
     private static actionsJustPressed: Set<InputAction> = new Set();
 
     public static onAnyKeyPressed: Observable<string> = new Observable();
@@ -41,6 +42,8 @@ export default class InputManager {
             if (kbInfo.type === KeyboardEventTypes.KEYDOWN) {
                 if (!this.keysDown.has(key)) {
                     this.keysDown.add(key);
+                    this.keysJustPressed.add(key);
+                    
                     this.updateActions(key, true);
 
                     this.onAnyKeyPressed.notifyObservers(key);
@@ -82,7 +85,12 @@ export default class InputManager {
         return this.actionsJustPressed.has(action);
     }
 
+    public static getKeysJustPressed(): string[] {
+        return Array.from(this.keysJustPressed);
+    }
+
     public static clearJustPressed() {
         this.actionsJustPressed.clear();
+        this.keysJustPressed.clear();
     }
 }

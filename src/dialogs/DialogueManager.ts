@@ -18,27 +18,32 @@ export default class DialogueManager {
 
     public static init(scene: Scene) {
         this.ui = new DialogueUI(scene);
+    }
 
-        InputManager.onAnyKeyPressed.add((pressedKey) => {
-            if (StateManager.state !== State.DIALOG || !this.actualDialogue) return;
+    public static update() {
+        if (StateManager.state !== State.DIALOG || !this.actualDialogue) return;
 
+        const keysPressed = InputManager.getKeysJustPressed();
+
+        for (const pressedKey of keysPressed) {
             if (this.ui.isTyping) {
                 this.ui.finishTyping();
-                return;
+                return; 
             }
 
-            if (!this.actualDialogue.canChooseNextChoice) return;
-
+            if (!this.actualDialogue.canChooseNextChoice) continue;
             const nextNode = this.actualDialogue.getNextDialog(pressedKey);
 
             if (nextNode) {
                 this.goToDialogue(nextNode);
+                return;
             } else if (Object.keys(this.actualDialogue.nextDialogs).length === 0) {
-                if (pressedKey.toLowerCase() === "e" || pressedKey.toLowerCase() === "escape") {
+                if (pressedKey === "e" || pressedKey === "escape") {
                     this.closeDialogue();
+                    return;
                 }
             }
-        });
+        }
     }
 
     public static startDialogue(player: Player, npc: NPC, dialogueId: string) {
@@ -48,12 +53,8 @@ export default class DialogueManager {
         this.npc = npc;
         StateManager.state = State.DIALOG;
         
-        // 1. On affiche l'UI
         this.ui.show();
         
-        // Optionnel : si tu veux quand même orienter la caméra vers le NPC
-        // player.camera.setTarget(npc.mesh.position);
-
         this.goToDialogue(rootDialogue);
     }
 

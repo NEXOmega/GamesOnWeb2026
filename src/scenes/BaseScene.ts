@@ -39,7 +39,7 @@ export default class BaseScene extends Scene {
             if(this.actualPlayer != null) {
                 this.actualPlayer.playerHud.update(deltaTime);
             }
-
+            DialogueManager.update();
             InputManager.clearJustPressed();
         });
     }
