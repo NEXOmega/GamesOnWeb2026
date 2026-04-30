@@ -16,57 +16,16 @@ import SceneManager from './SceneManager';
 
 export default class BunkerScene extends BaseScene {
 
-    async createScene(): Promise<void> {
-        // 1. Caméra cinématique
-        this.cinematicCamera = new CinematicCamera(this, this.canvas);
-
-        // 2. Physique
-        const havokInstance = await HavokPhysics();
-        const havokPlugin = new HavokPlugin(true, havokInstance);
-        this.collisionsEnabled = true;
-        this.enablePhysics(new Vector3(0, -100, 0), havokPlugin);
-
-        // 3. Debug (Alt+I)
-        window.addEventListener("keydown", (ev) => {
-            if (ev.altKey && ev.key === 'i') {
-                if (this.debugLayer.isVisible()) {
-                    this.debugLayer.hide();
-                } else {
-                    this.debugLayer.show({ embedMode: true });
-                }
-            }
-        });
-
-        // 4. Retour menu (Escape)
-        window.addEventListener("keydown", (ev) => {
-            if (ev.key === "Escape") {
-                SceneManager.changeScene("menu")
-            }
-        });
-
-        // 5. Lumières — ambiance sombre de bunker
-        this.light = new HemisphericLight('ambient', new Vector3(0, 1, 0), this);
-        this.light.intensity = 0.3; // faible pour un bunker
-
-        // Lumière ponctuelle orange (comme une ampoule qui pendouille)
-        const bulb = new PointLight('bulb', new Vector3(0, 4, 0), this);
-        bulb.diffuse = new Color3(1, 0.7, 0.3);
-        bulb.intensity = 0.8;
-        bulb.range = 20;
-    }
-
     async createEnvironment(): Promise<void> {
-        // 6. Charge ton modèle de bunker
         const { meshes } = await SceneLoader.ImportMeshAsync(
             "",
             "./models/",
-            "Bunker.glb",    // ← ton fichier 3D
+            "Bunker.glb",
             this
         );
 
         console.log("Bunker loaded");
 
-        // 7. Ajoute la physique à chaque mesh du level
         meshes.forEach((mesh) => {
             if (mesh.getTotalVertices() > 0) {
                 new PhysicsAggregate(mesh, PhysicsShapeType.MESH, { mass: 0, restitution: 0 }, this);
@@ -74,16 +33,12 @@ export default class BunkerScene extends BaseScene {
             }
         });
 
-        // 8. Spawne le joueur
         Player.CreateAsync(this, new Vector3(0, 5, 0)).then((player) => {
             this.actualPlayer = player;
             this.entityManager.addEntity(player);
             this.activeCamera = player.playerCamera;
 
-            // 9. Ajoute un NPC dans le bunker
             NPC.CreateAsync("bunker_npc", this, new Vector3(3, 1, 2), "test_npc");
-
-            // 10. TODO : ajoute tes interactions, objets, ennemis ici
 
             StateManager.state = State.PLAYING;
         });

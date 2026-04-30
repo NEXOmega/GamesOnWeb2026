@@ -25,38 +25,6 @@ import { loadEnvironmentFromConfig } from './SceneUtils';
 
 export default class Dust2Scene extends BaseScene {
 
-    async createScene() : Promise<void> {
-        this.cinematicCamera = new CinematicCamera(this, this.canvas);
-        const havokInstance = await HavokPhysics();
-        const havokPlugin = new HavokPlugin(true, havokInstance);
-
-        this.collisionsEnabled = true;
-        this.enablePhysics(new Vector3(0, -100, 0), havokPlugin);
-        // Hide/show the Inspector with Alt+I   
-        window.addEventListener("keydown", (ev) => {
-            if (ev.altKey && ev.key === 'i') {
-                if (this.debugLayer.isVisible()) {
-                    this.debugLayer.hide();
-                } else {
-                    this.debugLayer.show({ embedMode: true });
-                }
-            }
-        });
-
-        window.addEventListener("keydown", (ev) => {
-            if(ev.altKey && ev.key === 'c') {
-                if(this.activeCamera == this.cinematicCamera) {
-                    this.activeCamera = this.actualPlayer.playerCamera;
-                    StateManager.state = State.PLAYING;
-                } else {
-                    this.activeCamera = this.cinematicCamera;
-                    StateManager.state = State.CINEMATIC;
-                        this.cinematicCamera.moveTo(this.cinematicCamera.position, this.cinematicCamera.position.add(new Vector3(0,5,0)), this.cinematicCamera.rotation, new Vector3(0,0,0), 5)
-                }
-            }
-        })
-    }
-
     async createEnvironment(): Promise<void> {
         await loadEnvironmentFromConfig("./models/dust2.json", this);
 

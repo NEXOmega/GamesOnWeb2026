@@ -7,6 +7,7 @@ import FindPlayerTargetBehavior from "./behaviors/FindPlayerTargetBehavior";
 import ChaseTargetBehavior from "./behaviors/ChaseTargetBehavior";
 import IdleBehavior from "./behaviors/IdleBehavior";
 import StealthDetectionBehavior from "./behaviors/StealthDetectionBehavior";
+import FlyingNavigation from "./navigation/FlyingNavigation";
 
 /**
  * Enemie de base du jeu, fait des patrouilles selon un chemin défini, et si il détecte le joueur, il le suit pour essayer de l'éliminer.
@@ -52,6 +53,8 @@ export default class DroneEnemyCone extends Enemy {
         this.physicsAggregate.body.setAngularDamping(100); 
 
         this.laser = new TargetingLaser(id, scene);
+
+        this.navigation = new FlyingNavigation(this);
 
         this.stealthBehavior = new StealthDetectionBehavior(this, 1, 10, Math.PI / 2);
         
