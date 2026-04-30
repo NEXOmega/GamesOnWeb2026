@@ -57,7 +57,7 @@ export default class DroneEnemyCone extends Enemy {
         
         this.brain.addBehavior(this.stealthBehavior); 
         this.brain.addBehavior(new RangedAttackBehavior(this, 2)); 
-        this.brain.addBehavior(new ChaseTargetBehavior(this, 3, 25));
+        this.brain.addBehavior(new ChaseTargetBehavior(this, 3, 15));
         this.brain.addBehavior(new IdleBehavior(this, 4));
     }
 
