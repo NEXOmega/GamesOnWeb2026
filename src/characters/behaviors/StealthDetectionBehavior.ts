@@ -1,4 +1,4 @@
-import { AbstractMesh, Color3, MeshBuilder, Observer, Ray, Scene, StandardMaterial, Vector3 } from "@babylonjs/core";
+import { AbstractMesh, Color3, MeshBuilder, Observer, Ray, Scene, StandardMaterial, TransformNode, Vector3 } from "@babylonjs/core";
 
 import DroneEnemy from "../DroneEnemy";
 import { Behavior } from "../Behavior";
@@ -7,6 +7,7 @@ export default class StealthDetectionBehavior extends Behavior {
     
     public declare entity: DroneEnemy;
 
+    private conePivot: TransformNode;
     private visionCone: AbstractMesh;
     private visionMat: StandardMaterial;
     private visualObserver: Observer<Scene>;
@@ -22,6 +23,12 @@ export default class StealthDetectionBehavior extends Behavior {
 
         const fovRatio = this.fov / (Math.PI * 2);
 
+        this.conePivot = new TransformNode(this.entity.id + "_pivot", this.entity.scene);
+        this.conePivot.parent = this.entity.mesh;
+
+        this.conePivot.position.y = 0;
+        this.conePivot.rotation.x = -0.2;
+
         this.visionCone = MeshBuilder.CreateDisc(this.entity.id + "_cone", { 
             radius: this.detectionRange, 
             arc: fovRatio, 
@@ -29,10 +36,10 @@ export default class StealthDetectionBehavior extends Behavior {
         }, this.entity.scene);
         
         this.visionCone.isPickable = false;
-        this.visionCone.parent = this.entity.mesh; 
-        this.visionCone.position.y = -1; 
+        this.visionCone.parent = this.conePivot;
         this.visionCone.rotation.x = Math.PI / 2; 
-        
+
+        this.visionCone.rotation.x = Math.PI / 2;
         this.visionCone.rotation.y = -(this.fov / 2) + Math.PI; 
 
         this.visionMat = new StandardMaterial(this.entity.id + "_coneMat", this.entity.scene);
@@ -42,15 +49,16 @@ export default class StealthDetectionBehavior extends Behavior {
 
         this.visualObserver = this.entity.scene.onBeforeRenderObservable.add(() => {
             if (this.entity.target) {
-                this.visionMat.emissiveColor.copyFromFloats(1, 0, 0); // Rouge !
+                this.visionMat.emissiveColor.copyFromFloats(1, 0, 0); 
             } else {
-                this.visionMat.emissiveColor.copyFromFloats(1, 1, 0); // Jaune
+                this.visionMat.emissiveColor.copyFromFloats(1, 1, 0);
             }
         });
     }
 
     public canStart(): boolean {
         if (this.entity.target) return false;
+        this.visionCone.isVisible = true;
 
         const player = this.entity.scene.actualPlayer;
         if (!player) return false;
@@ -92,7 +100,7 @@ export default class StealthDetectionBehavior extends Behavior {
     }
 
     public start(): void {
-        console.log(`[${this.entity.id}] Joueur repéré par le cône !`);
+        this.visionCone.isVisible = false;
         this.entity.target = this.entity.scene.actualPlayer;
     }
 
@@ -101,6 +109,7 @@ export default class StealthDetectionBehavior extends Behavior {
     public dispose() {
         this.entity.scene.onBeforeRenderObservable.remove(this.visualObserver);
         this.visionCone.dispose();
+        this.conePivot.dispose();
         this.visionMat.dispose();
     }
 }
