@@ -23,6 +23,7 @@ import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { loadMesh } from './SceneUtils';
 import SoundManager from '../sounds/SoundManager';
 import DroneEnemy from '../characters/DroneEnemy';
+import DroneEnemyCone from '../characters/DroneEnemyCone';
 
 export default class DebugScene extends BaseScene {
 
@@ -77,7 +78,7 @@ export default class DebugScene extends BaseScene {
             this.activeCamera = player.playerCamera;
             SoundManager.setListenerToCamera(this.activeCamera);
 
-            DroneEnemy.CreateAsync("drone_test", this, new Vector3(-7,2,5));
+            DroneEnemyCone.CreateAsync("drone_test", this, new Vector3(-7,2,5));
 
             StateManager.state = State.PLAYING;
         });
