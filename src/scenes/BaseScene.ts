@@ -23,6 +23,8 @@ export default class BaseScene extends Scene {
 
     public sceneSounds : Map<string, AbstractSound> = new Map();
 
+    public playerSpawn : Vector3 = new Vector3(0,0,0);
+
     constructor(engine: Engine, canvasElement: string, pointerLock: boolean = true) {
         super(engine);
         

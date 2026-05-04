@@ -21,21 +21,12 @@ import Pickable from '../entities/Pickable';
 import { ConsoleLogAction, TeleportAction } from '../actions/Action';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { SkyMaterial } from '@babylonjs/materials';
-import { loadEnvironmentFromConfig } from './SceneUtils';
+import { loadConfig } from './SceneUtils';
 
 export default class Dust2Scene extends BaseScene {
 
     async createEnvironment(): Promise<void> {
-        await loadEnvironmentFromConfig("./models/dust2.json", this);
-
-
-        Player.CreateAsync(this, new Vector3(0, 10, 0)).then((player) => {
-            this.actualPlayer = player;
-            this.entityManager.addEntity(player);
-            this.activeCamera = player.playerCamera;
-
-            StateManager.state = State.PLAYING;
-        });
+        await loadConfig("./models/dust2.json", this);
 
     }
 }

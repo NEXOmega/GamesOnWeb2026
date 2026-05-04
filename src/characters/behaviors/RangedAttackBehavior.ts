@@ -116,7 +116,16 @@ export default class RangedAttackBehavior extends Behavior {
         this.entity.laser.fire(origin, direction, hitDistance);
 
         if (hit && hit.hit && hit.pickedMesh && hit.pickedMesh.name === "CharacterTransform") {
-            console.log("Le joueur a été touché");
+            
+            // On récupère le joueur depuis la scène
+            const player = this.entity.scene.actualPlayer; 
+            
+            if (player) {
+                console.log("Le joueur a été touché !");
+                player.respawn()
+                // Exemple : player.takeDamage(10);
+                // Exemple : player.applyKnockback(direction);
+            }
         }
     }
 }

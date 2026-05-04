@@ -209,4 +209,8 @@ export default class Player extends Entity implements Collidable {
     public getCollisionMesh(): AbstractMesh {
         return this.impostorMesh;
     }
+
+    public respawn() : void {
+        this.setPosition(this.scene.playerSpawn);
+    }
 }
