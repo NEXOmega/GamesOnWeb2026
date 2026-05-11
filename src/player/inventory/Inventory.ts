@@ -36,6 +36,13 @@ export default class Inventory {
         return true;
     }
 
+    public hasItem(itemId: string, quantity : number = 1) : boolean {
+        if(this.items.has(itemId)) {
+            return this.items.get(itemId) >= quantity;
+        }
+        return false;
+    }
+
     public serialize(): Record<string, number> {
         return Object.fromEntries(this.items);
     }

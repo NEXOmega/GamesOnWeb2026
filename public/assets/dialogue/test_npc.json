@@ -9,6 +9,13 @@
       "key": "r",
       "choiceText": "Bien et vous ?",
       "message": "Moi aussi, la vie est paisible.",
+      "conditions": [
+        {
+          "type": "HasItemCondition",
+          "itemId": "bunker_pass",
+          "quantity": 1
+        }
+      ],
       "actions": [
         {
           "type": "TeleportAction",

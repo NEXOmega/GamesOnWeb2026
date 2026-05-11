@@ -22,9 +22,10 @@ export default class DialogueManager {
     }
 
     public static update() {
-        if (StateManager.state !== State.DIALOG || !this.actualDialogue) return;
+        if (StateManager.state !== State.DIALOG || !this.actualDialogue || !this.npc) return;
 
         const keysPressed = InputManager.getKeysJustPressed();
+        const player = this.npc.scene.actualPlayer;
 
         for (const pressedKey of keysPressed) {
             if (this.ui.isTyping) {
@@ -33,15 +34,21 @@ export default class DialogueManager {
             }
 
             if (!this.actualDialogue.canChooseNextChoice) continue;
+            
             const nextNode = this.actualDialogue.getNextDialog(pressedKey);
 
-            if (nextNode) {
+            if (nextNode && nextNode.checkConditions(player)) {
                 this.goToDialogue(nextNode);
                 return;
-            } else if (Object.keys(this.actualDialogue.nextDialogs).length === 0) {
-                if (pressedKey === "e" || pressedKey === "escape") {
-                    this.closeDialogue();
-                    return;
+            } 
+            else {
+                const availableChoices = Object.values(this.actualDialogue.nextDialogs).filter(d => d.checkConditions(player));
+                
+                if (availableChoices.length === 0) {
+                    if (pressedKey === "e" || pressedKey === "escape") {
+                        this.closeDialogue();
+                        return;
+                    }
                 }
             }
         }
@@ -61,16 +68,25 @@ export default class DialogueManager {
 
     private static goToDialogue(dialogue: Dialogue) {
         this.actualDialogue = dialogue;
+        const player = this.npc!.scene.actualPlayer;
 
         if (dialogue.actions) {
             for(const action of dialogue.actions) {
-                action.execute(this.npc.scene.actualPlayer);
+                action.execute(player);
             }
         }
 
         this.ui.setMessage(dialogue.message);
 
-        this.ui.renderChoices(dialogue.nextDialogs, (key) => {
+        const availableNextDialogs: Record<string, Dialogue> = {};
+        
+        for (const [key, nextDialog] of Object.entries(dialogue.nextDialogs)) {
+            if (nextDialog.checkConditions(player)) {
+                availableNextDialogs[key] = nextDialog;
+            }
+        }
+        
+        this.ui.renderChoices(availableNextDialogs, (key) => {
             const nextNode = this.actualDialogue?.getNextDialog(key);
             if (nextNode) this.goToDialogue(nextNode);
         });

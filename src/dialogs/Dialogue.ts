@@ -1,6 +1,9 @@
 import { Expose, plainToInstance, Transform, Type } from "class-transformer";
 import { Action } from "../actions/Action";
 import { ALL_ACTIONS } from "../utils/json/ActionSerializer";
+import { ALL_CONDITIONS } from "../utils/json/ConditionSerializer";
+import Player from "../characters/Player";
+import { Condition } from "../condition/Condition";
 
 export default class Dialogue {
 
@@ -19,6 +22,16 @@ export default class Dialogue {
     })
     @Expose()
     public actions: Action[] = [];
+    
+    @Type(() => Object, {
+        discriminator: {
+            property: 'type',
+            subTypes: ALL_CONDITIONS
+        }
+    })
+    @Expose()
+    public conditions: Condition[] = [];
+
     @Expose()
     public canChooseNextChoice = true;
 
@@ -39,6 +52,11 @@ export default class Dialogue {
         this.key = key;
         this.choiceText = choiceText;
         this.message = message;
+    }
+
+    public checkConditions(player: Player): boolean {
+        if (!this.conditions || this.conditions.length === 0) return true;
+        return this.conditions.every(condition => condition.evaluate(player));
     }
 
     public addNextDialog(dialog: Dialogue) {
