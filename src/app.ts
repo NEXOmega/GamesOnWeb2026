@@ -10,8 +10,9 @@ import Dust2Scene from './scenes/Dust2Scene';
 import { CreateAudioEngineAsync } from '@babylonjs/core/AudioV2';
 import SoundManager from './sounds/SoundManager';
 import MainMenuScene from './scenes/MainMenuScene';
-import BunkerScene from './scenes/SecondScene';
+import BunkerScene from './scenes/BunkerScene';
 import FirstLevel from './scenes/FirstLevel';
+import SecondLevel from './scenes/SecondLevel';
 
 let game: BaseScene;
 
@@ -56,6 +57,13 @@ window.addEventListener('DOMContentLoaded', async () => {
         await firstScene.initScene();
         
         return firstScene;
+    });
+
+    SceneManager.registerScene("SecondLevel", async () => {
+        const secondScene = new SecondLevel(SceneManager.engine, 'renderCanvas');
+        await secondScene.initScene();
+        
+        return secondScene;
     });
 
     if(SaveManager.hasSave()) {

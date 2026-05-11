@@ -22,7 +22,7 @@ export default class DroneEnemy extends Enemy {
     public moveSpeed: number = 8;
 
     static async CreateAsync(id: string, scene: BaseScene, position: Vector3 = Vector3.Zero()): Promise<DroneEnemy> {
-        const result = await SceneLoader.ImportMeshAsync("", "./models/", "Drone.glb", scene);
+        const result = await SceneLoader.ImportMeshAsync("", "./assets/models/", "Drone.glb", scene);
         const model = result.meshes[0];
         
         return new DroneEnemy(id, model, scene, position);

@@ -26,7 +26,7 @@ import { loadConfig } from './SceneUtils';
 export default class Dust2Scene extends BaseScene {
 
     async createEnvironment(): Promise<void> {
-        await loadConfig("./models/dust2.json", this);
+        await loadConfig("./assets/models/dust2.json", this);
 
     }
 }

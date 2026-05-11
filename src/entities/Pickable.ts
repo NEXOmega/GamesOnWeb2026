@@ -18,7 +18,7 @@ export default class Pickable extends Entity {
     static async CreateAsync(id: string, scene: BaseScene, position: Vector3, itemId: string, quantity: number): Promise<Pickable> {
         const result = await SceneLoader.ImportMeshAsync(
                     "",
-                    "./models/",
+                    "./assets/models/",
                     "Character.glb",
                     scene
                 );

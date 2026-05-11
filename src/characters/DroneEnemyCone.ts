@@ -25,7 +25,7 @@ export default class DroneEnemyCone extends Enemy {
 
 
     static async CreateAsync(id: string, scene: BaseScene, position: Vector3 = Vector3.Zero()): Promise<DroneEnemyCone> {
-        const result = await SceneLoader.ImportMeshAsync("", "./models/", "Drone.glb", scene);
+        const result = await SceneLoader.ImportMeshAsync("", "./assets/models/", "Drone.glb", scene);
         const model = result.meshes[0];
         
         return new DroneEnemyCone(id, model, scene, position);

@@ -26,7 +26,7 @@ import { loadConfig } from './SceneUtils';
 export default class BunkerScene extends BaseScene {
 
     async createEnvironment(): Promise<void> {
-        await loadConfig("./models/bunker.json", this);
+        await loadConfig("./assets/models/bunker.json", this);
 
     }
 }

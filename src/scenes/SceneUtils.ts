@@ -100,21 +100,32 @@ export async function loadMesh(
     } 
 
     else if (mesh.getTotalVertices() > 0 && mesh.name !== "skyBox") {
+
+        mesh.freezeWorldMatrix();
+        mesh.doNotSyncBoundingInfo = true;
+
         const physicsType = extras.physics_type || "box"; 
+        const vertexCount = mesh.getTotalVertices();
+
+        // OPTIMISATION GPU : Si le mesh est trop lourd (> 100k vertices), 
+        // on évite de lui faire projeter des ombres pour sauver le framerate
+        const isExtremelyHeavy = vertexCount > 100000;
 
          if (physicsType === "none") {
             if (shadowGenerator) {
                 mesh.receiveShadows = true;
-                shadowGenerator.addShadowCaster(mesh);
+                if (!isExtremelyHeavy) shadowGenerator.addShadowCaster(mesh);
             }
         }
         else {
             if (shadowGenerator) {
                 mesh.receiveShadows = true;
-                shadowGenerator.addShadowCaster(mesh);
+                if (!isExtremelyHeavy) shadowGenerator.addShadowCaster(mesh);
             }
             if (physicsGlobalEnabled) {
-                new PhysicsAggregate(mesh, PhysicsShapeType.MESH, { mass: 0, restitution: 0 }, scene);
+                const shape = isExtremelyHeavy ? PhysicsShapeType.BOX : PhysicsShapeType.MESH;
+                
+                new PhysicsAggregate(mesh, shape, { mass: 0, restitution: 0 }, scene);
                 mesh.checkCollisions = true;
             }
         }
