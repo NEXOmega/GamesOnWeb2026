@@ -26,7 +26,7 @@ export default class NPC extends Entity {
     static async CreateAsync(id: string, scene: BaseScene, position: Vector3 = Vector3.Zero(), dialogId: string): Promise<NPC> {
         const result = await SceneLoader.ImportMeshAsync(
             "",
-            "./models/",
+            "./assets/models/",
             "Character.glb",
             scene
         );

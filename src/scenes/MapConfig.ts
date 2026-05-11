@@ -22,4 +22,5 @@ export interface MapConfig {
         color: [number, number, number];
         density: number;
     };
+    playerSpawn?: { x: number; y: number; z: number };
 }

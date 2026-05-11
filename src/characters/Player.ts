@@ -48,7 +48,7 @@ export default class Player extends Entity implements Collidable {
     private inventoryUI = new InventoryUI(StateManager.inventory, this.scene);
 
     static async CreateAsync(scene: BaseScene, position: Vector3 = Vector3.Zero()): Promise<Player> {
-        const result = await SceneLoader.ImportMeshAsync("", "./models/", "Character.glb", scene);
+        const result = await SceneLoader.ImportMeshAsync("", "./assets/models/", "Character.glb", scene);
         const model = result.meshes[0];
         
         const cameraAttachPoint = new TransformNode("cameraAttachPoint", scene);
@@ -208,5 +208,9 @@ export default class Player extends Entity implements Collidable {
 
     public getCollisionMesh(): AbstractMesh {
         return this.impostorMesh;
+    }
+
+    public respawn() : void {
+        this.setPosition(this.scene.playerSpawn);
     }
 }

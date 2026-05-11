@@ -1,152 +1,22 @@
-import { Scene, HemisphericLight, Vector3, MeshBuilder, HavokPlugin, PhysicsAggregate, PhysicsShapeType, ExecuteCodeAction, ActionManager } from '@babylonjs/core';
-import "@babylonjs/core/Debug/debugLayer";
-import "@babylonjs/inspector";
-import { SceneLoader } from '@babylonjs/core/Loading/sceneLoader';
-import HavokPhysics from "@babylonjs/havok";
+import { HemisphericLight, Vector3 } from '@babylonjs/core';
 
 import BaseScene from './BaseScene';
-import CinematicCamera from '../camera/CinematicCamera';
 import Player from '../characters/Player';
-import CollisionEntity from '../entities/CollisionEntity';
 import { State, StateManager } from '../utils/StateManager';
-import InteractionEntity from '../entities/InteractionEntity';
-import * as TitleAnimation from '../gui/title/TitleAnimation'
-import { AnimationSerializer } from '../utils/json/AnimationSerializer';
-import NPC from '../characters/NPC';
-import Dialogue from '../dialogs/Dialogue';
-import SceneManager from './SceneManager';
-import SaveManager from '../utils/SaveManager';
-import ItemRegistry from '../utils/ItemRegistry';
-import Pickable from '../entities/Pickable';
-import { ConsoleLogAction, TeleportAction } from '../actions/Action';
-import { instanceToPlain, plainToInstance } from 'class-transformer';
-import { loadMesh } from './SceneUtils';
+import { loadConfig } from './SceneUtils';
 import SoundManager from '../sounds/SoundManager';
+import DroneEnemyCone from '../characters/DroneEnemyCone';
 
 export default class DebugScene extends BaseScene {
 
     async createScene() : Promise<void> {
-        this.cinematicCamera = new CinematicCamera(this, this.canvas);
-
-        const havokInstance = await HavokPhysics();
-        const havokPlugin = new HavokPlugin(true, havokInstance);
-
-        this.collisionsEnabled = true;
-        this.enablePhysics(new Vector3(0, -100, 0), havokPlugin);
-        // Hide/show the Inspector with Alt+I   
-        window.addEventListener("keydown", (ev) => {
-            if (ev.altKey && ev.key === 'i') {
-                if (this.debugLayer.isVisible()) {
-                    this.debugLayer.hide();
-                } else {
-                    this.debugLayer.show({ embedMode: true });
-                }
-            }
-        });
-
-        window.addEventListener("keydown", (ev) => {
-            if(ev.altKey && ev.key === 'c') {
-                if(this.activeCamera == this.cinematicCamera) {
-                    this.activeCamera = this.actualPlayer.playerCamera;
-                    StateManager.state = State.PLAYING;
-                } else {
-                    this.activeCamera = this.cinematicCamera;
-                    StateManager.state = State.CINEMATIC;
-                        this.cinematicCamera.moveTo(this.cinematicCamera.position, this.cinematicCamera.position.add(new Vector3(0,5,0)), this.cinematicCamera.rotation, new Vector3(0,0,0), 5)
-                }
-            }
-        })
-
+        super.createScene()
         this.light = new HemisphericLight('light1', new Vector3(0,1,0), this);
     }
 
     async createEnvironment(): Promise<void> {
-        const { meshes } = await SceneLoader.ImportMeshAsync(
-            "",
-            "./models/",
-            "TestLevel.glb",
-            this
-        );
+            await loadConfig("./assets/models/debug_level.json", this);
 
-        console.log("Level loaded")
-
-        await Player.CreateAsync(this, new Vector3(0, 10, 0)).then((player) => {
-            this.actualPlayer = player;
-            this.entityManager.addEntity(player);
-            this.activeCamera = player.playerCamera;
-            SoundManager.setListenerToCamera(this.activeCamera);
-
-            let collisionEntity = new InteractionEntity("clear_save_entity", player, 1, this, new Vector3(5,2,10));
-            collisionEntity.addMeshEnteredAction(new ConsoleLogAction("Entered Collision Entity"))
-            
-            collisionEntity.addMeshExitedAction(new ConsoleLogAction("Exited Collision Entity"))
-
-            collisionEntity.onInteract = (player: Player) => {
-                console.log("Player interacted with collision entity");
-                player.playerHud.title.enqueue({
-                    text: "",
-                    animation: new TitleAnimation.SetTextInfoAnimation(0, "white", 130, 0)
-                })
-                
-                let animation = new TitleAnimation.AnimationSequence([
-                                new TitleAnimation.FadeAnimation(100, 0, 1),
-                                new TitleAnimation.WaitAnimation(150),
-                                new TitleAnimation.FadeAnimation(100, 1, 0)
-                            ])
-                const serialized = AnimationSerializer.serialize(animation)
-                const deserialized = AnimationSerializer.deserialize(serialized)
-                console.log(deserialized)
-
-                player.playerHud.title.enqueue({
-                    text: "Clearing Save",
-                    animation: deserialized
-                })
-                SaveManager.clearSave()
-            }
-
-            let saveEntity = new InteractionEntity("save_entity", player, 1, this, new Vector3(-5,2,5));
-
-            saveEntity.onInteract = (player: Player) => {
-                player.playerHud.title.enqueue({
-                    text: "",
-                    animation: new TitleAnimation.SetTextInfoAnimation(0, "white", 130, 0)
-                })
-                
-                let animation = new TitleAnimation.AnimationSequence([
-                                new TitleAnimation.FadeAnimation(100, 0, 1),
-                                new TitleAnimation.WaitAnimation(150),
-                                new TitleAnimation.FadeAnimation(100, 1, 0)
-                            ])
-                const serialized = AnimationSerializer.serialize(animation)
-                const deserialized = AnimationSerializer.deserialize(serialized)
-                console.log(deserialized)
-
-                player.playerHud.title.enqueue({
-                    text: "Save",
-                    animation: deserialized
-                })
-                console.log(StateManager.inventory.items)
-                SaveManager.save({sceneId: "BunkerScene", playerPosition: {
-                    x: 5,
-                    y: 5,
-                    z: 10
-                }, inventory: StateManager.inventory.serialize()})
-            }
-
-            let soundEntity = new InteractionEntity("sound_entity", player, 1, this, new Vector3(-5,2,0));
-
-            soundEntity.onInteract = (player: Player) => {
-                console.log("Playing buzz sound")
-                soundEntity.scene.attachSpatialSound(soundEntity.mesh, "drone_buzz", "./assets/sounds/drone_buzz.mp3", 50)
-            }
-
-            StateManager.state = State.PLAYING;
-        });
-        
-        meshes.forEach((mesh) => {
-            loadMesh(this, mesh);
-        });
-
-        this.playSceneMusic("./assets/sounds/jeune_morty_priilick.mp3", true)
+        // this.playSceneMusic("./assets/sounds/jeune_morty_priilick.mp3", true)
     }
 }

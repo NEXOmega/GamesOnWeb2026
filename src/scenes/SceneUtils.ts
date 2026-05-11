@@ -7,12 +7,25 @@ import BaseScene from './BaseScene';
 import InteractionEntity from '../entities/InteractionEntity';
 import Interactable from '../entities/Interactable';
 
-export async function loadEnvironmentFromConfig(configPath: string, scene: BaseScene) {
+import Player from '../characters/Player';
+import { State, StateManager } from '../utils/StateManager';
+
+export async function loadConfig(configPath: string, scene: BaseScene) {
     const response = await fetch(configPath);
     if (!response.ok) throw new Error(`Impossible de charger la config map : ${configPath}`);
     const config: MapConfig = await response.json();
 
-    // 1. Lumières et Ciel
+    let spawnPos = new Vector3(0, 10, 0);
+    
+    if (config.playerSpawn) {
+        spawnPos = new Vector3(config.playerSpawn.x, config.playerSpawn.y, config.playerSpawn.z);
+    }
+
+    const player = await Player.CreateAsync(scene, spawnPos);
+    scene.actualPlayer = player;
+    scene.entityManager.addEntity(player);
+    scene.activeCamera = player.playerCamera;
+
     const skybox = MeshBuilder.CreateBox("skyBox", { size: 1000.0 }, scene);
     const skyMaterial = new SkyMaterial("skyMaterial", scene);
     skyMaterial.backFaceCulling = false;
@@ -41,13 +54,11 @@ export async function loadEnvironmentFromConfig(configPath: string, scene: BaseS
         scene.fogColor = new Color3(config.fog.color[0], config.fog.color[1], config.fog.color[2]);
     }
 
-    // 2. Chargement du GLB
     const folderPath = configPath.substring(0, configPath.lastIndexOf('/') + 1);
     const { meshes } = await SceneLoader.ImportMeshAsync("", folderPath, config.model, scene);
     
     const rootMesh = meshes[0];
 
-    // On applique l'échelle et le centrage AVANT de créer la physique
     if (config.scale !== 1) scaleMap(rootMesh, config.scale);
     if (config.centerMap) centerMap(rootMesh);
 
@@ -55,14 +66,13 @@ export async function loadEnvironmentFromConfig(configPath: string, scene: BaseS
     shadowGenerator.bias = config.lighting.shadowBias;
     shadowGenerator.normalBias = config.lighting.shadowNormalBias;
 
-    // 3. Traitement de chaque mesh (Spawns, Physique, Ombres)
-    // On utilise Promise.all pour s'assurer que tous les chargements d'entités sont lancés
     const meshPromises = meshes.map(mesh => 
         loadMesh(scene, mesh, shadowGenerator, config.physicsEnabled)
     );
     
     await Promise.all(meshPromises);
 
+    StateManager.state = State.PLAYING;
     return { meshes, sun, ambient };
 }
 
@@ -90,21 +100,32 @@ export async function loadMesh(
     } 
 
     else if (mesh.getTotalVertices() > 0 && mesh.name !== "skyBox") {
+
+        mesh.freezeWorldMatrix();
+        mesh.doNotSyncBoundingInfo = true;
+
         const physicsType = extras.physics_type || "box"; 
+        const vertexCount = mesh.getTotalVertices();
+
+        // OPTIMISATION GPU : Si le mesh est trop lourd (> 100k vertices), 
+        // on évite de lui faire projeter des ombres pour sauver le framerate
+        const isExtremelyHeavy = vertexCount > 100000;
 
          if (physicsType === "none") {
             if (shadowGenerator) {
                 mesh.receiveShadows = true;
-                shadowGenerator.addShadowCaster(mesh);
+                if (!isExtremelyHeavy) shadowGenerator.addShadowCaster(mesh);
             }
         }
         else {
             if (shadowGenerator) {
                 mesh.receiveShadows = true;
-                shadowGenerator.addShadowCaster(mesh);
+                if (!isExtremelyHeavy) shadowGenerator.addShadowCaster(mesh);
             }
             if (physicsGlobalEnabled) {
-                new PhysicsAggregate(mesh, PhysicsShapeType.MESH, { mass: 0, restitution: 0 }, scene);
+                const shape = isExtremelyHeavy ? PhysicsShapeType.BOX : PhysicsShapeType.MESH;
+                
+                new PhysicsAggregate(mesh, shape, { mass: 0, restitution: 0 }, scene);
                 mesh.checkCollisions = true;
             }
         }

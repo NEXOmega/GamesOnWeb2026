@@ -1,4 +1,8 @@
-import { Engine, Scene, Light, AbstractSound, AbstractMesh } from '@babylonjs/core';
+import { Engine, Scene, Light, AbstractSound, AbstractMesh, Vector3, HavokPlugin, RecastJSPlugin } from '@babylonjs/core';
+import "@babylonjs/core/Debug/debugLayer";
+import "@babylonjs/inspector";
+import HavokPhysics from "@babylonjs/havok";
+
 import EntityManager from '../entities/EntityManager';
 import { State, StateConfig, StateManager } from '../utils/StateManager';
 import CinematicCamera from '../camera/CinematicCamera';
@@ -18,6 +22,8 @@ export default class BaseScene extends Scene {
     public currectInteractionEntity: InteractionEntity | null = null;
 
     public sceneSounds : Map<string, AbstractSound> = new Map();
+
+    public playerSpawn : Vector3 = new Vector3(0,0,0);
 
     constructor(engine: Engine, canvasElement: string, pointerLock: boolean = true) {
         super(engine);
@@ -45,10 +51,58 @@ export default class BaseScene extends Scene {
     }
 
     public async initScene(): Promise<void> {
+        await this.initBaseFeatures(); // Initialise la physique et les outils globaux
         await this.createScene();
         await this.createEnvironment();
         InputManager.init(this);
         DialogueManager.init(this);
+    }
+
+    /**
+     * Centralise la configuration globale de la scène (Physique, Caméra, Debug)
+     */
+    private async initBaseFeatures(): Promise<void> {
+        const havokInstance = await HavokPhysics();
+        const havokPlugin = new HavokPlugin(true, havokInstance);
+        this.collisionsEnabled = true;
+        this.enablePhysics(new Vector3(0, -100, 0), havokPlugin);
+
+        this.cinematicCamera = new CinematicCamera(this, this.canvas);
+
+        this.setupGlobalShortcuts();
+    }
+
+    private setupGlobalShortcuts() {
+        // Afficher/Cacher l'Inspecteur avec Alt+I   
+        window.addEventListener("keydown", (ev) => {
+            if (ev.altKey && ev.key === 'i') {
+                if (this.debugLayer.isVisible()) {
+                    this.debugLayer.hide();
+                } else {
+                    this.debugLayer.show({ embedMode: true });
+                }
+            }
+        });
+
+        // Basculer entre la caméra joueur et la caméra cinématique avec Alt+C
+        window.addEventListener("keydown", (ev) => {
+            if(ev.altKey && ev.key === 'c') {
+                if(this.activeCamera === this.cinematicCamera && this.actualPlayer) {
+                    this.activeCamera = this.actualPlayer.playerCamera;
+                    StateManager.state = State.PLAYING;
+                } else {
+                    this.activeCamera = this.cinematicCamera;
+                    StateManager.state = State.CINEMATIC;
+                    this.cinematicCamera.moveTo(
+                        this.cinematicCamera.position, 
+                        this.cinematicCamera.position.add(new Vector3(0,5,0)), 
+                        this.cinematicCamera.rotation, 
+                        new Vector3(0,0,0), 
+                        5
+                    );
+                }
+            }
+        });
     }
 
     async createScene(): Promise<void> {}
