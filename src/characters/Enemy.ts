@@ -10,10 +10,10 @@ import { Navigation } from './navigation/Navigation';
  */
 export abstract class Enemy extends Entity {
     public brain: EntityBrain;
-    public navigation: Navigation;
-    
+    public navigation?: Navigation;
+
     public target: Player | null = null;
-    
+
     constructor(id: string, mesh: AbstractMesh, scene: BaseScene, position: Vector3) {
         super(id, mesh, scene, position);
         this.brain = new EntityBrain();
@@ -23,6 +23,8 @@ export abstract class Enemy extends Entity {
     public update(delta: number): void {
         super.update(delta);
         this.brain.update(delta);
-        this.navigation.update(delta);
+        if (this.navigation) {
+            this.navigation.update(delta);
+        }
     }
 }

@@ -1,14 +1,14 @@
 import { Quaternion, Ray, Vector3 } from "@babylonjs/core";
 import { Navigation } from "./Navigation";
-import DroneEnemyCone from "../DroneEnemyCone";
+import DroneEnemy from "../DroneEnemy";
 
 export default class FlyingNavigation extends Navigation {
-    protected declare entity: DroneEnemyCone; 
+    protected declare entity: DroneEnemy;
 
     private avoidanceRadius: number = 4.0;
     private rotationSpeed: number = 5.0;
 
-    constructor(entity: DroneEnemyCone) {
+    constructor(entity: DroneEnemy) {
         super(entity);
     }
 
@@ -31,10 +31,10 @@ export default class FlyingNavigation extends Navigation {
         let desiredDirection = this.targetPosition.subtract(myPos).normalize();
 
         const ray = new Ray(myPos, desiredDirection, this.avoidanceRadius);
-        const hit = this.entity.scene.pickWithRay(ray, (m) => 
-            m !== this.entity.collider && 
-            m !== this.entity.mesh && 
-            !m.isDescendantOf(this.entity.mesh) && 
+        const hit = this.entity.scene.pickWithRay(ray, (m) =>
+            m !== this.entity.collider &&
+            m !== this.entity.mesh &&
+            !m.isDescendantOf(this.entity.mesh) &&
             m.name !== "skyBox" &&
             m.name !== "CharacterTransform" &&
             m.isPickable
@@ -46,7 +46,7 @@ export default class FlyingNavigation extends Navigation {
         }
 
         if (!this.entity.mesh.rotationQuaternion) this.entity.mesh.rotationQuaternion = Quaternion.Identity();
-        
+
         const targetRotation = Quaternion.FromLookDirectionLH(desiredDirection, Vector3.Up());
         this.entity.mesh.rotationQuaternion = Quaternion.Slerp(this.entity.mesh.rotationQuaternion, targetRotation, this.rotationSpeed * deltaSeconds);
 

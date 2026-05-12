@@ -4,26 +4,27 @@ import Recast from "recast-detour";
 import {
     AbstractMesh,
     Color3,
-    Mesh, MeshBuilder, Observer,
+    Mesh,
+    MeshBuilder,
+    Observer,
+    PhysicsAggregate,
+    PhysicsShapeType,
     Quaternion,
     Ray,
     Scalar,
-    Scene,
     StandardMaterial,
     TransformNode,
     Vector3,
 } from "@babylonjs/core";
 import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
-import Player from "./Player";
+import Player from "../characters/Player";
 import BaseScene from "../scenes/BaseScene";
-import DroneEnemy from "./DroneEnemy";
 
 // Machine à états pour le comportement de l'IA
 enum IaState {
     PATROL,  // Patrouille en cercle autour de la position d'origine
     CHASE,   // Poursuit le joueur visible dans le FOV
-    SEARCH,
-    ATTACK,// Va à la dernière position connue du joueur
+    SEARCH,  // Va à la dernière position connue du joueur
     RETURN,  // Retourne à la position d'origine
 }
 
@@ -63,42 +64,58 @@ export default class IANavigation extends Entity {
     private agentTransform?: TransformNode;
     private targetPlayer?: Player;
 
+    // Collision physique (trigger) — pilotée par le crowd, kinematic.
+    private collider?: AbstractMesh;
+    private physicsAggregate?: PhysicsAggregate;
+    private collisionObserver?: Observer<any>;
+    private readonly killRadius: number = 1.2;
+
+    // Dégâts au contact
+    public contactDamage: number = 25;
+    public damageCooldownMs: number = 1000;
+    private damageCooldownTimer: number = 0;
+    private isTouchingPlayer: boolean = false;
+
     private repathTimeMs = 0;
     private repathEveryMs = 250;
 
     private roundAngle: number = 0;
-    private roundCenter: Vector3 = Vector3.Zero(); // BUG CORRIGÉ : initialisé dans IaToPlayer()
+    private roundCenter: Vector3 = Vector3.Zero();
 
     private lastKnownPlayerPos: Vector3 = Vector3.Zero();
-
     private originalIaPlacement: Vector3 = Vector3.Zero();
 
     private readonly arrivalThreshold: number = 1.5;
 
     private state: IaState = IaState.PATROL;
 
-    public declare entity: DroneEnemy
-
-    private isAiming: boolean = false;
-    private lastFireTime: number = 0;
-
-    private conePivot: TransformNode;
-    private visionCone: AbstractMesh;
-    private visionMat: StandardMaterial;
-    private visualObserver: Observer<Scene>;
-    private detectionRange: number = 20;
-    private fov: number = Math.PI; // 180° par défaut
-
-
-    constructor(id: string, mesh: AbstractMesh, scene: BaseScene, position?: Vector3) {
-        super(id, mesh, scene, position);
+    constructor(
+        id: string,
+        mesh: AbstractMesh,
+        scene: BaseScene,
+        position?: Vector3,
+        rotation?: Vector3,
+        scale?: Vector3,
+    ) {
+        super(id, mesh, scene, position, rotation, scale);
     }
 
+    static async CreateAsync(
+        id: string,
+        scene: BaseScene,
+        position: Vector3 = Vector3.Zero(),
+        rotation?: Vector3,
+        scale?: Vector3,
+    ): Promise<IANavigation> {
+        const result = await SceneLoader.ImportMeshAsync(
+            "",
+            "./assets/models/",
+            "Character.glb",
+            scene,
+        );
 
-    static async CreateAsync(id: string, scene: BaseScene, position: Vector3 = Vector3.Zero()): Promise<IANavigation> {
-        const result = await SceneLoader.ImportMeshAsync("", "./models/", "Character.glb", scene);
         const model = result.meshes[0];
-        return new IANavigation(id, model, scene, position);
+        return new IANavigation(id, model, scene, position, rotation, scale);
     }
 
     public async CreateNavMesh(debug: boolean): Promise<void> {
@@ -127,35 +144,91 @@ export default class IANavigation extends Entity {
     }
 
     public IaToPlayer(player: Player): void {
-        if (!this.GetNavPlugin()) {
-            console.error("Navigation plugin not initialized. Call CreateNavMesh() first.");
+        if (!this.navigationPlugin) {
+            console.error(`[IANavigation] ${this.id} : CreateNavMesh() must be called first.`);
             return;
         }
 
         this.targetPlayer = player;
 
         if (!this.crowd) {
-            this.crowd = this.GetNavPlugin().createCrowd(1, 0.5, this.scene);
-            this.agentTransform = new TransformNode("agentTransform", this.scene);
-            this.agentTransform.position.copyFrom(this.mesh.position);
+            this.mesh.computeWorldMatrix(true);
 
-
-            this.originalIaPlacement = this.agentTransform.position.clone();
-
-            this.roundCenter = this.originalIaPlacement.clone();
-
-            this.agentId = this.crowd.addAgent(
-                this.agentTransform.position,
-                this.agentParameters,
-                this.agentTransform,
+            const snappedPos = this.navigationPlugin.getClosestPoint(
+                this.mesh.getAbsolutePosition(),
             );
 
-            this.initVisionCone() ;
+            this.crowd = this.navigationPlugin.createCrowd(1, 0.5, this.scene);
+            this.agentTransform = new TransformNode(this.id + "_agentTransform", this.scene);
+            this.agentTransform.position.copyFrom(snappedPos);
+
+            this.originalIaPlacement = snappedPos.clone();
+            this.roundCenter = snappedPos.clone();
+
+            this.agentId = this.crowd.addAgent(snappedPos, this.agentParameters, this.agentTransform);
+
+            this.createCollisionBody(snappedPos);
         }
     }
 
+    private createCollisionBody(initialPos: Vector3): void {
+        this.collider = MeshBuilder.CreateSphere(
+            this.id + "_damageCollider",
+            { diameter: this.killRadius * 2 },
+            this.scene,
+        );
+        this.collider.position.copyFrom(initialPos);
+        this.collider.visibility = 0;
+        this.collider.isPickable = false;
 
+        this.physicsAggregate = new PhysicsAggregate(
+            this.collider,
+            PhysicsShapeType.SPHERE,
+            { mass: 0, restitution: 0, friction: 0 },
+            this.scene,
+        );
 
+        const body = this.physicsAggregate.body;
+        body.setCollisionCallbackEnabled(true);
+
+        this.collisionObserver = body
+            .getCollisionObservable()
+            .add((event) => this.onCollision(event));
+    }
+
+    private onCollision(event: any): void {
+        if (!this.targetPlayer) return;
+
+        const otherMesh: AbstractMesh | undefined =
+            event.collidedAgainst?.transformNode as AbstractMesh | undefined;
+        if (!otherMesh) return;
+
+        const playerMesh = this.targetPlayer.impostorMesh;
+        const hitPlayer =
+            otherMesh === playerMesh ||
+            otherMesh === (this.targetPlayer as any).model ||
+            otherMesh.isDescendantOf?.(playerMesh);
+
+        if (!hitPlayer) return;
+
+        // Le joueur est en contact ; le tick de dégâts est géré dans update().
+        this.isTouchingPlayer = true;
+
+        // Dégât immédiat si pas en cooldown.
+        this.tryApplyDamage();
+    }
+
+    private tryApplyDamage(): void {
+        if (!this.targetPlayer || this.damageCooldownTimer > 0) return;
+
+        const p: any = this.targetPlayer;
+        if (typeof p.takeDamage === "function") {
+            p.takeDamage(this.contactDamage);
+        } else {
+            console.log(`[IANavigation] ${this.id} touche le joueur (méthode takeDamage absente).`);
+        }
+        this.damageCooldownTimer = this.damageCooldownMs;
+    }
 
     public checkPlayerInFovIa(angleFov: number): boolean {
         const agentPos = this.crowd.getAgentPosition(this.agentId);
@@ -176,7 +249,6 @@ export default class IANavigation extends Entity {
         const dot = Vector3.Dot(vecAgent, vecPlayer);
         const angleBetween = Math.acos(Scalar.Clamp(dot, -1, 1));
         const fovRad = (angleFov / 2) * (Math.PI / 180);
-        this.fov = fovRad;
 
         if (angleBetween > fovRad) return false;
 
@@ -185,6 +257,7 @@ export default class IANavigation extends Entity {
             if (mesh === this.targetPlayer.impostorMesh) return true;
             if (mesh === this.mesh) return false;
             if (mesh.isDescendantOf(this.mesh)) return false;
+            if (mesh === this.collider) return false;
             if (mesh.name === "Alpha_Surface") return false;
             return mesh.isPickable;
         });
@@ -192,9 +265,6 @@ export default class IANavigation extends Entity {
         if (!hit || !hit.hit || !hit.pickedMesh) return false;
         return hit.pickedMesh === this.targetPlayer.impostorMesh;
     }
-
-
-
 
     public followPlayer(): void {
         const destination = this.targetPlayer.impostorMesh.getAbsolutePosition();
@@ -206,7 +276,6 @@ export default class IANavigation extends Entity {
             this.crowd.agentGoto(this.agentId, pathPoints[pathPoints.length - 1]);
         }
     }
-
 
     private goToLastKnownPlayerPosition(): void {
         const to = this.navigationPlugin.getClosestPoint(this.lastKnownPlayerPos);
@@ -226,8 +295,6 @@ export default class IANavigation extends Entity {
         this.crowd.agentGoto(this.agentId, to);
     }
 
-
-
     public update(deltaMs: number): void {
         if (!this.navigationPlugin || !this.crowd || this.agentId < 0 || !this.targetPlayer) {
             return;
@@ -235,6 +302,24 @@ export default class IANavigation extends Entity {
 
         if (this.agentTransform) {
             this.mesh.position.copyFrom(this.agentTransform.position);
+
+            if (this.collider && this.physicsAggregate) {
+                this.collider.position.copyFrom(this.agentTransform.position);
+                this.physicsAggregate.body.disablePreStep = false;
+            }
+        }
+
+        // Cooldown des dégâts
+        if (this.damageCooldownTimer > 0) {
+            this.damageCooldownTimer = Math.max(0, this.damageCooldownTimer - deltaMs);
+        }
+
+        // Tant que le joueur est en contact, on ré-applique les dégâts à chaque fin de cooldown.
+        // isTouchingPlayer est remis à true à chaque event de collision, et reset ici à false ;
+        // si la collision n'est plus signalée pendant un frame, on considère que le contact a cessé.
+        if (this.isTouchingPlayer) {
+            this.tryApplyDamage();
+            this.isTouchingPlayer = false;
         }
 
         const playerInFov = this.checkPlayerInFovIa(250);
@@ -252,14 +337,9 @@ export default class IANavigation extends Entity {
 
             case IaState.CHASE:
                 if (playerInFov) {
-                    const dist = Vector3.Distance(agentPos, this.targetPlayer.impostorMesh.getAbsolutePosition());
-
-                    if (dist <= this.entity.attackRange && this.hasLineOfSight()) {
-                        this.state = IaState.ATTACK;
-                        this.lastFireTime = performance.now();
-                        this.isAiming = true;
-                        break;
-                    }
+                    this.lastKnownPlayerPos = this.targetPlayer.impostorMesh
+                        .getAbsolutePosition()
+                        .clone();
 
                     this.repathTimeMs += deltaMs;
                     if (this.repathTimeMs >= this.repathEveryMs) {
@@ -286,36 +366,12 @@ export default class IANavigation extends Entity {
                 }
                 break;
 
-            case IaState.ATTACK:
-                const dist = Vector3.Distance(agentPos, this.targetPlayer.impostorMesh.getAbsolutePosition());
-
-                // Joueur hors portée → retour CHASE
-                if (dist > this.entity.attackRange + 2 || !this.hasLineOfSight()) {
-                    this.isAiming = false;
-                    this.entity.laser.stopAim();
-                    this.state = IaState.CHASE;
-                    break;
-                }
-
-                // Joueur perdu → SEARCH
-                if (!playerInFov) {
-                    this.state = IaState.SEARCH;
-                    break;
-                }
-
-                this.updateAttack(deltaMs); // méthode extraite
-                break;
-
-
-
-
             case IaState.RETURN:
                 if (playerInFov) {
                     this.state = IaState.CHASE;
                 } else {
                     const distToOrigin = Vector3.Distance(agentPos, this.originalIaPlacement);
                     if (distToOrigin < this.arrivalThreshold) {
-                        // Retour effectué : reprendre la patrouille circulaire
                         this.state = IaState.PATROL;
                         this.roundCenter = this.originalIaPlacement.clone();
                         this.roundAngle = 0;
@@ -331,131 +387,29 @@ export default class IANavigation extends Entity {
         }
     }
 
-
+    public dispose(): void {
+        if (this.collisionObserver && this.physicsAggregate) {
+            this.physicsAggregate.body.getCollisionObservable().remove(this.collisionObserver);
+            this.collisionObserver = undefined;
+        }
+        if (this.physicsAggregate) {
+            this.physicsAggregate.dispose();
+            this.physicsAggregate = undefined;
+        }
+        if (this.collider) {
+            this.collider.dispose();
+            this.collider = undefined;
+        }
+        if (this.crowd && this.agentId >= 0) {
+            this.crowd.removeAgent(this.agentId);
+        }
+        if (this.agentTransform) {
+            this.agentTransform.dispose();
+        }
+        super.dispose();
+    }
 
     public GetNavPlugin(): RecastJSPlugin {
         return this.navigationPlugin;
-    }
-
-    private hasLineOfSight(): boolean {
-        if (!this.entity.target) return false;
-
-        const myPos = this.entity.collider.getAbsolutePosition();
-        const targetPos = this.entity.target.impostorMesh.getAbsolutePosition();
-        const direction = targetPos.subtract(myPos).normalize();
-        const distance = Vector3.Distance(myPos, targetPos);
-
-        const ray = new Ray(myPos, direction, distance);
-
-        const hit = this.entity.scene.pickWithRay(ray, (m) =>
-            m !== this.entity.collider &&
-            m !== this.entity.mesh &&
-            !m.isDescendantOf(this.entity.mesh) &&
-            m.name !== "skyBox" &&
-            m.isPickable
-        );
-
-        if (hit && hit.hit && hit.pickedMesh && hit.pickedMesh.name !== "CharacterTransform") {
-            return false;
-        }
-
-        return true;
-    }
-
-    private updateAttack(deltaMs: number) {
-        if (!this.entity.target) return;
-
-        const deltaSeconds = deltaMs / 1000;
-
-        const currentVel = this.entity.physicsAggregate.body.getLinearVelocity();
-        this.entity.physicsAggregate.body.setLinearVelocity(currentVel.scale(0.9));
-
-        const myPos = this.entity.collider.getAbsolutePosition();
-        const targetPos = this.entity.target.impostorMesh.getAbsolutePosition();
-        const desiredDirection = targetPos.subtract(myPos).normalize();
-
-        if (!this.entity.mesh.rotationQuaternion) this.entity.mesh.rotationQuaternion = Quaternion.Identity();
-        const targetRotation = Quaternion.FromLookDirectionLH(desiredDirection, Vector3.Up());
-        this.entity.mesh.rotationQuaternion = Quaternion.Slerp(this.entity.mesh.rotationQuaternion, targetRotation, 5 * deltaSeconds);
-
-        const currentTime = performance.now();
-        const timeAiming = currentTime - this.lastFireTime;
-        const progress = Math.min(timeAiming / this.entity.fireCooldown, 1);
-
-        if (this.isAiming) {
-            this.entity.laser.aim(myPos, targetPos, progress);
-        }
-
-        if (timeAiming > this.entity.fireCooldown && this.isAiming) {
-            this.executeFire(myPos, desiredDirection);
-            this.lastFireTime = currentTime;
-        }
-    }
-
-
-    private executeFire(origin: Vector3, direction: Vector3) {
-        const ray = new Ray(origin, direction, this.entity.attackRange + 5);
-
-        const hit = this.entity.scene.pickWithRay(ray, (m) =>
-            m !== this.entity.collider &&
-            m !== this.entity.mesh &&
-            !m.isDescendantOf(this.entity.mesh) &&
-            m.name !== "skyBox" &&
-            m.isPickable
-        );
-
-        const hitDistance = (hit && hit.hit) ? hit.distance : this.entity.attackRange + 5;
-        this.entity.laser.fire(origin, direction, hitDistance);
-
-        if (hit && hit.hit && hit.pickedMesh && hit.pickedMesh.name === "CharacterTransform") {
-
-            // On récupère le joueur depuis la scène
-            const player = this.entity.scene.actualPlayer;
-
-            if (player) {
-                console.log("Le joueur a été touché !");
-                player.respawn()
-                // Exemple : player.takeDamage(10);
-                // Exemple : player.applyKnockback(direction);
-            }
-        }
-    }
-
-    private initVisionCone(): void {
-
-
-        const fovRatio = this.fov / (Math.PI * 2);
-
-        this.conePivot = new TransformNode(this.entity.id + "_pivot", this.entity.scene);
-        this.conePivot.parent = this.entity.mesh;
-
-        this.conePivot.position.y = 0;
-        this.conePivot.rotation.x = -0.2;
-
-        this.visionCone = MeshBuilder.CreateDisc(this.entity.id + "_cone", {
-            radius: this.detectionRange,
-            arc: fovRatio,
-            tessellation: 32
-        }, this.entity.scene);
-
-        this.visionCone.isPickable = false;
-        this.visionCone.parent = this.conePivot;
-        this.visionCone.rotation.x = Math.PI / 2;
-
-        this.visionCone.rotation.x = Math.PI / 2;
-        this.visionCone.rotation.y = -(this.fov / 2) + Math.PI;
-
-        this.visionMat = new StandardMaterial(this.entity.id + "_coneMat", this.entity.scene);
-        this.visionMat.backFaceCulling = false;
-        this.visionMat.alpha = 0.2;
-        this.visionCone.material = this.visionMat;
-
-        this.visualObserver = this.entity.scene.onBeforeRenderObservable.add(() => {
-            if (this.entity.target) {
-                this.visionMat.emissiveColor.copyFromFloats(1, 0, 0);
-            } else {
-                this.visionMat.emissiveColor.copyFromFloats(1, 1, 0);
-            }
-        });
     }
 }

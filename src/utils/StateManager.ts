@@ -2,7 +2,7 @@ import Inventory from "../player/inventory/Inventory";
 import { Stats } from "./Stats";
 
 export enum State {
-    PLAYING, CINEMATIC, LOADING, DIALOG, IN_INVENTORY
+    PLAYING, CINEMATIC, LOADING, DIALOG, IN_INVENTORY, DEAD
 }
 
 export interface StateRules {
@@ -14,17 +14,16 @@ export interface StateRules {
 
 
 export const StateConfig: Record<State, StateRules> = {
-    [State.PLAYING]:      { canMove: true,  canOpenInventory: true,  canInteract: true, pointerLock: true },
+    [State.PLAYING]:      { canMove: true,  canOpenInventory: true,  canInteract: true,  pointerLock: true },
     [State.CINEMATIC]:    { canMove: false, canOpenInventory: false, canInteract: false, pointerLock: true },
     [State.LOADING]:      { canMove: false, canOpenInventory: false, canInteract: false, pointerLock: false },
-    [State.DIALOG]:       { canMove: false, canOpenInventory: false, canInteract: true, pointerLock: true },
-    [State.IN_INVENTORY]: { canMove: false, canOpenInventory: true,  canInteract: false, pointerLock: false }
+    [State.DIALOG]:       { canMove: false, canOpenInventory: false, canInteract: true,  pointerLock: true },
+    [State.IN_INVENTORY]: { canMove: false, canOpenInventory: true,  canInteract: false, pointerLock: false },
+    [State.DEAD]:         { canMove: false, canOpenInventory: false, canInteract: false, pointerLock: false }
 };
 
 export class StateManager {
     public static state: State = State.LOADING;
     public static stats: Stats = new Stats();
     public static inventory: Inventory = new Inventory();
-
 }
-

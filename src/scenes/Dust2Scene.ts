@@ -22,11 +22,13 @@ import { ConsoleLogAction, TeleportAction } from '../actions/Action';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { SkyMaterial } from '@babylonjs/materials';
 import { loadConfig } from './SceneUtils';
+import IANavigation from "../characters/IANavigation";
 
 export default class Dust2Scene extends BaseScene {
 
     async createEnvironment(): Promise<void> {
-        await loadConfig("./assets/models/dust2.json", this);
 
+        await loadConfig("./assets/models/dust2.json", this);
+        ;
     }
 }
