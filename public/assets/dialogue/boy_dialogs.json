@@ -1,14 +1,14 @@
 {
   "key": "e",
   "choiceText": "Parler",
-  "message": "Nous avons découvert que mon fils était malvoyant auriez vous quelque chose pour lui ?",
+  "message": "Tu pourrais me dire ce qu'il y'a au dela du bunker ?",
   "actions": [],
   "canChooseNextChoice": true,
   "nextDialogs": {
     "r": {
       "key": "r",
-      "choiceText": "Non malheureusement.",
-      "message": "D'accord si vous en trouvez. Faites moi signe",
+      "choiceText": "Peu de choses",
+      "message": "Ah d'accord",
       "conditions": [
         
       ],

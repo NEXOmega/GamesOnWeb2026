@@ -1,0 +1,31 @@
+{
+  "key": "e",
+  "choiceText": "Parler",
+  "message": "Vous inspectez les panneaux solaires mais remarquez que ceux-ci sont cassé, le sable a endommager le verre.",
+  "actions": [],
+  "canChooseNextChoice": true,
+  "nextDialogs": {
+    "e": {
+      "key": "e",
+      "choiceText": "Je devrais rentrer faire mon rapport.",
+      "message": "Retour au bunker...",
+      "conditions": [
+        
+      ],
+      "actions": [
+        {
+          "type": "SetFlagAction",
+          "flag": "FirstLevelDone",
+          "state": true
+        },
+        {
+              "type": "ChangeSceneAction",
+              "sceneId": "BunkerScene",
+              "keepSceneInRam": false
+            }
+      ],
+      "canChooseNextChoice": true,
+      "nextDialogs": {}
+    }
+  }
+}

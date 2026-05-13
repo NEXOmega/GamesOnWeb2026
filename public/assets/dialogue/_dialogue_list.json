@@ -5,5 +5,7 @@
     "mother_dialogs",
     "boy_dialogs",
     "girl_dialogs",
-    "survivor_dialogs"
+    "survivor_dialogs",
+    "fake_end_level1",
+    "fake_end_level2"
 ]

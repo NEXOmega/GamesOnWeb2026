@@ -17,20 +17,74 @@
           "key": "r",
           "choiceText": "D'accord ouvrez moi le sas.",
           "message": "Merci a vous, notre avenir depends de vous.",
-          "conditions": [],
+          "conditions": [
+            {
+              "type": "FlagStateCondition",
+              "flag": "FirstLevelDone",
+              "state": false
+            }
+          ],
           "actions": [
             {
-              "type": "TeleportAction",
-              "position": {
-                "x": 10,
-                "y": 10,
-                "z": 10
-              },
-              "rotation": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              }
+              "type": "ChangeSceneAction",
+              "sceneId": "FirstLevel",
+              "keepSceneInRam": true
+            }
+          ],
+          "canChooseNextChoice": true,
+          "nextDialogs": {
+            
+          }
+        },
+        "t": {
+          "key": "t",
+          "choiceText": "D'accord ouvrez moi le sas.",
+          "message": "Merci a vous, notre avenir depends de vous.",
+          "conditions": [
+            {
+              "type": "FlagStateCondition",
+              "flag": "FirstLevelDone",
+              "state": true
+            },
+            {
+              "type": "FlagStateCondition",
+              "flag": "SecondLevelDone",
+              "state": false
+            }
+          ],
+          "actions": [
+            {
+              "type": "ChangeSceneAction",
+              "sceneId": "SecondLevel",
+              "keepSceneInRam": true
+            }
+          ],
+          "canChooseNextChoice": true,
+          "nextDialogs": {
+            
+          }
+        },
+        "e": {
+          "key": "e",
+          "choiceText": "D'accord ouvrez moi le sas.",
+          "message": "Merci a vous, notre avenir depends de vous.",
+          "conditions": [
+            {
+              "type": "FlagStateCondition",
+              "flag": "FirstLevelDone",
+              "state": true
+            },
+            {
+              "type": "FlagStateCondition",
+              "flag": "SecondLevelDone",
+              "state": true
+            }
+          ],
+          "actions": [
+            {
+              "type": "ChangeSceneAction",
+              "sceneId": "EndingScene",
+              "keepSceneInRam": false
             }
           ],
           "canChooseNextChoice": true,

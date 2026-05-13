@@ -1,0 +1,36 @@
+{
+  "key": "e",
+  "choiceText": "Parler",
+  "message": "Vous trouvez enfin du verre qui pourrait être utilisable..",
+  "actions": [],
+  "canChooseNextChoice": true,
+  "nextDialogs": {
+    "e": {
+      "key": "e",
+      "choiceText": "Je devrais rentrer ramener le verre.",
+      "message": "Retour au bunker...",
+      "conditions": [
+        
+      ],
+      "actions": [
+        {
+          "type": "SetFlagAction",
+          "flag": "SecondLevelDone",
+          "state": true
+        },
+        {
+          "type": "ChangeSceneAction",
+          "sceneId": "BunkerScene",
+          "keepSceneInRam": false
+        },
+        {
+          "type": "AddItemToInventory",
+          "itemId": "glass",
+          "quantity": 1
+        }
+      ],
+      "canChooseNextChoice": true,
+      "nextDialogs": {}
+    }
+  }
+}
