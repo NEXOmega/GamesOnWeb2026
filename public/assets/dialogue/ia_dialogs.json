@@ -1,0 +1,44 @@
+{
+  "key": "e",
+  "choiceText": "Parler",
+  "message": "Bonjour ?",
+  "actions": [],
+  "canChooseNextChoice": true,
+  "nextDialogs": {
+    "r": {
+      "key": "r",
+      "choiceText": "Qu'arrive-t-il au bunker ?",
+      "message": "La survie du bunker est en danger, nos panneaux solaires à l'extérieur ont l'air d'avoir été endommagé, il faudrait que vous alliez voir ce qu'il en est.",
+      "conditions": [],
+      "actions": [],
+      "canChooseNextChoice": true,
+      "nextDialogs": {
+        "r": {
+          "key": "r",
+          "choiceText": "D'accord ouvrez moi le sas.",
+          "message": "Merci a vous, notre avenir depends de vous.",
+          "conditions": [],
+          "actions": [
+            {
+              "type": "TeleportAction",
+              "position": {
+                "x": 10,
+                "y": 10,
+                "z": 10
+              },
+              "rotation": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              }
+            }
+          ],
+          "canChooseNextChoice": true,
+          "nextDialogs": {
+            
+          }
+        }
+      }
+    }
+  }
+}

@@ -31,3 +31,26 @@ export class HasItemCondition extends Condition {
         return StateManager.inventory.hasItem(this.itemId, this.quantity);
     }
 }
+
+/**
+ * Vérifie un état spécifique
+ */
+export class FlagStateCondition extends Condition {
+    readonly type = "FlagStateCondition";
+
+    @Expose()
+    private flag: string;
+
+    @Expose()
+    private state: boolean;
+
+    constructor(flag: string, state: boolean = true) {
+        super();
+        this.flag = flag;
+        this.state = state;
+    }
+
+    public evaluate(player: Player): boolean {
+        return StateManager.getFlag(this.flag) == this.state;
+    }
+}
