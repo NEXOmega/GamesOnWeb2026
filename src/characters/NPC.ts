@@ -54,7 +54,7 @@ export default class NPC extends Entity {
 
         this.interaction = new InteractionEntity(id+"_interaction",this.scene.actualPlayer, 5, scene);
         this.interaction.addMeshEnteredAction(new SendFrontTitleRequest({
-                text: "Hey !",
+                text: "Press [E] to talk",
                 animation: new TitleAnimation.FadeAnimation(1,0,1)
             }));
         this.interaction.addMeshExitedAction(new CloseDialogueAction(this.id));
@@ -66,11 +66,35 @@ export default class NPC extends Entity {
 
         this.addChild(this.interaction)
 
-        this.physicsAggregate = new PhysicsAggregate(this.collistionMesh, PhysicsShapeType.CAPSULE, { mass: 0, restitution: 0 }, scene);
-    
+        // 1. On lui donne un poids normal pour qu'il tombe vers le sol
+        this.physicsAggregate = new PhysicsAggregate(this.collistionMesh, PhysicsShapeType.CAPSULE, { mass: 80, restitution: 0 }, scene);
         this.physicsAggregate.body.setMassProperties({ inertia: Vector3.ZeroReadOnly });
         this.physicsAggregate.body.setAngularDamping(100);
         this.physicsAggregate.body.setLinearDamping(1);
+
+        let framesStill = 0; 
+        
+        const observer = this.scene.onBeforeRenderObservable.add(() => {
+            if (!this.physicsAggregate || !this.physicsAggregate.body) return;
+
+            const velY = Math.abs(this.physicsAggregate.body.getLinearVelocity().y);
+            
+            if (velY < 0.05) {
+                framesStill++;
+            } else {
+                framesStill = 0;
+            }
+
+            if (framesStill > 15) {
+                this.physicsAggregate.body.setMassProperties({ 
+                    mass: 0, 
+                    inertia: Vector3.ZeroReadOnly 
+                });
+                
+                this.scene.onBeforeRenderObservable.remove(observer); 
+                console.log(`Le NPC ${this.id} a atterri et est maintenant figé !`);
+            }
+        });
 
         this.scene.entityManager.addEntity(this);
     }
