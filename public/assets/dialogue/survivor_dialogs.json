@@ -1,0 +1,20 @@
+{
+  "key": "e",
+  "choiceText": "Parler",
+  "message": "Merci beaucoup de m'avoir accepter dans votre bunker.",
+  "actions": [],
+  "canChooseNextChoice": true,
+  "nextDialogs": {
+    "r": {
+      "key": "r",
+      "choiceText": "Ce n'est rien, nous devons nous soutenir.",
+      "message": "Oui, si vous avez besoin de quelque chose, je serais la.",
+      "conditions": [
+        
+      ],
+      "actions": [],
+      "canChooseNextChoice": true,
+      "nextDialogs": {}
+    }
+  }
+}

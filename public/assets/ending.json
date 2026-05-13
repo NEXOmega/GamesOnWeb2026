@@ -1,0 +1,30 @@
+{
+  "background_initial": "./assets/textures/background/background.jpg",
+  "content": [
+    {
+      "conditions": [
+        { "flag": "GaveGlass", "value": false },
+        { "flag": "GavePencil", "value": false }
+      ],
+      "lines": [
+        { "text": "L'AVENTURE TOUCHE À SA FIN", "size": 60, "bold": true },
+        { "text": "Le silence retombe sur les terres désolées...", "size": 30, "trigger_bg": "./assets/textures/background/wasteland.jpg" }
+      ]
+    },
+    {
+      "conditions": [
+        { "flag": "GaveGlass", "value": true },
+        { "flag": "GavePencil", "value": true }
+      ],
+      "lines": [
+        { "text": "Grâce à vous, le bunker est devenu un havre de paix.", "size": 30, "trigger_bg": "./assets/textures/background/bunker.jpg" }
+      ]
+    },
+    {
+      "conditions": [],
+      "lines": [
+        { "text": "Merci d'avoir joué.", "size": 40 }
+      ]
+    }
+  ]
+}

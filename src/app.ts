@@ -13,6 +13,8 @@ import MainMenuScene from './scenes/MainMenuScene';
 import BunkerScene from './scenes/BunkerScene';
 import FirstLevel from './scenes/FirstLevel';
 import SecondLevel from './scenes/SecondLevel';
+import StoryDebugScene from './scenes/StoryDebug';
+import EndingScene from './scenes/EndingScene';
 
 let game: BaseScene;
 
@@ -33,6 +35,13 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     SceneManager.registerScene("DebugScene", async () => {
         const firstScene = new DebugScene(SceneManager.engine, 'renderCanvas');
+        await firstScene.initScene();
+        
+        return firstScene;
+    });
+
+    SceneManager.registerScene("StoryDebugScene", async () => {
+        const firstScene = new StoryDebugScene(SceneManager.engine, 'renderCanvas');
         await firstScene.initScene();
         
         return firstScene;
@@ -64,6 +73,13 @@ window.addEventListener('DOMContentLoaded', async () => {
         await secondScene.initScene();
         
         return secondScene;
+    });
+
+    SceneManager.registerScene("EndingScene", async () => {
+        const endingScene = new EndingScene(SceneManager.engine, 'renderCanvas');
+        await endingScene.initScene();
+        
+        return endingScene;
     });
 
     if(SaveManager.hasSave()) {

@@ -10,7 +10,11 @@
       "choiceText": "Non malheureusement.",
       "message": "D'accord si vous en trouvez. Faites moi signe",
       "conditions": [
-        
+        {
+          "type": "FlagStateCondition",
+          "flag": "GaveGlass",
+          "state": false
+        }
       ],
       "actions": [],
       "canChooseNextChoice": true,
@@ -25,9 +29,20 @@
           "type": "HasItemCondition",
           "itemId": "glass",
           "quantity": 1
+        },
+        {
+          "type": "FlagStateCondition",
+          "flag": "GaveGlass",
+          "state": false
         }
       ],
-      "actions": [],
+      "actions": [
+        {
+          "type": "SetFlagAction",
+          "flag": "GaveGlass",
+          "state": true
+        }
+      ],
       "canChooseNextChoice": true,
       "nextDialogs": {}
     }

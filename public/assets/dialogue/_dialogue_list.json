@@ -1,5 +1,9 @@
 [
     "test_npc",
     "ia_dialogs",
-    "father_dialogs"
+    "father_dialogs",
+    "mother_dialogs",
+    "boy_dialogs",
+    "girl_dialogs",
+    "survivor_dialogs"
 ]

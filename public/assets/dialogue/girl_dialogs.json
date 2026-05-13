@@ -1,7 +1,7 @@
 {
   "key": "e",
   "choiceText": "Parler",
-  "message": "BONJOUR ! Si vous trouvez des joeuts d'avant l'apocalypse je pourrais les avoirs ?",
+  "message": "BONJOUR ! Si vous trouvez des jouets d'avant l'apocalypse je pourrais les avoirs ?",
   "actions": [],
   "canChooseNextChoice": true,
   "nextDialogs": {
@@ -10,7 +10,11 @@
       "choiceText": "Oui pas de soucis, j'essaierais d'en trouver",
       "message": "Merci monsieur !",
       "conditions": [
-        
+        {
+          "type":"FlagStateCondition",
+          "flag": "GavePencil",
+          "state": false
+        }
       ],
       "actions": [],
       "canChooseNextChoice": true,
@@ -25,9 +29,20 @@
           "type": "HasItemCondition",
           "itemId": "colors_pencil",
           "quantity": 1
+        },
+        {
+          "type":"FlagStateCondition",
+          "flag": "GavePencil",
+          "state": false
         }
       ],
-      "actions": [],
+      "actions": [
+        {
+          "type": "SetFlagAction",
+          "flag": "GavePencil",
+          "state": true
+        }
+      ],
       "canChooseNextChoice": true,
       "nextDialogs": {}
     }

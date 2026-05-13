@@ -1,0 +1,20 @@
+{
+  "key": "e",
+  "choiceText": "Parler",
+  "message": "Nous avons découvert que mon fils était malvoyant auriez vous quelque chose pour lui ?",
+  "actions": [],
+  "canChooseNextChoice": true,
+  "nextDialogs": {
+    "r": {
+      "key": "r",
+      "choiceText": "Non malheureusement.",
+      "message": "D'accord si vous en trouvez. Faites moi signe",
+      "conditions": [
+        
+      ],
+      "actions": [],
+      "canChooseNextChoice": true,
+      "nextDialogs": {}
+    }
+  }
+}
