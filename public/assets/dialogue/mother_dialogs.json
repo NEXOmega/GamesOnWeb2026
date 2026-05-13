@@ -1,0 +1,35 @@
+{
+  "key": "e",
+  "choiceText": "Parler",
+  "message": "Nous avons découvert que mon fils était malvoyant auriez vous quelque chose pour lui ?",
+  "actions": [],
+  "canChooseNextChoice": true,
+  "nextDialogs": {
+    "r": {
+      "key": "r",
+      "choiceText": "Non malheureusement.",
+      "message": "D'accord si vous en trouvez. Faites moi signe",
+      "conditions": [
+        
+      ],
+      "actions": [],
+      "canChooseNextChoice": true,
+      "nextDialogs": {}
+    },
+    "t": {
+      "key": "t",
+      "choiceText": "Oui tenez.",
+      "message": "Oh. Merci mille fois nous allons pouvoir fabriquer des lunettes avec.",
+      "conditions": [
+        {
+          "type": "HasItemCondition",
+          "itemId": "glass",
+          "quantity": 1
+        }
+      ],
+      "actions": [],
+      "canChooseNextChoice": true,
+      "nextDialogs": {}
+    }
+  }
+}

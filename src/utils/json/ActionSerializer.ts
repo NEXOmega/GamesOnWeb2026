@@ -9,7 +9,8 @@ import {
     RemoveEntityFromScene, 
     RemoveItemFromInventory, 
     StartDialogueAction, 
-    ChangeSceneAction 
+    ChangeSceneAction, 
+    SetFlagAction
 } from '../../actions/Action';
 
 export const ALL_ACTIONS: { value: any, name: string }[] = [
@@ -18,10 +19,11 @@ export const ALL_ACTIONS: { value: any, name: string }[] = [
     { value: CloseDialogueAction, name: "CloseDialogueAction" },
     { value: ClearDialog, name: "ClearDialogue" },
     { value: ConsoleLogAction, name: "ConsoleLogAction" },
-    { value: RemoveEntityFromScene, name: "RemoveEntityFromScene" }, // Corrigé !
+    { value: RemoveEntityFromScene, name: "RemoveEntityFromScene" },
     { value: RemoveItemFromInventory, name: "RemoveItemFromInventory" },
-    { value: StartDialogueAction, name: "StartDialogueAction" },     // Ajouté !
-    { value: ChangeSceneAction, name: "ChangeSceneAction" }
+    { value: StartDialogueAction, name: "StartDialogueAction" }, 
+    { value: ChangeSceneAction, name: "ChangeSceneAction" },
+    { value: SetFlagAction, name: "SetFlagAction"}
 ];
 
 export const ActionSerializer = new PolymorphicSerializer<Action>(ALL_ACTIONS);

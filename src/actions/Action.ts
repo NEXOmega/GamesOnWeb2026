@@ -201,3 +201,24 @@ export class ChangeSceneAction extends Action {
         SceneManager.changeScene(this.sceneId, this.keepSceneInRam)
     }
 }
+
+export class SetFlagAction extends Action {
+    readonly type = "SetFlagAction";
+
+    @Expose()
+    private flag: string;
+
+    @Expose()
+    private state: boolean;
+
+    constructor(flag: string, state: boolean = true) {
+        super()
+        this.flag = flag;
+        this.state = state;
+    }
+
+    public execute(player: Player): void {
+        StateManager.setFlag(this.flag, this.state);
+    }
+
+}

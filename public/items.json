@@ -10,5 +10,35 @@
         "name": "Pièce de générateur",
         "description": "Une pièce de générateur. Elle est sale, en mauvaise état, mais elle peut toujours être utilisée.",
         "iconUrl": "./textures/items/missing_texture.png"
+    },
+    {
+        "id": "feraille",
+        "name": "Un bout de féraille",
+        "description": "On en trouve de partout depuis l'apocalypse",
+        "iconUrl": "./textures/items/missing_texture.png"
+    },
+    {
+        "id": "wrench",
+        "name": "Clé à écrou",
+        "description": "Une clé à écrou, cela pourrait nous servir pour réparer notre bunker.",
+        "iconUrl": "./textures/items/missing_texture.png"
+    },
+    {
+        "id": "crowbar",
+        "name": "Pied de biche",
+        "description": "Un pied de biche",
+        "iconUrl": "./textures/items/missing_texture.png"
+    },
+    {
+        "id": "colors_pencil",
+        "name": "Crayon de couleurs",
+        "description": "Une relique d'avant l'apocalypse, cela pourrait faire plaisir aux enfants...",
+        "iconUrl": "./textures/items/missing_texture.png"
+    },
+    {
+        "id": "glass",
+        "name": "Verre",
+        "description": "Du verre, cela va forcément pouvoir nous aider au bunker !",
+        "iconUrl": "./textures/items/missing_texture.png"
     }
 ]
