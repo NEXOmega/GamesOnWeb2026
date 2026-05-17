@@ -122,6 +122,8 @@ export default class BaseScene extends Scene {
         const sound = await SoundManager.createSound("scene_ambient", url, loop)
         sound.play()
         this.sceneSounds.set("scene_ambient", sound)
+        console.log("Playing sound " + url);
+        
     }
         
     public onSleep() {

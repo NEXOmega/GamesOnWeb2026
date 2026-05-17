@@ -6,6 +6,7 @@ export default class SecondLevel extends BaseScene {
     async createEnvironment(): Promise<void> {
         await loadConfig("./assets/models/second_level.json", this);
 
-        //this.actualPlayer.playerCamera.maxZ = 50
+        
+        this.playSceneMusic("./assets/sounds/ambient/musicword-apocalypse-236302.mp3", true)
     }
 }
