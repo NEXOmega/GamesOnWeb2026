@@ -5,8 +5,24 @@ export default class SoundManager {
     
 
     public static async initAudio() {
-        this.audioEngine = await CreateAudioEngineAsync();
-    
+        this.audioEngine = await CreateAudioEngineAsync() as AudioEngineV2;
+        
+        const savedVolume = localStorage.getItem("game_volume");
+        if (savedVolume !== null && this.audioEngine) {
+            this.setGlobalVolume(parseFloat(savedVolume));
+        }
+    }
+
+    // --- NOUVEAU : Gestion du volume ---
+    public static setGlobalVolume(volume: number) {
+        if (this.audioEngine) {
+            this.audioEngine.setVolume(volume);
+            localStorage.setItem("game_volume", volume.toString());
+        }
+    }
+
+    public static getGlobalVolume(): number {
+        return this.audioEngine ? this.audioEngine.volume : 1;
     }
 
     public static setListenerToCamera(camera: Camera) {
