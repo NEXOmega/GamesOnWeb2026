@@ -68,7 +68,6 @@ export default class Player extends Entity implements Collidable {
     // Position de spawn initiale, capturée à la création
     private _initialSpawnPosition: Vector3;
 
-    private inventory = new Inventory() ;
     public selectedItemId: string | null = null;
 
     static async CreateAsync(scene: BaseScene, position: Vector3 = Vector3.Zero()): Promise<Player> {
@@ -324,7 +323,7 @@ export default class Player extends Entity implements Collidable {
     }
 
     public getInventory() : Inventory {
-        return this.inventory ;
+        return StateManager.inventory;
     }
 
 }

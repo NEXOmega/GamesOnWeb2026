@@ -12,6 +12,7 @@ export class HealingPotion implements UsableItem {
 
     use(player: Player): void {
         if (player.isDead) return;
+        if (!player.getInventory().items.has(this.itemId)) return;
 
         const before = player.health;
         player.heal(this.healAmount);

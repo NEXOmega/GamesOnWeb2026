@@ -11,7 +11,7 @@ import {
 } from "@babylonjs/gui";
 import { Scene } from "@babylonjs/core";
 import Inventory from "../../player/inventory/Inventory";
-import { Item } from "../../player/inventory/Item";
+import { Item } from "../../items/Item";
 import { State, StateManager } from "../../utils/StateManager";
 import ItemRegistry from "../../items/ItemRegistry";
 import UsableRegistry from "../../items/UsableRegistry";
@@ -100,6 +100,11 @@ export default class InventoryUI {
             const btn = this.createListItem(ItemRegistry.getItem(key), value);
             this.listPanel.addControl(btn);
         });
+
+        if (this.selectedItemId && !this.inventory.items.has(this.selectedItemId)) {
+            this.selectedItemId = null;
+            this.detailsPanel.children.slice().forEach(child => child.dispose());
+        }
     }
 
     private createListItem(item: Item, quantity: number): Rectangle {

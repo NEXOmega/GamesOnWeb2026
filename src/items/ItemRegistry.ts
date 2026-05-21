@@ -1,5 +1,5 @@
 // ItemRegistry.ts
-import { Item } from "../player/inventory/Item";
+import { Item } from "./Item";
 
 const items: Map<string, Item> = new Map();
 
