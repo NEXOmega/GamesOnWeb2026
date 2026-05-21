@@ -5,7 +5,7 @@ import Player from '../characters/Player';
 import { loadConfig } from './SceneUtils';
 import IANavigation from "../characters/IANavigation";
 import DroneEnemy from "../characters/DroneEnemy";
-import {HealingPotionPickup} from "../items /HealingPotionPickup";
+import {HealingPotionPickup} from "../items/HealingPotionPickup";
 import Pickable from "../entities/Pickable";
 
 export default class DebugScene extends BaseScene {

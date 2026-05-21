@@ -4,7 +4,7 @@ import InteractionEntity from "./InteractionEntity";
 import SendFrontTitleRequest from "../actions/SendFrontTitleRequest";
 import * as TitleAnimation from '../gui/title/TitleAnimation'
 import { StateManager } from "../utils/StateManager";
-import ItemRegistry from "../items /ItemRegistry";
+import ItemRegistry from "../items/ItemRegistry";
 import BaseScene from "../scenes/BaseScene";
 import {AddItemToInventory, ClearDialog, OnceAction, RemoveEntityFromScene} from "../actions/Action";
 

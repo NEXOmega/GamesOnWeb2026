@@ -13,8 +13,8 @@ import { Scene } from "@babylonjs/core";
 import Inventory from "../../player/inventory/Inventory";
 import { Item } from "../../player/inventory/Item";
 import { State, StateManager } from "../../utils/StateManager";
-import ItemRegistry from "../../items /ItemRegistry";
-import UsableRegistry from "../../items /UsableRegistry";
+import ItemRegistry from "../../items/ItemRegistry";
+import UsableRegistry from "../../items/UsableRegistry";
 
 export default class InventoryUI {
     private texture: AdvancedDynamicTexture;

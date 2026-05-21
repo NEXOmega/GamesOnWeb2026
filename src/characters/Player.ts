@@ -22,7 +22,7 @@ import InventoryUI from '../gui/inventory/InventoryHud';
 import BaseScene from '../scenes/BaseScene';
 import SceneManager from '../scenes/SceneManager';
 import * as TitleAnimation from '../gui/title/TitleAnimation';
-import UsableRegistry from "../items /UsableRegistry";
+import UsableRegistry from "../items/UsableRegistry";
 
 export default class Player extends Entity implements Collidable {
 
