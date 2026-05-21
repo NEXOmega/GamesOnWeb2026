@@ -41,8 +41,8 @@ export default class FlyingNavigation extends Navigation {
         );
 
         if (hit && hit.hit) {
-            const hitNormal = hit.getNormal(true)!;
-            desiredDirection = desiredDirection.add(hitNormal.scale(2)).normalize();
+            const hitNormal = hit.getNormal(true);
+            if (hitNormal) desiredDirection = desiredDirection.add(hitNormal.scale(2)).normalize();
         }
 
         if (!this.entity.mesh.rotationQuaternion) this.entity.mesh.rotationQuaternion = Quaternion.Identity();

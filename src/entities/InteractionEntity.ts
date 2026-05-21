@@ -23,7 +23,7 @@ export default class InteractionEntity extends CollisionEntity {
         }
     
     public onInteract(player: Player): void {
-        let distance = Vector3.Distance(player.mesh.position, this.mesh.position);
+        let distance = Vector3.Distance(player.mesh.getAbsolutePosition(), this.mesh.getAbsolutePosition());
         if(distance > this.distance) {
             return;
         }

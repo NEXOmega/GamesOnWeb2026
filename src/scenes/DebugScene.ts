@@ -5,6 +5,7 @@ import Player from '../characters/Player';
 import { loadConfig } from './SceneUtils';
 import IANavigation from "../characters/IANavigation";
 import DroneEnemy from "../characters/DroneEnemy";
+import Pickable from "../entities/Pickable";
 export default class DebugScene extends BaseScene {
     public posPlayer: Player;
 
@@ -34,6 +35,16 @@ export default class DebugScene extends BaseScene {
             this,
             new Vector3(-8, 4, 5),
         );
+
+        await Pickable.CreateAsync(
+            "health_pot_unique_id",
+            this,
+            new Vector3(5, 1, 0),
+            "health_potion",
+            1
+        );
+
+
 
     }
 }
