@@ -12,8 +12,7 @@ export default class Inventory {
     }
 
     public addItem(itemId: string, quantity: number = 1): boolean {
-        const remainingSlots = this.maxSlots - this.items.keys.length;
-
+        const remainingSlots = this.maxSlots - this.items.size;
         if (remainingSlots <= 0) {
             return false;
         }
@@ -33,6 +32,7 @@ export default class Inventory {
         this.items.set(itemId, this.items.get(itemId) - quantity);
         if(this.items.get(itemId) <= 0)
             this.items.delete(itemId);
+        this.onInventoryChanged.notifyObservers();
         return true;
     }
 

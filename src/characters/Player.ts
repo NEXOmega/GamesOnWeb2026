@@ -22,6 +22,7 @@ import InventoryUI from '../gui/inventory/InventoryHud';
 import BaseScene from '../scenes/BaseScene';
 import SceneManager from '../scenes/SceneManager';
 import * as TitleAnimation from '../gui/title/TitleAnimation';
+import UsableRegistry from "../items /UsableRegistry";
 
 export default class Player extends Entity implements Collidable {
 
@@ -46,7 +47,14 @@ export default class Player extends Entity implements Collidable {
     readonly playerCamera: PlayerCamera;
     public readonly playerHud: PlayerHud = new PlayerHud();
 
-    private inventoryUI = new InventoryUI(StateManager.inventory, this.scene);
+    private inventoryUI = new InventoryUI(
+        StateManager.inventory,
+        this.scene,
+        (itemId) => {
+            const usable = UsableRegistry.get(itemId);
+            usable?.use(this);
+        }
+    );
 
     // === Système de PV ===
     public readonly maxHealth: number = 100;
@@ -59,6 +67,9 @@ export default class Player extends Entity implements Collidable {
 
     // Position de spawn initiale, capturée à la création
     private _initialSpawnPosition: Vector3;
+
+    private inventory = new Inventory() ;
+    public selectedItemId: string | null = null;
 
     static async CreateAsync(scene: BaseScene, position: Vector3 = Vector3.Zero()): Promise<Player> {
         const result = await SceneLoader.ImportMeshAsync("", "./assets/models/", "Character.glb", scene);
@@ -129,12 +140,10 @@ export default class Player extends Entity implements Collidable {
         this._stateBeforeDeath = StateManager.state;
         StateManager.state = State.DEAD;
 
-        // Arrête le joueur
         this.physicsAggregate.body.setLinearVelocity(Vector3.Zero());
         this.physicsAggregate.body.setAngularVelocity(Vector3.Zero());
 
-        // Affiche le titre via le TitleController.
-        // Animation = fade-in puis attente "infinie" (jusqu'au respawn qui skip).
+
         const title = this.playerHud.title;
         title.clearQueue();
         title.skipCurrent();
@@ -146,7 +155,6 @@ export default class Player extends Entity implements Collidable {
             ]),
         });
 
-        // Bouton Respawn
         this.playerHud.showRespawnButton(() => this.respawn());
 
         console.log("[Player] mort");
@@ -164,6 +172,14 @@ export default class Player extends Entity implements Collidable {
         if (InputManager.isActionJustPressed("open_inventory")) {
             if (StateManager.state === State.PLAYING || StateManager.state === State.IN_INVENTORY) {
                 this.inventoryUI.toggle();
+            }
+        }
+
+        if (InputManager.isActionJustPressed("use_item")) {
+            const selected = this.inventoryUI.selectedItemId;
+            if (selected) {
+                const usable = UsableRegistry.get(selected);
+                usable?.use(this);
             }
         }
 
@@ -306,4 +322,9 @@ export default class Player extends Entity implements Collidable {
 
         this.refreshHealthHud();
     }
+
+    public getInventory() : Inventory {
+        return this.inventory ;
+    }
+
 }

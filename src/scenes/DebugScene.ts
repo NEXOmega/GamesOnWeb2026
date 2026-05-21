@@ -5,6 +5,8 @@ import Player from '../characters/Player';
 import { loadConfig } from './SceneUtils';
 import IANavigation from "../characters/IANavigation";
 import DroneEnemy from "../characters/DroneEnemy";
+import {HealingPotionPickup} from "../items /HealingPotionPickup";
+import Pickable from "../entities/Pickable";
 
 export default class DebugScene extends BaseScene {
     public posPlayer: Player;
@@ -18,7 +20,6 @@ export default class DebugScene extends BaseScene {
         await loadConfig("./assets/models/debug_level.json", this);
         this.posPlayer = this.actualPlayer as Player;
 
-        // IA au sol avec navigation
         const enemy = await IANavigation.CreateAsync(
             "Enemy1",
             this,
@@ -30,12 +31,19 @@ export default class DebugScene extends BaseScene {
         enemy.IaToPlayer(this.posPlayer);
         this.entityManager.addEntity(enemy);
 
-        // Drone volant (s'enregistre tout seul via Enemy → pas besoin d'addEntity)
 
         await DroneEnemy.CreateAsync(
             "Drone1",
             this,
             new Vector3(-8, 4, 5),
+        );
+
+        const potion = await Pickable.CreateAsync(
+            "health_pot_1",
+            this,
+            new Vector3(0, 1, 3),
+            "health_potion",
+            1
         );
 
 

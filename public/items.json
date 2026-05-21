@@ -1,8 +1,8 @@
 [
     {
         "id": "health_potion",
-        "name": "Potion de Soin",
-        "description": "Un liquide rouge qui sent la fraise. Restaure 50 PV.",
+        "name": "Potion de soin",
+        "description": "Restaure 50 points de vie.",
         "iconUrl": "./textures/items/potion.png"
     },
     {

@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import BaseScene from './scenes/BaseScene'
 import DebugScene from './scenes/DebugScene';
 import SceneManager from './scenes/SceneManager';
-import ItemRegistry from './utils/ItemRegistry';
+import ItemRegistry from './items /ItemRegistry';
 import SaveManager, { GameSaveData } from './utils/SaveManager';
 import { StateManager } from './utils/StateManager';
 import DialogueManager from './dialogs/DialogueManager';

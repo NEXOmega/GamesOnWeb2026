@@ -16,7 +16,7 @@ import NPC from '../characters/NPC';
 import Dialogue from '../dialogs/Dialogue';
 import SceneManager from './SceneManager';
 import SaveManager from '../utils/SaveManager';
-import ItemRegistry from '../utils/ItemRegistry';
+import ItemRegistry from '../items /ItemRegistry';
 import Pickable from '../entities/Pickable';
 import { ConsoleLogAction, TeleportAction } from '../actions/Action';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
