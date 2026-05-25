@@ -15,9 +15,7 @@ export default class OptionsHUD {
         this.scene = scene;
 
         this.texture = AdvancedDynamicTexture.CreateFullscreenUI("OptionsHUD", true, scene);
-        if (this.texture.layer) {
-            this.texture.layer.zIndex = 1000;
-        }
+
         this.mainContainer = new Rectangle("OptionsContainer");
         this.mainContainer.width = "600px";
         this.mainContainer.height = "520px";
