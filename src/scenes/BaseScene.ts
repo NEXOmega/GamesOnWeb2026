@@ -11,6 +11,7 @@ import DialogueManager from '../dialogs/DialogueManager';
 import InteractionEntity from '../entities/InteractionEntity';
 import Player from '../characters/Player';
 import SoundManager from '../sounds/SoundManager';
+import OptionsHUD from '../gui/OptionHUD';
 
 export default class BaseScene extends Scene {
     public canvas: HTMLCanvasElement;
@@ -25,11 +26,15 @@ export default class BaseScene extends Scene {
 
     public playerSpawn : Vector3 = new Vector3(0,0,0);
 
+    public optionsHud: OptionsHUD;
+
     constructor(engine: Engine, canvasElement: string, pointerLock: boolean = true) {
         super(engine);
         
         this.canvas = document.getElementById(canvasElement) as HTMLCanvasElement;
         this.entityManager = new EntityManager();
+
+        this.optionsHud = new OptionsHUD(this);
 
         if(pointerLock) {
             this.canvas.onclick = () => {
@@ -73,7 +78,14 @@ export default class BaseScene extends Scene {
     }
 
     private setupGlobalShortcuts() {
-        // Afficher/Cacher l'Inspecteur avec Alt+I   
+        /*window.addEventListener("keydown", (ev) => {
+            if (ev.key === 'Escape') {
+                if (StateManager.state === State.PLAYING || StateManager.state === State.IN_INVENTORY) {
+                    this.optionsHud.toggle();
+                }
+            }
+        });*/
+
         window.addEventListener("keydown", (ev) => {
             if (ev.altKey && ev.key === 'i') {
                 if (this.debugLayer.isVisible()) {
@@ -122,6 +134,8 @@ export default class BaseScene extends Scene {
         const sound = await SoundManager.createSound("scene_ambient", url, loop)
         sound.play()
         this.sceneSounds.set("scene_ambient", sound)
+        console.log("Playing sound " + url);
+        
     }
         
     public onSleep() {
@@ -133,6 +147,7 @@ export default class BaseScene extends Scene {
     }
 
     public dispose() {
+        if(this.optionsHud) this.optionsHud.dispose();
         this.sceneSounds.forEach(s => {
             s.stop();
             s.dispose();

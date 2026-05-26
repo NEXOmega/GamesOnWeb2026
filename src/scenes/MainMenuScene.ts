@@ -45,8 +45,7 @@ export default class MainMenuScene extends BaseScene {
         const optionsBtn = Button.CreateSimpleButton("optionsBtn", "OPTIONS");
         this.styleMenuButton(optionsBtn);
         optionsBtn.onPointerUpObservable.add(() => {
-            console.log("Ouverture des options...");
-            this.toggleOptionsPanel();
+            this.optionsHud.toggle();
         });
         panel.addControl(optionsBtn);
     }
@@ -62,10 +61,6 @@ export default class MainMenuScene extends BaseScene {
         
         btn.onPointerEnterObservable.add(() => btn.background = "rgba(100, 100, 100, 0.9)");
         btn.onPointerOutObservable.add(() => btn.background = "rgba(50, 50, 50, 0.8)");
-    }
-
-    private toggleOptionsPanel() {
-        alert("Panneau d'options en construction !");
     }
 
     public dispose() {

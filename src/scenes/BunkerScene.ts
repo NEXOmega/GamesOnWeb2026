@@ -28,5 +28,6 @@ export default class BunkerScene extends BaseScene {
     async createEnvironment(): Promise<void> {
         await loadConfig("./assets/models/bunker.json", this);
 
+        this.playSceneMusic("./assets/sounds/ambient/iuvenis-subterranean-serenade-serenata-subterranea-288134.mp3", true)
     }
 }
