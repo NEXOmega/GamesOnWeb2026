@@ -6,9 +6,9 @@ import { Behavior } from "../Behavior";
  * Utilisé pour lancer un laser en direction du target si la cible est a portée
  */
 export default class RangedAttackBehavior extends Behavior {
-    
-    public declare entity: DroneEnemy; 
-    
+
+    public declare entity: DroneEnemy;
+
     private lastFireTime: number = 0;
     private isAiming: boolean = false;
 
@@ -25,17 +25,17 @@ export default class RangedAttackBehavior extends Behavior {
         const distance = Vector3.Distance(myPos, targetPos);
 
         const ray = new Ray(myPos, direction, distance);
-        
-        const hit = this.entity.scene.pickWithRay(ray, (m) => 
-            m !== this.entity.collider && 
-            m !== this.entity.mesh && 
+
+        const hit = this.entity.scene.pickWithRay(ray, (m) =>
+            m !== this.entity.collider &&
+            m !== this.entity.mesh &&
             !m.isDescendantOf(this.entity.mesh) &&
             m.name !== "skyBox" &&
             m.isPickable
         );
 
         if (hit && hit.hit && hit.pickedMesh && hit.pickedMesh.name !== "CharacterTransform") {
-            return false; 
+            return false;
         }
 
         return true;
@@ -43,21 +43,21 @@ export default class RangedAttackBehavior extends Behavior {
 
     public canStart(): boolean {
         if (!this.entity.target) return false;
-        
+
         const myPos = this.entity.collider.getAbsolutePosition();
         const targetPos = this.entity.target.impostorMesh.getAbsolutePosition();
         const distance = Vector3.Distance(myPos, targetPos);
-        
+
         return distance <= this.entity.attackRange && this.hasLineOfSight();
     }
 
     public canContinue(): boolean {
         if (!this.entity.target) return false;
-        
+
         const myPos = this.entity.collider.getAbsolutePosition();
         const targetPos = this.entity.target.impostorMesh.getAbsolutePosition();
         const distance = Vector3.Distance(myPos, targetPos);
-        
+
         return distance <= (this.entity.attackRange + 2) && this.hasLineOfSight();
     }
 
@@ -98,15 +98,15 @@ export default class RangedAttackBehavior extends Behavior {
 
     public stop(): void {
         this.isAiming = false;
-        this.entity.laser.stopAim(); 
+        this.entity.laser.stopAim();
     }
 
     private executeFire(origin: Vector3, direction: Vector3) {
         const ray = new Ray(origin, direction, this.entity.attackRange + 5);
-        
-        const hit = this.entity.scene.pickWithRay(ray, (m) => 
-            m !== this.entity.collider && 
-            m !== this.entity.mesh && 
+
+        const hit = this.entity.scene.pickWithRay(ray, (m) =>
+            m !== this.entity.collider &&
+            m !== this.entity.mesh &&
             !m.isDescendantOf(this.entity.mesh) &&
             m.name !== "skyBox" &&
             m.isPickable
@@ -116,15 +116,11 @@ export default class RangedAttackBehavior extends Behavior {
         this.entity.laser.fire(origin, direction, hitDistance);
 
         if (hit && hit.hit && hit.pickedMesh && hit.pickedMesh.name === "CharacterTransform") {
-            
-            // On récupère le joueur depuis la scène
-            const player = this.entity.scene.actualPlayer; 
-            
+
+            const player = this.entity.scene.actualPlayer;
+
             if (player) {
-                console.log("Le joueur a été touché !");
-                player.respawn()
-                // Exemple : player.takeDamage(10);
-                // Exemple : player.applyKnockback(direction);
+                player.takeDamage(this.entity.laserDamage);
             }
         }
     }

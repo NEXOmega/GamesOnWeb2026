@@ -28,6 +28,7 @@
     "@babylonjs/materials": "^8.50.3",
     "class-transformer": "^0.5.1",
     "http": "^0.0.1-security",
+    "recast-detour": "^1.6.4",
     "reflect-metadata": "^0.2.2"
   }
 }

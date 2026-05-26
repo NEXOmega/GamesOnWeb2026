@@ -1,9 +1,20 @@
-import { AdvancedDynamicTexture, Rectangle, StackPanel, ScrollViewer, TextBlock, Image, Control, Grid } from "@babylonjs/gui";
+import {
+    AdvancedDynamicTexture,
+    Rectangle,
+    StackPanel,
+    ScrollViewer,
+    TextBlock,
+    Image,
+    Control,
+    Grid,
+    Button
+} from "@babylonjs/gui";
 import { Scene } from "@babylonjs/core";
 import Inventory from "../../player/inventory/Inventory";
-import { Item } from "../../player/inventory/Item";
+import { Item } from "../../items/Item";
 import { State, StateManager } from "../../utils/StateManager";
-import ItemRegistry from "../../utils/ItemRegistry";
+import ItemRegistry from "../../items/ItemRegistry";
+import UsableRegistry from "../../items/UsableRegistry";
 
 export default class InventoryUI {
     private texture: AdvancedDynamicTexture;
@@ -12,10 +23,14 @@ export default class InventoryUI {
     private detailsPanel: StackPanel;
     private inventory: Inventory;
     private scene: Scene;
+    public selectedItemId: string | null = null;
+    private _onUseCallBack : (string) => void;
 
-    constructor(inventory: Inventory, scene: Scene) {
+
+    constructor(inventory: Inventory, scene: Scene,onUse: (itemId: string) => void) {
         this.inventory = inventory;
         this.scene = scene;
+        this._onUseCallBack = onUse;
         
         this.texture = AdvancedDynamicTexture.CreateFullscreenUI("InventoryUI", true, this.scene);
 
@@ -85,6 +100,11 @@ export default class InventoryUI {
             const btn = this.createListItem(ItemRegistry.getItem(key), value);
             this.listPanel.addControl(btn);
         });
+
+        if (this.selectedItemId && !this.inventory.items.has(this.selectedItemId)) {
+            this.selectedItemId = null;
+            this.detailsPanel.children.slice().forEach(child => child.dispose());
+        }
     }
 
     private createListItem(item: Item, quantity: number): Rectangle {
@@ -101,6 +121,7 @@ export default class InventoryUI {
         btn.onPointerOutObservable.add(() => { btn.background = "rgba(40, 40, 40, 0.8)"; });
 
         btn.onPointerClickObservable.add(() => {
+            this.selectedItemId = item.id;
             this.showItemDetails(item);
         });
 
@@ -141,5 +162,21 @@ export default class InventoryUI {
         descText.fontSize = 20;
         descText.textVerticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
         this.detailsPanel.addControl(descText);
+
+        const usable = UsableRegistry.get(item.id);
+        if (usable) {
+            const useBtn = Button.CreateSimpleButton("useBtn", "Utiliser");
+            useBtn.width = "160px";
+            useBtn.height = "44px";
+            useBtn.color = "white";
+            useBtn.background = "rgb(40, 140, 60)";
+            useBtn.cornerRadius = 6;
+            useBtn.fontSize = 20;
+            useBtn.onPointerClickObservable.add(() => {
+                this._onUseCallBack?.(item.id);
+            });
+            this.detailsPanel.addControl(useBtn);
+        }
     }
+
 }

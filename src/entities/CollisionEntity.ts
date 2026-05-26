@@ -26,7 +26,7 @@ export default class CollisionEntity extends Entity implements Collidable {
      * @param scene Scene so we can create the the entity and action manager
      */
     constructor(id: string, target: Collidable, distance: number, scene: BaseScene, position: Vector3 = Vector3.Zero()) {
-        super(id, MeshBuilder.CreateSphere("debugEntity", { diameter: distance }, scene), scene);
+        super(id, MeshBuilder.CreateSphere("debugEntity", {diameter: distance}, scene), scene);
         this.distance = distance;
             this.target = target;
 
@@ -93,4 +93,6 @@ export default class CollisionEntity extends Entity implements Collidable {
             }
         }
     }
+    
+
 }

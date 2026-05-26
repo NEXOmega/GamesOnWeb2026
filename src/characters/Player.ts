@@ -16,11 +16,13 @@ import { Collidable } from '../entities/CollidableInterface';
 import { State, StateConfig, StateManager } from '../utils/StateManager';
 import PlayerHud from '../gui/PlayerHud';
 import PlayerCamera from '../camera/PlayerCamera';
-import InputManager from '../utils/InputManager'; // Ajuste le chemin selon où tu as créé le fichier
+import InputManager from '../utils/InputManager';
 import Inventory from '../player/inventory/Inventory';
 import InventoryUI from '../gui/inventory/InventoryHud';
 import BaseScene from '../scenes/BaseScene';
 import SceneManager from '../scenes/SceneManager';
+import * as TitleAnimation from '../gui/title/TitleAnimation';
+import UsableRegistry from "../items/UsableRegistry";
 
 export default class Player extends Entity implements Collidable {
 
@@ -41,16 +43,37 @@ export default class Player extends Entity implements Collidable {
     readonly coyoteTimeThreshold = 0.1;
 
     readonly animationBlendSpeed = 4.0;
-    
+
     readonly playerCamera: PlayerCamera;
     public readonly playerHud: PlayerHud = new PlayerHud();
-    
-    private inventoryUI = new InventoryUI(StateManager.inventory, this.scene);
+
+    private inventoryUI = new InventoryUI(
+        StateManager.inventory,
+        this.scene,
+        (itemId) => {
+            const usable = UsableRegistry.get(itemId);
+            usable?.use(this);
+        }
+    );
+
+    // === Système de PV ===
+    public readonly maxHealth: number = 100;
+    private _health: number = 100;
+    private _isDead: boolean = false;
+    private _stateBeforeDeath: State = State.PLAYING;
+
+    public get health(): number { return this._health; }
+    public get isDead(): boolean { return this._isDead; }
+
+    // Position de spawn initiale, capturée à la création
+    private _initialSpawnPosition: Vector3;
+
+    public selectedItemId: string | null = null;
 
     static async CreateAsync(scene: BaseScene, position: Vector3 = Vector3.Zero()): Promise<Player> {
         const result = await SceneLoader.ImportMeshAsync("", "./assets/models/", "Character.glb", scene);
         const model = result.meshes[0];
-        
+
         const cameraAttachPoint = new TransformNode("cameraAttachPoint", scene);
         cameraAttachPoint.parent = model;
         cameraAttachPoint.position = new Vector3(0, 1.5, 0);
@@ -62,8 +85,8 @@ export default class Player extends Entity implements Collidable {
 
     constructor(mesh: AbstractMesh, camera: PlayerCamera, scene: BaseScene, position: Vector3) {
         super("player", mesh, scene);
-        
-        this.impostorMesh = MeshBuilder.CreateCapsule("CharacterTransform", {height: 1.30, radius: 0.25}, scene);
+
+        this.impostorMesh = MeshBuilder.CreateCapsule("CharacterTransform", { height: 1.30, radius: 0.25 }, scene);
         this.impostorMesh.position = position;
         this.impostorMesh.visibility = 0.1;
         this.impostorMesh.rotationQuaternion = Quaternion.Identity();
@@ -74,7 +97,7 @@ export default class Player extends Entity implements Collidable {
         this.model.position.y = -0.65;
         this.model.scaling = new Vector3(0.3, 0.3, 0.3);
 
-        this.model.rotationQuaternion = Quaternion.Identity(); 
+        this.model.rotationQuaternion = Quaternion.Identity();
 
         this.playerCamera = camera;
 
@@ -82,14 +105,80 @@ export default class Player extends Entity implements Collidable {
         this.physicsAggregate.body.setMassProperties({ inertia: Vector3.ZeroReadOnly });
         this.physicsAggregate.body.setAngularDamping(100);
         this.physicsAggregate.body.setLinearDamping(1);
+
+        this._initialSpawnPosition = position.clone();
+
+        this.refreshHealthHud();
     }
-    
+
+    public takeDamage(amount: number): void {
+        if (this._isDead || amount <= 0) return;
+
+        this._health = Math.max(0, this._health - amount);
+        this.refreshHealthHud();
+
+        if (this._health <= 0) {
+            this.die();
+        }
+    }
+
+    public heal(amount: number): void {
+        if (this._isDead || amount <= 0) return;
+        this._health = Math.min(this.maxHealth, this._health + amount);
+        this.refreshHealthHud();
+    }
+
+    /**
+     * Mort du joueur : passe en State.DEAD, fade-in du titre "VOUS ÊTES MORT"
+     * (qui reste affiché jusqu'au respawn), et bouton Respawn.
+     */
+    public die(): void {
+        if (this._isDead) return;
+        this._isDead = true;
+
+        this._stateBeforeDeath = StateManager.state;
+        StateManager.state = State.DEAD;
+
+        this.physicsAggregate.body.setLinearVelocity(Vector3.Zero());
+        this.physicsAggregate.body.setAngularVelocity(Vector3.Zero());
+
+
+        const title = this.playerHud.title;
+        title.clearQueue();
+        title.skipCurrent();
+        title.enqueueFront({
+            text: "VOUS ÊTES MORT",
+            animation: new TitleAnimation.AnimationSequence([
+                new TitleAnimation.FadeAnimation(400, 0, 1),
+                new TitleAnimation.WaitAnimation(Number.MAX_SAFE_INTEGER),
+            ]),
+        });
+
+        this.playerHud.showRespawnButton(() => this.respawn());
+
+        console.log("[Player] mort");
+    }
+
+    private refreshHealthHud(): void {
+        if (this.playerHud && typeof this.playerHud.updateHealthBar === "function") {
+            this.playerHud.updateHealthBar(this._health, this.maxHealth);
+        }
+    }
+
     public update(delta: number): void {
         const deltaSeconds = delta / 1000;
 
         if (InputManager.isActionJustPressed("open_inventory")) {
             if (StateManager.state === State.PLAYING || StateManager.state === State.IN_INVENTORY) {
                 this.inventoryUI.toggle();
+            }
+        }
+
+        if (InputManager.isActionJustPressed("use_item")) {
+            const selected = this.inventoryUI.selectedItemId;
+            if (selected) {
+                const usable = UsableRegistry.get(selected);
+                usable?.use(this);
             }
         }
 
@@ -130,7 +219,7 @@ export default class Player extends Entity implements Collidable {
 
         const result = new PhysicsRaycastResult();
         physicsPlugin.raycast(raycastOrigin, raycastEnd, result);
-        
+
         const isGrounded = result.hasHit && result.hitNormalWorld.y > 0.7;
 
         if (isGrounded) {
@@ -139,7 +228,7 @@ export default class Player extends Entity implements Collidable {
         } else {
             this.coyoteTimeCounter += deltaSeconds;
         }
-        
+
         const jumpKeyDown = InputManager.isActionPressed("jump");
         const canJump = isGrounded || this.coyoteTimeCounter < this.coyoteTimeThreshold;
 
@@ -170,9 +259,9 @@ export default class Player extends Entity implements Collidable {
             }
 
             const targetRotation = Quaternion.FromLookDirectionLH(move, Vector3.Up());
-            
+
             this.model.rotationQuaternion = Quaternion.Slerp(this.model.rotationQuaternion, targetRotation, this.rotationSpeed * deltaSeconds);
-            
+
             const velocity = move.scale(this.moveSpeed);
             this.physicsAggregate.body.setLinearVelocity(new Vector3(velocity.x, this.physicsAggregate.body.getLinearVelocity().y, velocity.z));
         } else {
@@ -190,12 +279,12 @@ export default class Player extends Entity implements Collidable {
 
     public setPosition(position: Vector3) {
         if (!position) {
-            return; 
+            return;
         }
 
         this.physicsAggregate.body.disablePreStep = false;
         this.impostorMesh.position.copyFrom(position);
-        
+
         this.physicsAggregate.body.setLinearVelocity(Vector3.Zero());
         this.physicsAggregate.body.setAngularVelocity(Vector3.Zero());
 
@@ -210,7 +299,31 @@ export default class Player extends Entity implements Collidable {
         return this.impostorMesh;
     }
 
-    public respawn() : void {
-        this.setPosition(this.scene.playerSpawn);
+    /**
+     * Respawn au point initial. Réinitialise PV, état et UI.
+     */
+    public respawn(): void {
+        const spawnPos = this._initialSpawnPosition ?? this.scene.playerSpawn;
+        this.setPosition(spawnPos);
+
+        this._health = this.maxHealth;
+        this._isDead = false;
+
+        // Cache l'UI de mort
+        this.playerHud.hideRespawnButton();
+        this.playerHud.title.clearQueue();
+        this.playerHud.title.skipCurrent();
+        // Force le titre à devenir invisible immédiatement (sinon il reste à alpha=1)
+        this.playerHud.title.text.alpha = 0;
+
+        // Rétablit l'état précédent (par défaut PLAYING)
+        StateManager.state = this._stateBeforeDeath === State.DEAD ? State.PLAYING : this._stateBeforeDeath;
+
+        this.refreshHealthHud();
     }
+
+    public getInventory() : Inventory {
+        return StateManager.inventory;
+    }
+
 }
