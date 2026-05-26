@@ -41,6 +41,16 @@
           "type": "SetFlagAction",
           "flag": "GavePencil",
           "state": true
+        },
+        {
+          "type":"RemoveItemFromInventory",
+          "itemId": "colors_pencil",
+          "quantity": 1
+        },
+        {
+          "type": "AddItemToInventory",
+          "itemId": "map",
+          "quantity": 1
         }
       ],
       "canChooseNextChoice": true,
