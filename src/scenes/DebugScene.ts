@@ -37,7 +37,7 @@ export default class DebugScene extends BaseScene {
         );
 
         await Pickable.CreateAsync(
-            "health_pot_unique_id",
+            "paracetamol_1",
             this,
             new Vector3(5, 1, 0),
             "health_potion",

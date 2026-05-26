@@ -19,7 +19,7 @@ export default class Pickable extends Entity {
         private _pickedUp = false
 
     static async CreateAsync(id: string, scene: BaseScene, position: Vector3, itemId: string, quantity: number): Promise<Pickable> {
-        const result = await SceneLoader.ImportMeshAsync("", "./assets/models/", "paracetamol.glb", scene);
+        const result = await SceneLoader.ImportMeshAsync("", "./assets/models/items/", itemId + ".glb", scene);
         const root = result.meshes[0];
         const visualMesh = result.meshes[1];
         if (visualMesh) visualMesh.scaling = new Vector3(0.05, 0.05, 0.05);
