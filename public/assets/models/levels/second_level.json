@@ -1,7 +1,7 @@
 {
-    "model": "Desert.glb",
+    "model": "SecondLevel.glb",
     "scale": 1,
-    "centerMap": false,
+    "centerMap": true,
     "physicsEnabled": true,
     "sky": {
         "luminance": 1.0,
@@ -22,5 +22,5 @@
         "color": [0.9, 0.8, 0.4],
         "density": 0.0015
     },
-    "playerSpawn": { "x": 0, "y": 10, "z": 0 }
+    "playerSpawn": { "x": 50, "y": 400, "z": 0 }
 }

@@ -15,7 +15,7 @@ export default class DebugScene extends BaseScene {
     }
 
     async createEnvironment(): Promise<void> {
-        await loadConfig("./assets/models/debug_level.json", this);
+        await loadConfig("./assets/models/levels/debug_level.json", this);
         this.posPlayer = this.actualPlayer as Player;
 
         const enemy = await IANavigation.CreateAsync(

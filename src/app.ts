@@ -6,7 +6,6 @@ import ItemRegistry from './items/ItemRegistry';
 import SaveManager, { GameSaveData } from './utils/SaveManager';
 import { StateManager } from './utils/StateManager';
 import DialogueManager from './dialogs/DialogueManager';
-import Dust2Scene from './scenes/Dust2Scene';
 import { CreateAudioEngineAsync } from '@babylonjs/core/AudioV2';
 import SoundManager from './sounds/SoundManager';
 import MainMenuScene from './scenes/MainMenuScene';
@@ -42,13 +41,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     SceneManager.registerScene("StoryDebugScene", async () => {
         const firstScene = new StoryDebugScene(SceneManager.engine, 'renderCanvas');
-        await firstScene.initScene();
-        
-        return firstScene;
-    });
-
-    SceneManager.registerScene("Dust2", async () => {
-        const firstScene = new Dust2Scene(SceneManager.engine, 'renderCanvas');
         await firstScene.initScene();
         
         return firstScene;
