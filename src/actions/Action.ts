@@ -25,6 +25,7 @@ export class Action {
 export class AddItemToInventory extends Action {
     readonly type = "AddItemToInventory";
 
+
     @Expose()
     private itemId: string
 
@@ -220,5 +221,20 @@ export class SetFlagAction extends Action {
     public execute(player: Player): void {
         StateManager.setFlag(this.flag, this.state);
     }
+}
 
+export class OnceAction extends Action {
+    private _done = false;
+    private _inner: Action[];
+
+    constructor(...actions: Action[]) {
+        super();
+        this._inner = actions;
+    }
+
+    public execute(player: Player) {
+        if (this._done) return;
+        this._done = true;
+        this._inner.forEach(a => a.execute(player));
+    }
 }

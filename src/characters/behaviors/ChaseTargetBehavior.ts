@@ -6,7 +6,7 @@ import { Behavior } from "../Behavior";
  * Comportement permetant de chasser le joueur, utilisé pour les drone seulement.
  */
 export default class ChaseTargetBehavior extends Behavior {
-    
+
     public declare entity: DroneEnemy;
     public detectionRange: number;
 
@@ -37,18 +37,20 @@ export default class ChaseTargetBehavior extends Behavior {
 
     public update(delta: number): void {
         if (!this.entity.target) return;
+        if (!this.entity.navigation) return;
 
         const playerPos = this.entity.target.impostorMesh.getAbsolutePosition();
         const camForward = (this.entity.target as any).playerCamera.getForwardRay().direction;
         const playerForward = new Vector3(camForward.x, 0, camForward.z).normalize();
 
         const idealPos = playerPos.add(playerForward.scale(this.entity.attackRange * 0.8));
-        idealPos.y = playerPos.y + 2; 
+        idealPos.y = playerPos.y + 2;
 
         this.entity.navigation.moveTo(idealPos, 1.0, 0);
     }
 
     public stop(): void {
+        if (!this.entity.navigation) return;
         this.entity.navigation.stop();
     }
 }

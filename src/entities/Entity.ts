@@ -1,4 +1,4 @@
-import { AbstractMesh, Scene, Vector3 } from '@babylonjs/core';
+import { AbstractMesh, Vector3 } from '@babylonjs/core';
 import Tickable from '../utils/Tickable';
 import BaseScene from '../scenes/BaseScene';
 import { StateManager } from '../utils/StateManager';

@@ -6,7 +6,8 @@ export type InputAction =
     | "move_left" 
     | "move_right" 
     | "jump"
-    | "interact" 
+    | "interact"
+    | "use_item"
     | "open_inventory"
     | "dialog_next" 
     | "dialog_skip";
@@ -18,6 +19,7 @@ export default class InputManager {
         "move_left": ["a", "q", "arrowleft"],
         "move_right": ["d", "arrowright"],
         "jump": [" "],
+        "use_item": ["f"],
         "interact": ["e"],
         "open_inventory": ["i"],
         "dialog_next": ["r", " ", "enter"],
@@ -76,7 +78,7 @@ export default class InputManager {
             }
         }
     }
-    
+
     public static isActionPressed(action: InputAction): boolean {
         return this.actionsDown.has(action);
     }
