@@ -106,7 +106,7 @@ export async function loadMesh(
         mesh.freezeWorldMatrix();
         mesh.doNotSyncBoundingInfo = true;
 
-        const physicsType = extras.physics_type || "box"; 
+        const physicsType = extras.physics_type || "mesh"; 
         const vertexCount = mesh.getTotalVertices();
 
         // OPTIMISATION GPU : Si le mesh est trop lourd (> 100k vertices), 
@@ -125,8 +125,11 @@ export async function loadMesh(
                 if (!isExtremelyHeavy) shadowGenerator.addShadowCaster(mesh);
             }
             if (physicsGlobalEnabled) {
-                const shape = isExtremelyHeavy ? PhysicsShapeType.BOX : PhysicsShapeType.MESH;
-                
+                let shape = PhysicsShapeType.MESH;
+                if (physicsType === "box") shape = PhysicsShapeType.BOX;
+                else if (physicsType === "sphere") shape = PhysicsShapeType.SPHERE;
+                else if (physicsType === "hull") shape = PhysicsShapeType.CONVEX_HULL;
+
                 new PhysicsAggregate(mesh, shape, { mass: 0, restitution: 0 }, scene);
                 mesh.checkCollisions = true;
             }
