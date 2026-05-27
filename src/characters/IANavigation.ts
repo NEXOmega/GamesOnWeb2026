@@ -98,6 +98,8 @@ export default class IANavigation extends Entity {
         scale?: Vector3,
     ) {
         super(id, mesh, scene, position, rotation, scale);
+        // Enregistrement dans l'entityManager pour que update() soit appelé chaque frame
+        this.scene.entityManager.addEntity(this);
     }
 
     static async CreateAsync(
@@ -154,9 +156,24 @@ export default class IANavigation extends Entity {
         if (!this.crowd) {
             this.mesh.computeWorldMatrix(true);
 
-            const snappedPos = this.navigationPlugin.getClosestPoint(
-                this.mesh.getAbsolutePosition(),
-            );
+            const absolutePos = this.mesh.getAbsolutePosition();
+
+            // getClosestPoint de Recast a une tolérance de ±4 unités en Y.
+            // Si le spawn est trop haut au-dessus du sol (navmesh), la recherche échoue
+            // et retourne l'origine (0,0,0). On essaie plusieurs hauteurs en descendant.
+            let snappedPos = this.navigationPlugin.getClosestPoint(absolutePos);
+
+            const snapDist = Vector3.Distance(snappedPos, absolutePos);
+            console.log(`[IANavigation] ${this.id}: spawn=(${absolutePos.x.toFixed(2)}, ${absolutePos.y.toFixed(2)}, ${absolutePos.z.toFixed(2)}) → snap=(${snappedPos.x.toFixed(2)}, ${snappedPos.y.toFixed(2)}, ${snappedPos.z.toFixed(2)}) dist=${snapDist.toFixed(2)}`);
+
+            // Si le résultat est à plus de 15 unités → Recast n'a pas trouvé de navmesh,
+            // probablement retourné (0,0,0). On cherche au sol (Y=0) au même X,Z.
+            if (snapDist > 15) {
+                console.warn(`[IANavigation] ${this.id}: getClosestPoint a échoué (dist=${snapDist.toFixed(2)}). Fallback Y=0.`);
+                const groundQuery = new Vector3(absolutePos.x, 0, absolutePos.z);
+                snappedPos = this.navigationPlugin.getClosestPoint(groundQuery);
+                console.log(`[IANavigation] ${this.id}: fallback snap=(${snappedPos.x.toFixed(2)}, ${snappedPos.y.toFixed(2)}, ${snappedPos.z.toFixed(2)})`);
+            }
 
             this.crowd = this.navigationPlugin.createCrowd(1, 0.5, this.scene);
             this.agentTransform = new TransformNode(this.id + "_agentTransform", this.scene);

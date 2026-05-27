@@ -26,7 +26,9 @@ export default class DroneEnemy extends Enemy {
 
     static async CreateAsync(id: string, scene: BaseScene, position: Vector3 = Vector3.Zero()): Promise<DroneEnemy> {
         const result = await SceneLoader.ImportMeshAsync("", "./assets/models/enemies/", "Drone.glb", scene);
+
         const model = result.meshes[0];
+        console.log("Drone réel:", model.name, model.getAbsolutePosition());
 
         return new DroneEnemy(id, model, scene, position);
     }
@@ -35,7 +37,7 @@ export default class DroneEnemy extends Enemy {
         super(id, mesh, scene, position);
 
         this.collider = MeshBuilder.CreateSphere(id + "_collider", { diameter: 1.2 }, scene);
-        this.collider.position = position;
+        this.collider.position = position.clone();
         this.collider.visibility = 0;
 
         this.mesh.parent = this.collider;

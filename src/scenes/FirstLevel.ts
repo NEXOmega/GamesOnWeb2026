@@ -2,34 +2,54 @@ import { loadConfig } from './SceneUtils';
 import BaseScene from './BaseScene';
 import DroneEnemy from "../characters/DroneEnemy";
 import IANavigation from "../characters/IANavigation";
-;
 
 export default class FirstLevel extends BaseScene {
 
     async createEnvironment(): Promise<void> {
         await loadConfig("./assets/models/levels/first_level.json", this);
-
-        await this.spawnEnemiesFromEmpties();
-
+        await this.spawnEnemies();
         this.playSceneMusic("./assets/sounds/ambient/djovan-sahara-sunset-oriental-relax-ambiance-desert-flute-oud-489155.mp3", true);
     }
 
-    private async spawnEnemiesFromEmpties(): Promise<void> {
-        // Debug
-        console.log("=== TRANSFORM NODES ===");
-        for (const node of this.transformNodes) {
-            console.log(node.name, node.getAbsolutePosition());
-        }
-        console.log("======================");
+    private async spawnEnemies(): Promise<void> {
+        // Le Character.glb du joueur crée des TransformNodes internes dans scene.transformNodes
+        // (os d'armature, etc.). On les exclut en vérifiant qu'ils ne font PAS partie de la
+        // hiérarchie du modèle du joueur.
+        const playerModel = this.actualPlayer?.model;
 
-        for (const node of this.transformNodes) {
-            if (node.name.startsWith("drone")) {
-                console.log("Spawn drone à", node.getAbsolutePosition());
-                const drone = await DroneEnemy.CreateAsync(node.name, this, node.getAbsolutePosition().clone());
+        const spawnNodes = [...this.transformNodes].filter(node => {
+            const name = node.name.toLowerCase();
+            // Nom correct + pas de node interne généré par le code ou le Character.glb du joueur
+            return (name.startsWith("drone") || name.startsWith("robot"))
+                && !name.includes("_")
+                && !(playerModel && node.isDescendantOf(playerModel));
+        });
+
+        console.log("Nodes à spawner:", spawnNodes.map(n => `${n.name} (parent: ${n.parent?.name ?? 'racine'})` ));
+
+        for (const node of spawnNodes) {
+            // Forcer le recalcul de la worldMatrix pour avoir la position absolue exacte
+            // (nécessaire après centerMap/scaleMap de la map parente)
+            node.computeWorldMatrix(true);
+            const spawnPos = node.getAbsolutePosition().clone();
+            const name = node.name.toLowerCase();
+
+            console.log(`Spawn "${node.name}" -> X:${spawnPos.x.toFixed(2)} Y:${spawnPos.y.toFixed(2)} Z:${spawnPos.z.toFixed(2)}`);
+
+            if (name.startsWith("drone")) {
+                // +3 unités en Y pour que le drone spawn visible au-dessus du sol
+                // (les empties Blender sont souvent placés au niveau du sol exact)
+                const dronePos = spawnPos.clone();
+                dronePos.y += 3;
+                await DroneEnemy.CreateAsync(node.name, this, dronePos);
             }
-            if (node.name.startsWith("robot")) {
-                console.log("Spawn robot à", node.getAbsolutePosition());
-                const robot = await IANavigation.CreateAsync(node.name, this, node.getAbsolutePosition().clone());
+
+            if (name.startsWith("robot")) {
+                const robot = await IANavigation.CreateAsync(node.name, this, spawnPos);
+                await robot.CreateNavMesh(true);  // debug activé temporairement
+                if (this.actualPlayer) {
+                    robot.IaToPlayer(this.actualPlayer);
+                }
             }
         }
     }

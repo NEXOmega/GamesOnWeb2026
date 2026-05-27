@@ -44,23 +44,30 @@ export default class PlayerCamera extends ArcRotateCamera {
         const impostorMesh = (this._scene as BaseScene).actualPlayer.impostorMesh;
         const model = (this._scene as BaseScene).actualPlayer.model;
 
-        if (result.hasHit) {
-        const hitBody = result.body;
-        if (hitBody.transformNode.uniqueId !== impostorMesh.uniqueId) {
-            let newRadius = result.hitDistance - 0.25;
-            if (newRadius < 0.5) { 
-                newRadius = 0.5;
-                model.visibility = 0.3; 
-            } else {
-                model.visibility = 1;
-            }
-
-            this.radius = newRadius;
-            return;
+        // Cache le modèle si la caméra est trop proche (vue FPS)
+        const FPS_THRESHOLD = 1.0;
+        if (this.radius <= FPS_THRESHOLD) {
+            model.getChildMeshes(false).forEach(m => m.visibility = 0);
+            model.visibility = 0;
+        } else {
+            model.getChildMeshes(false).forEach(m => m.visibility = 1);
+            model.visibility = 1;
         }
-    } else {
-        model.visibility = 1;
-    }
+
+        if (result.hasHit) {
+            const hitBody = result.body;
+            if (hitBody.transformNode.uniqueId !== impostorMesh.uniqueId) {
+                let newRadius = result.hitDistance - 0.25;
+                if (newRadius < FPS_THRESHOLD) {
+                    newRadius = FPS_THRESHOLD;
+                    model.getChildMeshes(false).forEach(m => m.visibility = 0);
+                    model.visibility = 0;
+                }
+                this.radius = newRadius;
+                return;
+            }
+        }
+
         if (this.radius < this.desiredRadius) {
             this.radius = Scalar.Lerp(this.radius, this.desiredRadius, 0.1);
         }
