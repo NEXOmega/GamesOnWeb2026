@@ -16,15 +16,18 @@ export async function loadConfig(configPath: string, scene: BaseScene) {
     const config: MapConfig = await response.json();
 
     let spawnPos = new Vector3(0, 10, 0);
-    
+
     if (config.playerSpawn) {
         spawnPos = new Vector3(config.playerSpawn.x, config.playerSpawn.y, config.playerSpawn.z);
     }
 
-    const player = await Player.CreateAsync(scene, spawnPos);
-    scene.actualPlayer = player;
-    scene.entityManager.addEntity(player);
-    scene.activeCamera = player.playerCamera;
+    // Ne crée le joueur que si la scène n'en a pas déjà un
+    if (!scene.actualPlayer) {
+        const player = await Player.CreateAsync(scene, spawnPos);
+        scene.actualPlayer = player;
+        scene.entityManager.addEntity(player);
+    }
+    scene.activeCamera = scene.actualPlayer.playerCamera;
 
     const skybox = MeshBuilder.CreateBox("skyBox", { size: 1000.0 }, scene);
     const skyMaterial = new SkyMaterial("skyMaterial", scene);
@@ -97,7 +100,8 @@ export async function loadMesh(
             await NPC.CreateAsync(extras.spawn_uuid, scene, mesh.getAbsolutePosition(), extras.dialog_id);
             mesh.dispose()
         } else if(extras.spawn_type === "interactable") {
-            await Interactable.CreateAsync(extras.spawn_uuid, scene, mesh, extras.interaction_action);
+            // extras.model_path : chemin relatif depuis /assets/models/ (ex: "npc/solar_panel.glb")
+            await Interactable.CreateAsync(extras.spawn_uuid, scene, mesh, extras.interaction_action, extras.model_path);
         }
     } 
 

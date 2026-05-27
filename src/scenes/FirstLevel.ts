@@ -2,13 +2,14 @@ import { loadConfig } from './SceneUtils';
 import BaseScene from './BaseScene';
 import DroneEnemy from "../characters/DroneEnemy";
 import IANavigation from "../characters/IANavigation";
+import Pickable from "../entities/Pickable";
 
 export default class FirstLevel extends BaseScene {
 
     async createEnvironment(): Promise<void> {
         await loadConfig("./assets/models/levels/first_level.json", this);
         await this.spawnEnemies();
-        this.playSceneMusic("./assets/sounds/ambient/djovan-sahara-sunset-oriental-relax-ambiance-desert-flute-oud-489155.mp3", true);
+        await this.playSceneMusic("./assets/sounds/ambient/djovan-sahara-sunset-oriental-relax-ambiance-desert-flute-oud-489155.mp3", true);
     }
 
     private async spawnEnemies(): Promise<void> {
@@ -19,17 +20,14 @@ export default class FirstLevel extends BaseScene {
 
         const spawnNodes = [...this.transformNodes].filter(node => {
             const name = node.name.toLowerCase();
-            // Nom correct + pas de node interne généré par le code ou le Character.glb du joueur
-            return (name.startsWith("drone") || name.startsWith("robot"))
+            return (name.startsWith("drone") || name.startsWith("robot") || name.startsWith("crayon") || name.startsWith("param"))
                 && !name.includes("_")
                 && !(playerModel && node.isDescendantOf(playerModel));
         });
 
-        console.log("Nodes à spawner:", spawnNodes.map(n => `${n.name} (parent: ${n.parent?.name ?? 'racine'})` ));
+        console.log("Nodes à spawner:", spawnNodes.map(n => `${n.name} (parent: ${n.parent?.name ?? 'racine'})`));
 
         for (const node of spawnNodes) {
-            // Forcer le recalcul de la worldMatrix pour avoir la position absolue exacte
-            // (nécessaire après centerMap/scaleMap de la map parente)
             node.computeWorldMatrix(true);
             const spawnPos = node.getAbsolutePosition().clone();
             const name = node.name.toLowerCase();
@@ -37,8 +35,6 @@ export default class FirstLevel extends BaseScene {
             console.log(`Spawn "${node.name}" -> X:${spawnPos.x.toFixed(2)} Y:${spawnPos.y.toFixed(2)} Z:${spawnPos.z.toFixed(2)}`);
 
             if (name.startsWith("drone")) {
-                // +3 unités en Y pour que le drone spawn visible au-dessus du sol
-                // (les empties Blender sont souvent placés au niveau du sol exact)
                 const dronePos = spawnPos.clone();
                 dronePos.y += 3;
                 await DroneEnemy.CreateAsync(node.name, this, dronePos);
@@ -46,10 +42,18 @@ export default class FirstLevel extends BaseScene {
 
             if (name.startsWith("robot")) {
                 const robot = await IANavigation.CreateAsync(node.name, this, spawnPos);
-                await robot.CreateNavMesh(true);  // debug activé temporairement
+                await robot.CreateNavMesh(false);
                 if (this.actualPlayer) {
                     robot.IaToPlayer(this.actualPlayer);
                 }
+            }
+
+            if (name.startsWith("crayon")) {
+                await Pickable.CreateAsync(node.name, this, spawnPos, "colors_pencil", 1);
+            }
+
+            if (name.startsWith("param")) {
+                await Pickable.CreateAsync(node.name, this, spawnPos, "health_potion", 1);
             }
         }
     }
