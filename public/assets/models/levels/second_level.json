@@ -18,7 +18,7 @@
         "shadowNormalBias": 0.02
     },
     "fog": {
-        "enabled": true,
+        "enabled": false,
         "color": [0.9, 0.8, 0.4],
         "density": 0.0015
     },
