@@ -60,23 +60,54 @@ export async function loadConfig(configPath: string, scene: BaseScene) {
     const folderPath = configPath.substring(0, configPath.lastIndexOf('/') + 1);
     const { meshes } = await SceneLoader.ImportMeshAsync("", folderPath, config.model, scene);
     
-    const rootMesh = meshes[0];
+    const rootMesh = meshes.find(mesh => mesh.name === "__root__") ?? meshes[0];
 
     if (config.scale !== 1) scaleMap(rootMesh, config.scale);
     if (config.centerMap) centerMap(rootMesh);
+    refreshWorldMatrices(rootMesh);
 
     const shadowGenerator = new CascadedShadowGenerator(config.lighting.shadowResolution, sun);
     shadowGenerator.bias = config.lighting.shadowBias;
     shadowGenerator.normalBias = config.lighting.shadowNormalBias;
 
-    const meshPromises = meshes.map(mesh => 
-        loadMesh(scene, mesh, shadowGenerator, config.physicsEnabled)
-    );
-    
-    await Promise.all(meshPromises);
+    const spawnMeshes = meshes.filter(hasSpawnMetadata);
+    for (const mesh of spawnMeshes) {
+        await loadSpawnMesh(scene, mesh);
+    }
+
+    for (const mesh of meshes) {
+        loadMesh(scene, mesh, shadowGenerator, config.physicsEnabled);
+    }
 
     StateManager.state = State.PLAYING;
     return { meshes, sun, ambient };
+}
+
+function hasSpawnMetadata(mesh: AbstractMesh): boolean {
+    return Boolean(mesh.metadata?.gltf?.extras?.spawn_type);
+}
+
+async function loadSpawnMesh(scene: BaseScene, mesh: AbstractMesh) {
+    if (!mesh.isEnabled()) {
+        mesh.dispose();
+        return;
+    }
+
+    mesh.computeWorldMatrix(true);
+    const extras = mesh.metadata?.gltf?.extras || {};
+    const spawnPos = mesh.getAbsolutePosition().clone();
+
+    if (extras.spawn_type === "item") {
+        await Pickable.CreateAsync(extras.spawn_uuid, scene, spawnPos, extras.type, extras.quantity);
+        mesh.dispose();
+    } else if (extras.spawn_type === "npc") {
+        console.log(`[SceneUtils] Spawn NPC ${extras.spawn_uuid} from ${mesh.name} at (${spawnPos.x.toFixed(2)}, ${spawnPos.y.toFixed(2)}, ${spawnPos.z.toFixed(2)})`);
+        await NPC.CreateAsync(extras.spawn_uuid, scene, spawnPos, extras.dialog_id);
+        mesh.dispose();
+    } else if (extras.spawn_type === "interactable") {
+        // extras.model_path : chemin relatif depuis /assets/models/ (ex: "npc/solar_panel.glb")
+        await Interactable.CreateAsync(extras.spawn_uuid, scene, mesh, extras.interaction_action, extras.model_path);
+    }
 }
 
 export async function loadMesh(
@@ -92,20 +123,9 @@ export async function loadMesh(
     }
     const extras = mesh.metadata?.gltf?.extras || {};
 
-    if (extras && extras.spawn_type) {
-        if (extras.spawn_type === "item") {        
-            await Pickable.CreateAsync(extras.spawn_uuid, scene, mesh.getAbsolutePosition(), extras.type, extras.quantity);
-            mesh.dispose()
-        } else if (extras.spawn_type === "npc") {
-            await NPC.CreateAsync(extras.spawn_uuid, scene, mesh.getAbsolutePosition(), extras.dialog_id);
-            mesh.dispose()
-        } else if(extras.spawn_type === "interactable") {
-            // extras.model_path : chemin relatif depuis /assets/models/ (ex: "npc/solar_panel.glb")
-            await Interactable.CreateAsync(extras.spawn_uuid, scene, mesh, extras.interaction_action, extras.model_path);
-        }
-    } 
+    if (extras && extras.spawn_type) return;
 
-    else if (mesh.getTotalVertices() > 0 && mesh.name !== "skyBox") {
+    if (mesh.getTotalVertices() > 0 && mesh.name !== "skyBox") {
 
         mesh.freezeWorldMatrix();
         mesh.doNotSyncBoundingInfo = true;
@@ -153,4 +173,11 @@ export function centerMap(rootMesh: AbstractMesh) {
     // On place le bas du modèle à Y=0 pour que le joueur ne tombe pas
     rootMesh.position = new Vector3(-centerX, -boundingInfo.min.y, -centerZ);
     rootMesh.computeWorldMatrix(true);
+}
+
+function refreshWorldMatrices(rootMesh: AbstractMesh) {
+    rootMesh.computeWorldMatrix(true);
+    for (const node of rootMesh.getChildTransformNodes(false)) {
+        node.computeWorldMatrix(true);
+    }
 }
