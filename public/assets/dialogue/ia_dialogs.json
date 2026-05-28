@@ -9,7 +9,13 @@
       "key": "r",
       "choiceText": "Qu'arrive-t-il au bunker ?",
       "message": "La survie du bunker est en danger, nos panneaux solaires à l'extérieur ont l'air d'avoir été endommagés. Il faudrait que vous alliez voir ce qu'il en est.",
-      "conditions": [],
+      "conditions": [
+            {
+              "type": "FlagStateCondition",
+              "flag": "FirstLevelDone",
+              "state": false
+            }
+          ],
       "actions": [],
       "canChooseNextChoice": true,
       "nextDialogs": {
@@ -35,22 +41,34 @@
           "nextDialogs": {
             
           }
+        }
+      }
+    },
+    "t": {
+      "key": "t",
+      "choiceText": "Les panneaux solaires sont cassés.",
+      "message": "Je vois, nous devons les réparer, il existe une ville au nord, peut être pourriez vous y trouver du verre ?.",
+      "conditions": [
+        {
+          "type": "FlagStateCondition",
+          "flag": "FirstLevelDone",
+          "state": true
         },
+        {
+          "type": "FlagStateCondition",
+          "flag": "SecondLevelDone",
+          "state": false
+        }
+      ],
+      "actions": [
+      ],
+      "canChooseNextChoice": true,
+      "nextDialogs": {
         "t": {
           "key": "t",
-          "choiceText": "D'accord, ouvrez-moi le sas.",
-          "message": "Merci à vous, notre avenir dépend de vous.",
+          "choiceText": "D'accord, allons-y tout de suite.",
+          "message": "Merci à vous, revenez avec le verre et le bunker pourra prospérer.",
           "conditions": [
-            {
-              "type": "FlagStateCondition",
-              "flag": "FirstLevelDone",
-              "state": true
-            },
-            {
-              "type": "FlagStateCondition",
-              "flag": "SecondLevelDone",
-              "state": false
-            }
           ],
           "actions": [
             {
@@ -63,35 +81,36 @@
           "nextDialogs": {
             
           }
-        },
-        "e": {
-          "key": "e",
-          "choiceText": "D'accord, ouvrez-moi le sas.",
-          "message": "Merci à vous, notre avenir dépend de vous.",
-          "conditions": [
-            {
-              "type": "FlagStateCondition",
-              "flag": "FirstLevelDone",
-              "state": true
-            },
-            {
-              "type": "FlagStateCondition",
-              "flag": "SecondLevelDone",
-              "state": true
-            }
-          ],
-          "actions": [
-            {
-              "type": "ChangeSceneAction",
-              "sceneId": "EndingScene",
-              "keepSceneInRam": false
-            }
-          ],
-          "canChooseNextChoice": true,
-          "nextDialogs": {
-            
-          }
         }
+      }
+    },
+
+    "e": {
+      "key": "e",
+      "choiceText": "Toutes les missions ont été faites.",
+      "message": "Merci à vous, notre avenir dépend de vous.",
+      "conditions": [
+        {
+          "type": "FlagStateCondition",
+          "flag": "FirstLevelDone",
+          "state": true
+        },
+        {
+          "type": "FlagStateCondition",
+          "flag": "SecondLevelDone",
+          "state": true
+        }
+      ],
+      "actions": [
+        {
+          "type": "ChangeSceneAction",
+          "sceneId": "EndingScene",
+          "keepSceneInRam": false
+        }
+      ],
+      "canChooseNextChoice": true,
+      "nextDialogs": {
+            
       }
     }
   }
