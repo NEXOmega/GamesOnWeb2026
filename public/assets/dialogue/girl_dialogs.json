@@ -1,14 +1,14 @@
 {
   "key": "e",
   "choiceText": "Parler",
-  "message": "BONJOUR ! Si vous trouvez des jouets d'avant l'apocalypse je pourrais les avoirs ?",
+  "message": "BONJOUR ! Si vous trouvez des jouets d'avant l'apocalypse, je pourrais les avoir ?",
   "actions": [],
   "canChooseNextChoice": true,
   "nextDialogs": {
     "r": {
       "key": "r",
-      "choiceText": "Oui pas de soucis, j'essaierais d'en trouver",
-      "message": "Merci monsieur !",
+      "choiceText": "Oui, pas de souci, j'essaierai d'en trouver.",
+      "message": "Merci, monsieur !",
       "conditions": [
         {
           "type":"FlagStateCondition",
@@ -22,8 +22,8 @@
     },
     "t": {
       "key": "t",
-      "choiceText": "Tiens, j'ai trouvé des crayons peut être que tu pourrais dessiner un tableau pour le bunker ?.",
-      "message": "merci oui j'essaierai !",
+      "choiceText": "Tiens, j'ai trouvé des crayons. Peut-être que tu pourrais dessiner un tableau pour le bunker ?",
+      "message": "Merci, oui, j'essaierai !",
       "conditions": [
         {
           "type": "HasItemCondition",

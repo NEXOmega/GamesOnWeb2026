@@ -1,7 +1,7 @@
 {
   "key": "e",
   "choiceText": "Parler",
-  "message": "Vous inspectez les panneaux solaires mais remarquez que ceux-ci sont cassé, le sable a endommager le verre.",
+  "message": "Vous inspectez les panneaux solaires, mais vous remarquez qu'ils sont cassés : le sable a endommagé le verre.",
   "actions": [],
   "canChooseNextChoice": true,
   "nextDialogs": {

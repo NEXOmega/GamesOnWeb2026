@@ -1,20 +1,10 @@
 {
   "key": "e",
   "choiceText": "Parler",
-  "message": "Tu pourrais me dire ce qu'il y'a au dela du bunker ?",
+  "message": "J'aime bien lire, mais j'ai beaucoup de mal lire les lettres...",
   "actions": [],
   "canChooseNextChoice": true,
   "nextDialogs": {
-    "r": {
-      "key": "r",
-      "choiceText": "Peu de choses",
-      "message": "Ah d'accord",
-      "conditions": [
-        
-      ],
-      "actions": [],
-      "canChooseNextChoice": true,
-      "nextDialogs": {}
-    }
+
   }
 }

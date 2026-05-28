@@ -1,14 +1,14 @@
 {
   "key": "e",
   "choiceText": "Parler",
-  "message": "Nous avons découvert que mon fils était malvoyant auriez vous quelque chose pour lui ?",
+  "message": "Nous avons découvert que mon fils était malvoyant. Auriez-vous quelque chose pour lui ?",
   "actions": [],
   "canChooseNextChoice": true,
   "nextDialogs": {
     "r": {
       "key": "r",
-      "choiceText": "Non malheureusement.",
-      "message": "D'accord si vous en trouvez. Faites moi signe",
+      "choiceText": "Non, malheureusement.",
+      "message": "D'accord, si vous en trouvez, faites-moi signe.",
       "conditions": [
         {
           "type": "FlagStateCondition",
@@ -22,8 +22,8 @@
     },
     "t": {
       "key": "t",
-      "choiceText": "Oui tenez.",
-      "message": "Oh. Merci mille fois nous allons pouvoir fabriquer des lunettes avec.",
+      "choiceText": "Oui, tenez.",
+      "message": "Oh ! Merci mille fois, nous allons pouvoir fabriquer des lunettes avec.",
       "conditions": [
         {
           "type": "HasItemCondition",

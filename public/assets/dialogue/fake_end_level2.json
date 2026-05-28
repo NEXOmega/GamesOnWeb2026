@@ -1,13 +1,13 @@
 {
   "key": "e",
   "choiceText": "Parler",
-  "message": "Vous trouvez enfin du verre qui pourrait être utilisable..",
+  "message": "Vous trouvez enfin du verre qui pourrait être utilisable.",
   "actions": [],
   "canChooseNextChoice": true,
   "nextDialogs": {
     "e": {
       "key": "e",
-      "choiceText": "Je devrais rentrer ramener le verre.",
+      "choiceText": "Je devrais rentrer pour ramener le verre.",
       "message": "Retour au bunker...",
       "conditions": [
         

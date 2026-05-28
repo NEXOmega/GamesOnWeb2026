@@ -3,12 +3,55 @@
   "content": [
     {
       "conditions": [
-        { "flag": "GaveGlass", "value": false },
-        { "flag": "GavePencil", "value": false }
+        { "flag": "GaveGlass", "value": false }
       ],
       "lines": [
-        { "text": "L'AVENTURE TOUCHE À SA FIN", "size": 60, "bold": true },
-        { "text": "Le silence retombe sur les terres désolées...", "size": 30, "trigger_bg": "./assets/textures/background/wasteland.jpg" }
+        { "text": "L'AVENTURE TOUCHE À SA FIN", "size": 60, "bold": true, "trigger_bg": "./assets/textures/background/wasteland.jpg" },
+        { "text": "RAPPORT N°720", "size": 30 },
+        { "text": "Bunker 1, rapport mensuel", "size": 30 },
+        { "text": "Le groupe a pu rapporter les matériaux nécessaires à la réparation de nos panneaux solaires.", "size": 30 },
+        { "text": "Aucune perte à déplorer, l'état mental du groupe a l'air de s'être amélioré.", "size": 30 },
+        { "text": "", "size": 30 },
+
+        { "text": "RAPPORT N°721", "size": 30 },
+        { "text": "Bunker 1, rapport mensuel", "size": 30 },
+        { "text": "Les réparations des panneaux solaires ont été menées avec succès.", "size": 30 },
+        { "text": "Les humains sont en pleine santé, cependant leur état mental semble se détériorer.", "size": 30 },
+        { "text": "Recherche d'une solution...", "size": 30 },
+        { "text": "", "size": 30 },
+
+        { "text": "RAPPORT N°722", "size": 30 },
+        { "text": "Bunker 1, rapport mensuel", "size": 30 },
+        { "text": "Aucune solution trouvée.", "size": 30 },
+        { "text": "La santé mentale des humains s'est encore détériorée, cela affecte leur état général.", "size": 30 },
+        { "text": "Recherche d'une solution...", "size": 30 },
+        { "text": "", "size": 30 },
+
+        { "text": "RAPPORT N°723", "size": 30 },
+        { "text": "Bunker 1, rapport mensuel", "size": 30 },
+        { "text": "Aucune solution ne semble être disponible ici.", "size": 30 },
+        { "text": "Un des sujets a péri. Lancement du programme de recyclage.", "size": 30 },
+        { "text": "", "size": 30 },
+        
+        { "text": "RAPPORT N°724", "size": 30 },
+        { "text": "Bunker 1, rapport mensuel", "size": 30 },
+        { "text": "Les sujets sont dans un état critique, leur état mental et physique est au plus bas.", "size": 30 },
+        { "text": "Recherche d'une solution pour les maintenir en vie.", "size": 30 },
+        { "text": "", "size": 30 },
+
+        { "text": "NOTE DES SURVIVANTS", "size": 30 },
+        { "text": "La situation ici est catastrophique.", "size": 30 },
+        { "text": "Même si nos stocks sont encore suffisants, personne n'a la force de manger quoi que ce soit...", "size": 30 },
+        { "text": "Notre situation ici ne pourra qu'empirer, nous sommes enfermés dans une boîte de conserve qui nous laisse pourrir à petit feu.", "size": 30 },
+        { "text": "Nous devons essayer de sortir d'ici et trouver une solution ailleurs, loin de là.", "size": 30 },
+        { "text": "", "size": 30 },
+
+        { "text": "RAPPORT N°725", "size": 30 },
+        { "text": "Bunker 1, Rapport d'urgence critique", "size": 30 },
+        { "text": "Lancement du programme de Continuité organique", "size": 30 },
+        { "text": "", "size": 30 },
+
+        { "text": "Bad Ending", "size": 30 }
       ]
     },
     {
@@ -17,7 +60,21 @@
         { "flag": "GavePencil", "value": true }
       ],
       "lines": [
-        { "text": "Grâce à vous, le bunker est devenu un havre de paix.", "size": 30, "trigger_bg": "./assets/textures/background/bunker.jpg" }
+        { "text": "Le bunker n'a pas pu être sauvé.", "size": 30, "trigger_bg": "./assets/textures/background/bunker.jpg" },
+        { "text": "", "size": 30 },
+        { "text": "En tout cas, pas sa carcasse, mais vous et tous les survivants avez pu en sortir.", "size": 30 },
+        { "text": "Malgré les difficultés rencontrées à l'extérieur, vous avez pu survivre grâce aux compétences de chacun.", "size": 30 },
+        { "text": "Vous avez réussi à fuir loin. Vous savez que l'IA vous retrouvera un jour, mais pas aujourd'hui.", "size": 30 },
+        { "text": "Jusque-là, vous allez faire de votre mieux pour vous préparer et vous développer.", "size": 30 },
+        { "text": "", "size": 30 },
+        { "text": "Pendant votre fuite, vous avez accueilli d'autres survivants, qui ont pu vous aider à créer une colonie stable.", "size": 30 },
+        { "text": "La fille a pu devenir cartographe. Elle aide à planifier les excursions ; grâce à elle, les sorties sont beaucoup moins dangereuses.", "size": 30 },
+        { "text": "Le garçon est devenu mécanicien. Grâce aux lunettes, il a pu examiner des plans trouvés plus tard, et grâce à la ferraille trouvée un peu partout,", "size": 30 },
+        { "text": "il a pu réparer quelques véhicules et créer des mécanismes d'irrigation suffisamment robustes et efficaces pour alimenter une colonie.", "size": 30 },
+        { "text": "Les parents gèrent la colonie ; en soi, ce n'est pas si différent d'élever des enfants.", "size": 30 },
+        { "text": "Le survivant forme les nouvelles recrues qui aideront la colonie, ou qui vous aideront vous, dans vos futures expéditions.", "size": 30 },
+        { "text": "", "size": 30 },
+        { "text": "Good Ending", "size": 30 }
       ]
     },
     {

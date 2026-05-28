@@ -8,15 +8,15 @@
     "r": {
       "key": "r",
       "choiceText": "Qu'arrive-t-il au bunker ?",
-      "message": "La survie du bunker est en danger, nos panneaux solaires à l'extérieur ont l'air d'avoir été endommagé, il faudrait que vous alliez voir ce qu'il en est.",
+      "message": "La survie du bunker est en danger, nos panneaux solaires à l'extérieur ont l'air d'avoir été endommagés. Il faudrait que vous alliez voir ce qu'il en est.",
       "conditions": [],
       "actions": [],
       "canChooseNextChoice": true,
       "nextDialogs": {
         "r": {
           "key": "r",
-          "choiceText": "D'accord ouvrez moi le sas.",
-          "message": "Merci a vous, notre avenir depends de vous.",
+          "choiceText": "D'accord, ouvrez-moi le sas.",
+          "message": "Merci à vous, notre avenir dépend de vous.",
           "conditions": [
             {
               "type": "FlagStateCondition",
@@ -38,8 +38,8 @@
         },
         "t": {
           "key": "t",
-          "choiceText": "D'accord ouvrez moi le sas.",
-          "message": "Merci a vous, notre avenir depends de vous.",
+          "choiceText": "D'accord, ouvrez-moi le sas.",
+          "message": "Merci à vous, notre avenir dépend de vous.",
           "conditions": [
             {
               "type": "FlagStateCondition",
@@ -66,8 +66,8 @@
         },
         "e": {
           "key": "e",
-          "choiceText": "D'accord ouvrez moi le sas.",
-          "message": "Merci a vous, notre avenir depends de vous.",
+          "choiceText": "D'accord, ouvrez-moi le sas.",
+          "message": "Merci à vous, notre avenir dépend de vous.",
           "conditions": [
             {
               "type": "FlagStateCondition",

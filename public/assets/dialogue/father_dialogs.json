@@ -1,13 +1,13 @@
 {
   "key": "e",
   "choiceText": "Parler",
-  "message": "Bonjour comment allez vous ?",
+  "message": "Bonjour, comment allez-vous ?",
   "actions": [],
   "canChooseNextChoice": true,
   "nextDialogs": {
     "r": {
       "key": "r",
-      "choiceText": "Bien et vous ?",
+      "choiceText": "Bien, et vous ?",
       "message": "Moi aussi, la vie est paisible.",
       "conditions": [
       ],
