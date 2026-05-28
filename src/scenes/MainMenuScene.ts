@@ -13,8 +13,6 @@ export default class MainMenuScene extends BaseScene {
         camera.setTarget(Vector3.Zero());
         this.activeCamera = camera;
 
-        this.playSceneMusic("./assets/sounds/jeune_morty_priilick.mp3", true)
-
         this.createUI();
     }
 

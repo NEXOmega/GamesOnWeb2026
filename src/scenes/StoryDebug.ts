@@ -16,7 +16,5 @@ export default class StoryDebugScene extends BaseScene {
 
     async createEnvironment(): Promise<void> {
             await loadConfig("./assets/models/levels/story_debug.json", this);
-
-        // this.playSceneMusic("./assets/sounds/jeune_morty_priilick.mp3", true)
     }
 }
