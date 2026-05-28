@@ -60,7 +60,7 @@
         { "flag": "GavePencil", "value": true }
       ],
       "lines": [
-        { "text": "Le bunker n'a pas pu être sauvé.", "size": 30, "trigger_bg": "./assets/textures/background/bunker.jpg" },
+        { "text": "Le bunker n'a pas pu être sauvé.", "size": 30, "trigger_bg": "./assets/textures/background/bunker-sangatte-vestige.jpeg" },
         { "text": "", "size": 30 },
         { "text": "En tout cas, pas sa carcasse, mais vous et tous les survivants avez pu en sortir.", "size": 30 },
         { "text": "Malgré les difficultés rencontrées à l'extérieur, vous avez pu survivre grâce aux compétences de chacun.", "size": 30 },
