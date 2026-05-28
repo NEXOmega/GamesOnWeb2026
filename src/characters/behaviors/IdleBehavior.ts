@@ -1,7 +1,5 @@
-import { Vector3 } from "@babylonjs/core";
-import DroneEnemy from "../DroneEnemy";
 import { Behavior } from "../Behavior";
-import { Enemy } from "../Enemy";
+import DroneEnemy from "../DroneEnemy";
 
 /**
  * Comportement Idle, peut toujorus se lancer, utilisé pour montrer le comportement d'un drone inactif

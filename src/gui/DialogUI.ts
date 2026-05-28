@@ -1,5 +1,6 @@
-import { AdvancedDynamicTexture, Rectangle, TextBlock, StackPanel, Control, Button } from "@babylonjs/gui";
 import { Scene } from "@babylonjs/core";
+import { AdvancedDynamicTexture, Button,Control, Rectangle, StackPanel, TextBlock } from "@babylonjs/gui";
+
 import Dialogue from "../dialogs/Dialogue";
 
 export default class DialogueUI {

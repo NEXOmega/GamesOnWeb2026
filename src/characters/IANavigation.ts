@@ -1,6 +1,3 @@
-import Entity from "../entities/Entity";
-import { RecastJSPlugin } from "@babylonjs/core/Navigation/Plugins/recastJSPlugin";
-import Recast from "recast-detour";
 import {
     AbstractMesh,
     Color3,
@@ -17,7 +14,11 @@ import {
     Vector3,
 } from "@babylonjs/core";
 import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
+import { RecastJSPlugin } from "@babylonjs/core/Navigation/Plugins/recastJSPlugin";
+import Recast from "recast-detour";
+
 import Player from "../characters/Player";
+import Entity from "../entities/Entity";
 import BaseScene from "../scenes/BaseScene";
 
 // Machine à états pour le comportement de l'IA

@@ -1,9 +1,9 @@
-import { Engine, Scene, Vector3 } from "@babylonjs/core";
-import BaseScene from "./BaseScene";
-import { GameSaveData } from "../utils/SaveManager";
-import { StateManager } from "../utils/StateManager";
+import { Engine, Vector3 } from "@babylonjs/core";
+
 import DebugHUD from "../gui/DebugHUD";
 import SoundManager from "../sounds/SoundManager";
+import { GameSaveData } from "../utils/SaveManager";
+import BaseScene from "./BaseScene";
 
 export type SceneFactory = () => Promise<BaseScene>;
 

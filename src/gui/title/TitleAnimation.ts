@@ -1,7 +1,8 @@
 // TitleAnimation.ts
 import 'reflect-metadata';
-import { Type, Expose } from 'class-transformer';
+
 import { TextBlock } from "@babylonjs/gui";
+import { Expose,Type } from 'class-transformer';
 
 export const ALL_ANIMATIONS: { value: any, name: string }[] = [];
 

@@ -1,17 +1,18 @@
-import { Engine, Scene, Light, AbstractSound, AbstractMesh, Vector3, HavokPlugin, RecastJSPlugin } from '@babylonjs/core';
 import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
+
+import { AbstractMesh, AbstractSound, Engine, HavokPlugin, Light,Scene, Vector3 } from '@babylonjs/core';
 import HavokPhysics from "@babylonjs/havok";
 
-import EntityManager from '../entities/EntityManager';
-import { State, StateConfig, StateManager } from '../utils/StateManager';
 import CinematicCamera from '../camera/CinematicCamera';
-import InputManager from '../utils/InputManager';
-import DialogueManager from '../dialogs/DialogueManager';
-import InteractionEntity from '../entities/InteractionEntity';
 import Player from '../characters/Player';
-import SoundManager from '../sounds/SoundManager';
+import DialogueManager from '../dialogs/DialogueManager';
+import EntityManager from '../entities/EntityManager';
+import InteractionEntity from '../entities/InteractionEntity';
 import OptionsHUD from '../gui/OptionHUD';
+import SoundManager from '../sounds/SoundManager';
+import InputManager from '../utils/InputManager';
+import { State, StateConfig, StateManager } from '../utils/StateManager';
 
 export default class BaseScene extends Scene {
     public canvas: HTMLCanvasElement;

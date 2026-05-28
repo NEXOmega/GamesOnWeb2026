@@ -1,18 +1,13 @@
-import { AbstractMesh, Color3, MeshBuilder, PhysicsAggregate, PhysicsShapeType, Quaternion, Scene, SceneLoader, TransformNode, Vector3 } from "@babylonjs/core";
-import InteractionEntity from "../entities/InteractionEntity";
+import { AbstractMesh, MeshBuilder, PhysicsAggregate, PhysicsShapeType, Quaternion, SceneLoader, Vector3 } from "@babylonjs/core";
+
+import { ClearDialog, CloseDialogueAction, StartDialogueAction } from "../actions/Action";
+import MoveCinematicCamera from "../actions/MoveCinematicCamera";
+import SendFrontTitleRequest from "../actions/SendFrontTitleRequest";
+import DialogueManager from "../dialogs/DialogueManager";
 import Entity from "../entities/Entity";
-import Tickable from "../utils/Tickable";
-import { State, StateManager } from "../utils/StateManager";
+import InteractionEntity from "../entities/InteractionEntity";
 import * as TitleAnimation from '../gui/title/TitleAnimation'
 import BaseScene from "../scenes/BaseScene";
-import Player from "./Player";
-import Dialogue from "../dialogs/Dialogue";
-import DialogueManager from "../dialogs/DialogueManager";
-import { AdvancedDynamicTexture, Rectangle, StackPanel, TextBlock } from "@babylonjs/gui";
-import { getRotationFromPositions } from "../utils/3DUtils";
-import SendFrontTitleRequest from "../actions/SendFrontTitleRequest";
-import MoveCinematicCamera from "../actions/MoveCinematicCamera";
-import { ClearDialog, CloseDialogueAction, StartDialogueAction } from "../actions/Action";
 
 export default class NPC extends Entity {
 

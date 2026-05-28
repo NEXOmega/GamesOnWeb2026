@@ -1,8 +1,8 @@
 import { Vector3 } from "@babylonjs/core";
+
+import {Action} from "../actions/Action";
 import Player from "../characters/Player";
 import CollisionEntity from "./CollisionEntity";
-import { StateManager } from "../utils/StateManager";
-import {Action} from "../actions/Action";
 
 export default class InteractionEntity extends CollisionEntity {
     private onInteractActions: Action[] = [];
@@ -23,7 +23,7 @@ export default class InteractionEntity extends CollisionEntity {
         }
     
     public onInteract(player: Player): void {
-        let distance = Vector3.Distance(player.mesh.getAbsolutePosition(), this.mesh.getAbsolutePosition());
+        const distance = Vector3.Distance(player.mesh.getAbsolutePosition(), this.mesh.getAbsolutePosition());
         if(distance > this.distance) {
             return;
         }

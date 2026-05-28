@@ -1,20 +1,20 @@
+import { Scene } from "@babylonjs/core";
 import {
     AdvancedDynamicTexture,
-    Rectangle,
-    StackPanel,
-    ScrollViewer,
-    TextBlock,
-    Image,
+    Button,
     Control,
     Grid,
-    Button
-} from "@babylonjs/gui";
-import { Scene } from "@babylonjs/core";
-import Inventory from "../../player/inventory/Inventory";
+    Image,
+    Rectangle,
+    ScrollViewer,
+    StackPanel,
+    TextBlock} from "@babylonjs/gui";
+
 import { Item } from "../../items/Item";
-import { State, StateManager } from "../../utils/StateManager";
 import ItemRegistry from "../../items/ItemRegistry";
 import UsableRegistry from "../../items/UsableRegistry";
+import Inventory from "../../player/inventory/Inventory";
+import { State, StateManager } from "../../utils/StateManager";
 
 export default class InventoryUI {
     private texture: AdvancedDynamicTexture;

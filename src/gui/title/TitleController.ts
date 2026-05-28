@@ -1,4 +1,5 @@
-import { AdvancedDynamicTexture, Control, TextBlock } from "@babylonjs/gui";
+import { AdvancedDynamicTexture, TextBlock } from "@babylonjs/gui";
+
 import * as TitleAnimation from "./TitleAnimation";
 import TitleRequest from "./TitleRequest";
 

@@ -26,7 +26,7 @@ export class StateManager {
     public static state: State = State.LOADING;
     public static stats: Stats = new Stats();
     public static inventory: Inventory = new Inventory();
-    private static flags: Map<String, boolean> = new Map();
+    private static flags: Map<string, boolean> = new Map();
 
     public static getFlag(flag: string) : boolean {
         if(this.flags.has(flag) && this.flags.get(flag))

@@ -1,5 +1,5 @@
 import { Observable } from "@babylonjs/core";
-import { Item } from "../../items/Item";
+
 
 export default class Inventory {
     public items: Map<string, number> = new Map();

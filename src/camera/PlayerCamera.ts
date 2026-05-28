@@ -1,5 +1,5 @@
 import { ArcRotateCamera, PhysicsRaycastResult, Scalar, Scene, TransformNode, Vector3 } from "@babylonjs/core";
-import { StateManager } from "../utils/StateManager";
+
 import Player from "../characters/Player";
 import BaseScene from "../scenes/BaseScene";
 

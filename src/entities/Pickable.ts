@@ -1,13 +1,14 @@
 
 
 import { AbstractMesh, SceneLoader, Vector3 } from "@babylonjs/core";
-import Entity from "./Entity";
-import InteractionEntity from "./InteractionEntity";
+
+import {AddItemToInventory, ClearDialog, OnceAction, RemoveEntityFromScene} from "../actions/Action";
 import SendFrontTitleRequest from "../actions/SendFrontTitleRequest";
 import * as TitleAnimation from '../gui/title/TitleAnimation'
 import ItemRegistry from "../items/ItemRegistry";
 import BaseScene from "../scenes/BaseScene";
-import {AddItemToInventory, ClearDialog, OnceAction, RemoveEntityFromScene} from "../actions/Action";
+import Entity from "./Entity";
+import InteractionEntity from "./InteractionEntity";
 
 
 export default class Pickable extends Entity {

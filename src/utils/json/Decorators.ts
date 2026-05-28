@@ -1,5 +1,5 @@
-import { Transform } from 'class-transformer';
 import { Vector3 } from '@babylonjs/core';
+import { Transform } from 'class-transformer';
 
 export function TransformVector3() {
     return function (target: any, key: string) {

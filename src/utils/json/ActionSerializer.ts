@@ -1,17 +1,16 @@
-import { PolymorphicSerializer } from './PolymorphicSerializer';
 import { 
     Action, 
     AddItemToInventory, 
-    TeleportAction, 
-    CloseDialogueAction, 
+    ChangeSceneAction, 
     ClearDialog, 
+    CloseDialogueAction, 
     ConsoleLogAction, 
     RemoveEntityFromScene, 
     RemoveItemFromInventory, 
+    SetFlagAction,
     StartDialogueAction, 
-    ChangeSceneAction, 
-    SetFlagAction
-} from '../../actions/Action';
+    TeleportAction} from '../../actions/Action';
+import { PolymorphicSerializer } from './PolymorphicSerializer';
 
 export const ALL_ACTIONS: { value: any, name: string }[] = [
     { value: AddItemToInventory, name: "AddItemToInventory" },

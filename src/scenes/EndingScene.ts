@@ -1,8 +1,9 @@
-import { Vector3, FreeCamera } from "@babylonjs/core";
-import { AdvancedDynamicTexture, Image, TextBlock, StackPanel, Control, Rectangle } from "@babylonjs/gui";
+import { FreeCamera,Vector3 } from "@babylonjs/core";
+import { AdvancedDynamicTexture, Control, Image, Rectangle,StackPanel, TextBlock } from "@babylonjs/gui";
+
+import { State,StateManager } from "../utils/StateManager";
 import BaseScene from "./BaseScene";
 import SceneManager from "./SceneManager";
-import { StateManager, State } from "../utils/StateManager";
 
 interface BgTrigger {
     scrollThreshold: number;

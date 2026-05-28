@@ -1,7 +1,7 @@
-import { AbstractMesh, Color3, MeshBuilder, Observer, Ray, Scene, StandardMaterial, TransformNode, Vector3 } from "@babylonjs/core";
+import { AbstractMesh, MeshBuilder, Observer, Ray, Scene, StandardMaterial, TransformNode, Vector3 } from "@babylonjs/core";
 
-import DroneEnemy from "../DroneEnemy";
 import { Behavior } from "../Behavior";
+import DroneEnemy from "../DroneEnemy";
 
 export default class StealthDetectionBehavior extends Behavior {
     

@@ -1,5 +1,5 @@
-import { loadConfig } from './SceneUtils';
 import BaseScene from './BaseScene';
+import { loadConfig } from './SceneUtils';
 
 export default class SecondLevel extends BaseScene {
 

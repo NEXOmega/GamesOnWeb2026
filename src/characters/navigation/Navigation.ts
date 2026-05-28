@@ -1,4 +1,5 @@
 import { Vector3 } from "@babylonjs/core";
+
 import { Enemy } from "../Enemy";
 
 /**

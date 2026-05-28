@@ -25,6 +25,22 @@ npm run watch
 
 Cette commande recompile le jeu à chaque modification.
 
+# Qualité de code
+
+```
+npm run lint
+npm run lint:fix
+```
+
+`lint` vérifie le code TypeScript. `lint:fix` trie les imports et supprime les imports inutilisés automatiquement.
+
+```
+npm run format
+npm run format:check
+```
+
+`format` applique Prettier sur les fichiers du projet. `format:check` vérifie le format sans modifier les fichiers.
+
 # Tester en local
 
 Via npx
@@ -54,4 +70,4 @@ Pour l'utiliser :
 3. Choisir `GitHub Actions` comme source de déploiement.
 4. Pousser sur `main` ou `master`.
 
-GitHub construira le jeu avec `npm run build`, puis publiera automatiquement le contenu de `public/`
+GitHub vérifiera le lint, construira le jeu avec `npm run build`, puis publiera automatiquement le contenu de `public/`.

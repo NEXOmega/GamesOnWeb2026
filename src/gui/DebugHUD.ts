@@ -1,5 +1,6 @@
-import { AdvancedDynamicTexture, Rectangle, StackPanel, TextBlock, Button, Control, ScrollViewer } from "@babylonjs/gui";
-import { Scene, Observer } from "@babylonjs/core";
+import { Observer,Scene } from "@babylonjs/core";
+import { AdvancedDynamicTexture, Button, Control, Rectangle, ScrollViewer,StackPanel, TextBlock } from "@babylonjs/gui";
+
 import SceneManager from "../scenes/SceneManager";
 
 export default class DebugHUD {

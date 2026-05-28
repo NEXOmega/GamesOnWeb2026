@@ -1,28 +1,27 @@
+import "@babylonjs/loaders";
+
 import {
     AbstractMesh,
-    PhysicsAggregate,
-    PhysicsShapeType,
-    Scene,
-    TransformNode,
-    Vector3,
     MeshBuilder,
+    PhysicsAggregate,
+    PhysicsRaycastResult,
+    PhysicsShapeType,
     Quaternion,
-    PhysicsRaycastResult
-} from '@babylonjs/core';
-import "@babylonjs/loaders";
+    TransformNode,
+    Vector3} from '@babylonjs/core';
 import { SceneLoader } from '@babylonjs/core/Loading/sceneLoader';
-import Entity from '../entities/Entity';
-import { Collidable } from '../entities/CollidableInterface';
-import { State, StateConfig, StateManager } from '../utils/StateManager';
-import PlayerHud from '../gui/PlayerHud';
+
 import PlayerCamera from '../camera/PlayerCamera';
-import InputManager from '../utils/InputManager';
-import Inventory from '../player/inventory/Inventory';
+import { Collidable } from '../entities/CollidableInterface';
+import Entity from '../entities/Entity';
 import InventoryUI from '../gui/inventory/InventoryHud';
-import BaseScene from '../scenes/BaseScene';
-import SceneManager from '../scenes/SceneManager';
+import PlayerHud from '../gui/PlayerHud';
 import * as TitleAnimation from '../gui/title/TitleAnimation';
 import UsableRegistry from "../items/UsableRegistry";
+import Inventory from '../player/inventory/Inventory';
+import BaseScene from '../scenes/BaseScene';
+import InputManager from '../utils/InputManager';
+import { State, StateConfig, StateManager } from '../utils/StateManager';
 
 export default class Player extends Entity implements Collidable {
 
@@ -205,7 +204,7 @@ export default class Player extends Entity implements Collidable {
         const forward = new Vector3(cameraForward.x, 0, cameraForward.z).normalize();
         const right = new Vector3(cameraRight.x, 0, cameraRight.z).normalize();
 
-        let move = Vector3.Zero();
+        const move = Vector3.Zero();
 
         if (InputManager.isActionPressed("move_forward")) move.addInPlace(forward);
         if (InputManager.isActionPressed("move_backward")) move.subtractInPlace(forward);

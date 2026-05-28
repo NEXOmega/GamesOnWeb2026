@@ -1,8 +1,8 @@
-import { HemisphericLight, Vector3, FreeCamera, MeshBuilder,
-         StandardMaterial, Color3, Color4, ActionManager,
-         ExecuteCodeAction } from '@babylonjs/core';
-import { Engine } from '@babylonjs/core';
+import { ActionManager,
+Color3, Color4,          ExecuteCodeAction,FreeCamera, HemisphericLight, MeshBuilder,
+         StandardMaterial, Vector3 } from '@babylonjs/core';
 import { AdvancedDynamicTexture, TextBlock } from '@babylonjs/gui';
+
 import BaseScene from './BaseScene';
 import SceneManager from './SceneManager';
 

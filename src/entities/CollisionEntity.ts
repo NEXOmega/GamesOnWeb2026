@@ -1,10 +1,10 @@
 import { AbstractMesh, ActionManager, ExecuteCodeAction, MeshBuilder, Scene, Vector3 } from "@babylonjs/core";
-import Entity from "./Entity";
-import { Collidable } from "./CollidableInterface";
-import { StateManager } from "../utils/StateManager";
+
+import { Action } from "../actions/Action";
 import Player from "../characters/Player";
 import BaseScene from "../scenes/BaseScene";
-import { Action } from "../actions/Action";
+import { Collidable } from "./CollidableInterface";
+import Entity from "./Entity";
 
 /**
  * Used for interactions, will call onMeshEntered or onMeshExited when the target enter inside de sphere

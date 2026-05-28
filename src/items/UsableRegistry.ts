@@ -1,5 +1,5 @@
-import {UsableItem} from "./UsableItems";
 import {HealingPotion} from "./HealthPotion";
+import {UsableItem} from "./UsableItems";
 
 
 const usables: Map<string, UsableItem> = new Map([

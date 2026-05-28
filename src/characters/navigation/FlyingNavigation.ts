@@ -1,6 +1,7 @@
 import { Quaternion, Ray, Vector3 } from "@babylonjs/core";
-import { Navigation } from "./Navigation";
+
 import DroneEnemy from "../DroneEnemy";
+import { Navigation } from "./Navigation";
 
 export default class FlyingNavigation extends Navigation {
     protected declare entity: DroneEnemy;

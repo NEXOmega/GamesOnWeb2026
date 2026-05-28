@@ -1,0 +1,5 @@
+node_modules
+public/dist
+modelsBlender
+*.blend
+*.blend1

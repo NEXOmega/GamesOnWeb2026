@@ -1,5 +1,7 @@
 import 'reflect-metadata';
+
 import { Expose } from "class-transformer";
+
 import Player from "../characters/Player";
 import { StateManager } from "../utils/StateManager";
 

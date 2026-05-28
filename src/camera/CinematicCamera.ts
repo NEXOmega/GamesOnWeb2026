@@ -1,5 +1,5 @@
-import { UniversalCamera, Scene, Vector3, Animation } from '@babylonjs/core';
-import { Rotation } from '@babylonjs/havok';
+import { Animation,Scene, UniversalCamera, Vector3 } from '@babylonjs/core';
+
 import { getRotationFromPositions } from '../utils/3DUtils'
 
 // Camera used by scene at start
@@ -43,7 +43,7 @@ export default class CinematicCamera extends UniversalCamera {
         })
         rotateTo.setKeys(rotateKeyFrames);
 
-        let animatable = this.getScene().beginDirectAnimation(this, [moveTo, rotateTo], 0, time * this.frameRate, false);
+        const animatable = this.getScene().beginDirectAnimation(this, [moveTo, rotateTo], 0, time * this.frameRate, false);
         if(onAnimationEnd != undefined)
             animatable.onAnimationEnd = onAnimationEnd;
     }

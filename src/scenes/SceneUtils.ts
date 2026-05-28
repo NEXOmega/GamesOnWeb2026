@@ -1,14 +1,13 @@
-import { Scene, HemisphericLight, DirectionalLight, Vector3, MeshBuilder, Color3, SceneLoader, CascadedShadowGenerator, PhysicsAggregate, PhysicsShapeType, AbstractMesh } from '@babylonjs/core';
+import { AbstractMesh,CascadedShadowGenerator, Color3, DirectionalLight, HemisphericLight, MeshBuilder, PhysicsAggregate, PhysicsShapeType, Scene, SceneLoader, Vector3 } from '@babylonjs/core';
 import { SkyMaterial } from '@babylonjs/materials';
-import { MapConfig } from './MapConfig';
-import NPC from '../characters/NPC';
-import Pickable from '../entities/Pickable';
-import BaseScene from './BaseScene';
-import InteractionEntity from '../entities/InteractionEntity';
-import Interactable from '../entities/Interactable';
 
+import NPC from '../characters/NPC';
 import Player from '../characters/Player';
+import Interactable from '../entities/Interactable';
+import Pickable from '../entities/Pickable';
 import { State, StateManager } from '../utils/StateManager';
+import BaseScene from './BaseScene';
+import { MapConfig } from './MapConfig';
 
 export async function loadConfig(configPath: string, scene: BaseScene) {
     const response = await fetch(configPath);

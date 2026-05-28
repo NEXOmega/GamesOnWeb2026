@@ -1,6 +1,7 @@
 import { Quaternion, Ray, Vector3 } from "@babylonjs/core";
-import DroneEnemy from "../DroneEnemy";
+
 import { Behavior } from "../Behavior";
+import DroneEnemy from "../DroneEnemy";
 
 /**
  * Utilisé pour lancer un laser en direction du target si la cible est a portée

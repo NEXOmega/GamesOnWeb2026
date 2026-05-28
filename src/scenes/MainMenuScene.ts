@@ -1,5 +1,6 @@
-import { Vector3, FreeCamera, Color4 } from "@babylonjs/core";
-import { AdvancedDynamicTexture, Button, StackPanel, TextBlock, Rectangle, Control } from "@babylonjs/gui";
+import { Color4,FreeCamera, Vector3 } from "@babylonjs/core";
+import { AdvancedDynamicTexture, Button, Control, StackPanel, TextBlock } from "@babylonjs/gui";
+
 import BaseScene from "./BaseScene";
 import SceneManager from "./SceneManager";
 

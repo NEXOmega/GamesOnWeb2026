@@ -1,5 +1,5 @@
-import { Quaternion, Vector3 } from "@babylonjs/core";
-import DroneEnemy from "../DroneEnemy";
+import { Vector3 } from "@babylonjs/core";
+
 import { Behavior } from "../Behavior";
 import DroneEnemyCone from "../DroneEnemyCone";
 

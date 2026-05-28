@@ -1,9 +1,10 @@
-import { AbstractMesh, SceneLoader, Vector3 } from "@babylonjs/core";
+import { AbstractMesh, Vector3 } from "@babylonjs/core";
+
+import { ConsoleLogAction } from "../actions/Action";
+import BaseScene from "../scenes/BaseScene";
+import { ActionSerializer } from "../utils/json/ActionSerializer";
 import Entity from "./Entity";
 import InteractionEntity from "./InteractionEntity";
-import { ConsoleLogAction } from "../actions/Action";
-import { ActionSerializer } from "../utils/json/ActionSerializer";
-import BaseScene from "../scenes/BaseScene";
 
 export default class Interactable extends Entity {
 

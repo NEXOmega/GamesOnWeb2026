@@ -1,7 +1,7 @@
 import { AbstractMesh, Vector3 } from '@babylonjs/core';
-import Tickable from '../utils/Tickable';
+
 import BaseScene from '../scenes/BaseScene';
-import { StateManager } from '../utils/StateManager';
+import Tickable from '../utils/Tickable';
 
 export default class Entity implements Tickable {
     public id: string;

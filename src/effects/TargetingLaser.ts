@@ -1,4 +1,5 @@
 import { Color3, Mesh, MeshBuilder, Observer, Scene, StandardMaterial, Vector3 } from "@babylonjs/core";
+
 import BaseScene from "../scenes/BaseScene";
 
 export default class TargetingLaser {

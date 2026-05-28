@@ -1,13 +1,10 @@
 import { AbstractMesh, Vector3 } from "@babylonjs/core";
-import NPC from "../characters/NPC";
+
 import Player from "../characters/Player";
-import Dialogue from "../dialogs/Dialogue";
-import DialogueManager from "../dialogs/DialogueManager";
 import BaseScene from "../scenes/BaseScene";
+import { getRotationFromPositions } from "../utils/3DUtils";
 import { State, StateManager } from "../utils/StateManager";
 import {Action} from "./Action";
-import { getRotationFromPositions } from "../utils/3DUtils";
-import { Expose } from "class-transformer";
 
 export default class MoveCinematicCamera extends Action {
     readonly type = "MoveCinematicCamera";
@@ -23,7 +20,7 @@ export default class MoveCinematicCamera extends Action {
 
     public execute(player: Player) {
         if (StateManager.state !== State.DIALOG) {
-            let cinematicCamera = (this.scene as BaseScene).cinematicCamera;
+            const cinematicCamera = (this.scene as BaseScene).cinematicCamera;
                             
             cinematicCamera.teleport(player.impostorMesh.position);
             this.scene.activeCamera = cinematicCamera;

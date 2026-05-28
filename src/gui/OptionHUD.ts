@@ -1,6 +1,6 @@
-import { AdvancedDynamicTexture, Button, StackPanel, TextBlock, Rectangle, Control, Slider } from "@babylonjs/gui";
 import { Scene } from "@babylonjs/core";
-import InputManager, { InputAction } from "../utils/InputManager";
+import { AdvancedDynamicTexture, Button, Control, Rectangle, Slider,StackPanel, TextBlock } from "@babylonjs/gui";
+
 import SoundManager from "../sounds/SoundManager";
 import { State, StateManager } from "../utils/StateManager";
 

@@ -1,17 +1,17 @@
 import 'reflect-metadata';
-import { Expose } from "class-transformer";
-import Player from "../characters/Player";
-import { State, StateManager } from "../utils/StateManager";
-import DialogueManager from "../dialogs/DialogueManager";
 
-import * as TitleAnimation from '../gui/title/TitleAnimation';
 import { Vector3 } from "@babylonjs/core";
-import { TransformVector3 } from '../utils/json/Decorators';
+import { Expose } from "class-transformer";
+
 import NPC from '../characters/NPC';
-import { FadeAnimation } from '../gui/title/TitleAnimation';
+import Player from "../characters/Player";
+import DialogueManager from "../dialogs/DialogueManager";
 import Entity from '../entities/Entity';
-import Dialogue from '../dialogs/Dialogue';
+import * as TitleAnimation from '../gui/title/TitleAnimation';
+import { FadeAnimation } from '../gui/title/TitleAnimation';
 import SceneManager from '../scenes/SceneManager';
+import { TransformVector3 } from '../utils/json/Decorators';
+import { State, StateManager } from "../utils/StateManager";
 
 export const ALL_ACTIONS: { value: any, name: string }[] = [];
 
@@ -113,9 +113,9 @@ export class ConsoleLogAction extends Action {
     readonly type = "ConsoleLogAction";
 
     @Expose()
-    private message: String;
+    private message: string;
 
-    constructor(message: String) {
+    constructor(message: string) {
         super();
         this.message = message;
     }

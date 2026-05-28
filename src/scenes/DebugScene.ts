@@ -1,11 +1,11 @@
 import { HemisphericLight, Vector3 } from '@babylonjs/core';
 
-import BaseScene from './BaseScene';
-import Player from '../characters/Player';
-import { loadConfig } from './SceneUtils';
-import IANavigation from "../characters/IANavigation";
 import DroneEnemy from "../characters/DroneEnemy";
+import IANavigation from "../characters/IANavigation";
+import Player from '../characters/Player';
 import Pickable from "../entities/Pickable";
+import BaseScene from './BaseScene';
+import { loadConfig } from './SceneUtils';
 export default class DebugScene extends BaseScene {
     public posPlayer: Player;
 

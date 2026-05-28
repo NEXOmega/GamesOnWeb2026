@@ -1,6 +1,7 @@
-import { Quaternion, Ray, Vector3 } from "@babylonjs/core";
-import DroneEnemy from "../DroneEnemy";
+import { Vector3 } from "@babylonjs/core";
+
 import { Behavior } from "../Behavior";
+import DroneEnemy from "../DroneEnemy";
 
 /**
  * Comportement permetant de chasser le joueur, utilisé pour les drone seulement.

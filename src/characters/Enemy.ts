@@ -1,8 +1,9 @@
-import Entity from '../entities/Entity';
-import EntityBrain from './EntityBrain';
-import Player from '../characters/Player';
 import { AbstractMesh, Vector3 } from '@babylonjs/core';
+
+import Player from '../characters/Player';
+import Entity from '../entities/Entity';
 import BaseScene from '../scenes/BaseScene';
+import EntityBrain from './EntityBrain';
 import { Navigation } from './navigation/Navigation';
 
 /**

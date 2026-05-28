@@ -1,13 +1,13 @@
+import { Scene } from "@babylonjs/core";
+import { plainToInstance } from "class-transformer";
+
 import NPC from "../characters/NPC";
 import Player from "../characters/Player";
+import DialogueUI from "../gui/DialogUI";
+import * as TitleAnimation from  "../gui/title/TitleAnimation";
+import InputManager from "../utils/InputManager";
 import { State, StateManager } from "../utils/StateManager";
 import Dialogue from "./Dialogue";
-import InputManager from "../utils/InputManager";
-import { Scene } from "@babylonjs/core";
-import * as TitleAnimation from  "../gui/title/TitleAnimation";
-import { plainToInstance } from "class-transformer";
-import DialogueUI from "../gui/DialogUI";
-import { ActionSerializer } from '../utils/json/ActionSerializer';
 
 export default class DialogueManager {
     public static dialogs: Record<string, Dialogue> = {};

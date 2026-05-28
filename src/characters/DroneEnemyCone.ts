@@ -1,11 +1,12 @@
 import { AbstractMesh, MeshBuilder, PhysicsAggregate, PhysicsShapeType, SceneLoader, Vector3 } from "@babylonjs/core";
-import { Enemy } from "./Enemy";
-import BaseScene from "../scenes/BaseScene";
-import RangedAttackBehavior from "./behaviors/RangedAttackBehavior";
+
 import TargetingLaser from "../effects/TargetingLaser";
-import FindPlayerTargetBehavior from "./behaviors/FindPlayerTargetBehavior";
+import BaseScene from "../scenes/BaseScene";
 import ChaseTargetBehavior from "./behaviors/ChaseTargetBehavior";
+import FindPlayerTargetBehavior from "./behaviors/FindPlayerTargetBehavior";
 import IdleBehavior from "./behaviors/IdleBehavior";
+import RangedAttackBehavior from "./behaviors/RangedAttackBehavior";
+import { Enemy } from "./Enemy";
 import FlyingNavigation from "./navigation/FlyingNavigation";
 
 /**

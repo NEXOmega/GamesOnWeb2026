@@ -1,9 +1,10 @@
 import { Expose, plainToInstance, Transform, Type } from "class-transformer";
+
 import { Action } from "../actions/Action";
-import { ALL_ACTIONS } from "../utils/json/ActionSerializer";
-import { ALL_CONDITIONS } from "../utils/json/ConditionSerializer";
 import Player from "../characters/Player";
 import { Condition } from "../condition/Condition";
+import { ALL_ACTIONS } from "../utils/json/ActionSerializer";
+import { ALL_CONDITIONS } from "../utils/json/ConditionSerializer";
 
 export default class Dialogue {
 
