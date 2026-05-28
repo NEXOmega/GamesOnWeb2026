@@ -22,7 +22,7 @@ export default class Pickable extends Entity {
         const result = await SceneLoader.ImportMeshAsync("", "./assets/models/items/", itemId + ".glb", scene);
         const root = result.meshes[0];
         const visualMesh = result.meshes[1];
-        if (visualMesh) visualMesh.scaling = new Vector3(0.05, 0.05, 0.05);
+        if (visualMesh) visualMesh.scaling = new Vector3(0.05 / 3, 0.05 / 3, 0.05 / 3);
         return new Pickable(id, root, scene, position, itemId, quantity);
     }
 

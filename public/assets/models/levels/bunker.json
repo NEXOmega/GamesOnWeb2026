@@ -1,5 +1,5 @@
 {
-    "model": "Bunker.glb",
+    "model": "BunkerLobby.glb",
     "scale": 2,
     "centerMap": true,
     "physicsEnabled": true,
