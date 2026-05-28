@@ -5,11 +5,9 @@
   "license": "ISC",
   "author": "",
   "type": "commonjs",
-  "main": "index.js",
   "scripts": {
-    "start": "webpack && node index.js",
-    "build": "webpack",
-    "watch": "webpack -w",
+    "build": "webpack --mode production",
+    "watch": "webpack --mode development -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
@@ -27,7 +25,6 @@
     "@babylonjs/loaders": "^8.50.3",
     "@babylonjs/materials": "^8.50.3",
     "class-transformer": "^0.5.1",
-    "http": "^0.0.1-security",
     "recast-detour": "^1.6.4",
     "reflect-metadata": "^0.2.2"
   }

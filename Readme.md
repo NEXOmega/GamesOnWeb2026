@@ -1,15 +1,57 @@
-# Preérequis
-Avoir node.js installé
+# Prérequis
+Avoir Node.js installé.
 
 # Setup
 ```
 npm install
 ```
-Cela va installer les dépendances nécéssaire notament Babylon.Js
+Cela installe les dépendances nécessaires, notamment Babylon.js.
 
-# Comment lancer
+# Build
 
 ```
 npm run start
 ```
-Cela va compiler le javascript et lancer le serveur, ensuite on est pas obliger de relancer le serveur pendant la face de dev on peut juste faire npm run build et rafraichir la page une fois que le build est fini.
+Cette commande compile le jeu dans `public/dist/app.js`.
+
+Le projet est maintenant prévu pour être servi comme un site statique. Le dossier à publier est `public/`.
+
+
+# Développement
+
+```
+npm run watch
+```
+
+Cette commande recompile le jeu à chaque modification.
+
+# Tester en local
+
+Via npx
+
+```
+npm run build
+npx serve public
+```
+
+Via python
+
+```
+npm run build
+cd public
+python3 -m http.server 3000
+```
+
+
+# Déploiement GitHub Pages
+
+Un workflow GitHub Actions est fourni dans `.github/workflows/pages.yml`.
+
+Pour l'utiliser :
+
+1. Pousser le projet sur GitHub.
+2. Aller dans `Settings > Pages`.
+3. Choisir `GitHub Actions` comme source de déploiement.
+4. Pousser sur `main` ou `master`.
+
+GitHub construira le jeu avec `npm run build`, puis publiera automatiquement le contenu de `public/`

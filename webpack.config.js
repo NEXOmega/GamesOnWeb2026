@@ -1,18 +1,19 @@
 const path = require('path')
 
-module.exports = {
-    mode: "development",
+module.exports = (env, argv) => ({
+    mode: argv.mode || "development",
     entry: {
         app: "./src/app.ts"
     },
     output: {
         path: path.resolve(__dirname, 'public', 'dist'),
-        filename: '[name].js'
+        filename: '[name].js',
+        clean: true
     },
     resolve: {
         extensions: ['.ts', 'tsx', '.js']
     },
-    devtool: 'source-map',
+    devtool: argv.mode === "production" ? false : 'source-map',
     plugins: [],
     module: {
         rules: [{
@@ -21,4 +22,4 @@ module.exports = {
             exclude: /node_modules/
         }]
     }
-}
+})
