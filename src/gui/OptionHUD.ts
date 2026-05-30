@@ -10,6 +10,7 @@ export default class OptionsHUD {
     private isVisible: boolean = false;
     private scene: Scene;
     private previousState: State = State.PLAYING;
+    private onVisibilityChanged?: (isVisible: boolean) => void;
 
     constructor(scene: Scene) {
         this.scene = scene;
@@ -81,6 +82,7 @@ export default class OptionsHUD {
     public toggle() {
         this.isVisible = !this.isVisible;
         this.mainContainer.isVisible = this.isVisible;
+        this.onVisibilityChanged?.(this.isVisible);
 
         if (this.isVisible) {
             this.previousState = StateManager.state;
@@ -89,6 +91,10 @@ export default class OptionsHUD {
         } else {
             StateManager.state = this.previousState;
         }
+    }
+
+    public setVisibilityChangedCallback(callback: (isVisible: boolean) => void) {
+        this.onVisibilityChanged = callback;
     }
 
     public dispose() {

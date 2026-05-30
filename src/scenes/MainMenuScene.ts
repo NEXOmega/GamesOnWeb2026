@@ -5,6 +5,7 @@ import SceneManager from "./SceneManager";
 
 export default class MainMenuScene extends BaseScene {
     private uiTexture: AdvancedDynamicTexture | null = null;
+    private menuPanel: StackPanel | null = null;
 
     async createScene(): Promise<void> {
         this.clearColor = new Color4(0.1, 0.1, 0.15, 1);
@@ -23,7 +24,14 @@ export default class MainMenuScene extends BaseScene {
         panel.width = "400px";
         panel.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
         panel.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        this.menuPanel = panel;
         this.uiTexture.addControl(panel);
+
+        this.optionsHud.setVisibilityChangedCallback((isVisible) => {
+            if (this.menuPanel) {
+                this.menuPanel.isVisible = !isVisible;
+            }
+        });
 
         const title = new TextBlock("title", "NOM DU JEU");
         title.height = "100px";
