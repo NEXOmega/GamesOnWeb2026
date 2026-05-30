@@ -14,6 +14,7 @@ import FirstLevel from './scenes/FirstLevel';
 import SecondLevel from './scenes/SecondLevel';
 import StoryDebugScene from './scenes/StoryDebug';
 import EndingScene from './scenes/EndingScene';
+import IntroScene from './scenes/IntroScene';
 
 let game: BaseScene;
 
@@ -30,7 +31,14 @@ window.addEventListener('DOMContentLoaded', async () => {
         await scene.initScene();
 
         return scene;
-});
+    });
+
+    SceneManager.registerScene("IntroScene", async () => {
+        const scene = new IntroScene(SceneManager.engine, 'renderCanvas');
+        await scene.initScene();
+
+        return scene;
+    });
 
     SceneManager.registerScene("DebugScene", async () => {
         const firstScene = new DebugScene(SceneManager.engine, 'renderCanvas');

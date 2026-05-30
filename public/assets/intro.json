@@ -1,0 +1,16 @@
+{
+  "lines": [
+    { "text": "ICI DÉBUTE VOTRE AVENTURE", "size": 60, "color": "cyan", "bold": true },
+    { "text": "", "size": 50 },
+    { "text": "Le monde tel que nous le connaissions a cessé d'exister.", "size": 30, "color": "white" },
+    { "text": "Alors que le monde courait à sa perte à cause de la guerre, du réchauffement climatique, de l'évolution exponentielle de la production et de l'appauvrissement des ressources.", "size": 30, "color": "white" },
+    { "text": "Une décision fut prise : remettre le sort de la Terre entre les mains d'une IA sentiente, avec une tâche simple : faire perdurer la Terre.", "size": 30, "color": "white" },
+    { "text": "Cependant, la seule solution fiable et durable trouvée par celle-ci fut l'extinction de la race humaine, qu'elle jugea comme étant la racine du mal.", "size": 30 },
+    { "text": "Et elle réussit. Du moins en partie. On estime que seulement 10 % de l'espèce humaine a pu survivre, en se cachant dans des bunkers ou en fuyant le plus loin possible.", "size": 30 },
+    { "text": "", "size": 40 },
+    { "text": "Vous, vous n'avez pas connu la surface. Vous êtes né dans un bunker assez spécial.", "size": 30, "color": "white" },
+    { "text": "En effet, votre bunker est le résultat d'une autre expérience : confier à une IA un groupe de personnes et tout faire pour les faire perdurer dans le temps.", "size": 30, "color": "white" },
+    { "text": "Mais maintenant, après des dizaines d'années de paix, le bunker commence à rencontrer des problèmes qu'un robot ne peut pas gérer.", "size": 30 },
+    { "text": "Cela va donc être à vous de sauver le bunker et les personnes qui s'y trouvent.", "size": 30 }
+  ]
+}

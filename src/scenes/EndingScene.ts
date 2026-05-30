@@ -57,7 +57,7 @@ export default class EndingScene extends BaseScene {
 
         this.onBeforeRenderObservable.add(() => {
             const scrollPos = parseFloat(this.scrollPanel.top as string);
-            this.scrollPanel.top = (scrollPos - 0.8) + "px";
+            this.scrollPanel.top = (scrollPos - 0.4) + "px";
 
             const traveledDistance = 800 - scrollPos;
             

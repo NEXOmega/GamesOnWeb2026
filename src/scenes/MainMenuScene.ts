@@ -36,7 +36,7 @@ export default class MainMenuScene extends BaseScene {
         this.styleMenuButton(playBtn);
         playBtn.onPointerUpObservable.add(() => {
             console.log("Lancement du jeu...");
-            SceneManager.changeScene("BunkerScene"); 
+            SceneManager.changeScene("IntroScene"); 
         });
         panel.addControl(playBtn);
 
