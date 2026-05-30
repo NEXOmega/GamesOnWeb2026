@@ -5,9 +5,9 @@ Ce projet a été réalisé dans le cadre de **Games on Web 2026**, dont le thè
 
 ## Membres de l’équipe
 
-- Amalya MOURIH
-- Valentin GABILLET
-- Numa EFREMON
+- Amalya MOURIH - Modélisation 3D
+- Valentin GABILLET - Programmation
+- Numa EFREMON - Programmation
 
 ## Lien avec l'Intélligence Artificielle
 
