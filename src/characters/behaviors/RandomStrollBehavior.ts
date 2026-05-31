@@ -63,7 +63,7 @@ export default class RandomStrollBehavior extends Behavior {
             return;
         }
 
-        this.entity.navigation.moveTo(this.targetPosition, 0.45, 1.2, true);
+        this.entity.navigation.moveTo(this.targetPosition, 0.45, 1.2, false);
     }
 
     public stop(): void {
@@ -75,7 +75,8 @@ export default class RandomStrollBehavior extends Behavior {
 
     private pickNewTarget(): void {
         const angle = Math.random() * Math.PI * 2;
-        const distance = Math.sqrt(Math.random()) * this.radius;
+        const minDistance = Math.min(this.radius * 0.35, 3);
+        const distance = minDistance + Math.sqrt(Math.random()) * Math.max(0, this.radius - minDistance);
         const height = this.randomBetween(-this.verticalRange, this.verticalRange);
 
         this.targetPosition = this.center.add(new Vector3(

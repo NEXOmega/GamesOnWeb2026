@@ -49,8 +49,12 @@ export default class FlyingNavigation extends Navigation {
 
         if (!this.entity.mesh.rotationQuaternion) this.entity.mesh.rotationQuaternion = Quaternion.Identity();
 
-        const targetRotation = Quaternion.FromLookDirectionLH(desiredDirection, Vector3.Up());
-        this.entity.mesh.rotationQuaternion = Quaternion.Slerp(this.entity.mesh.rotationQuaternion, targetRotation, this.rotationSpeed * deltaSeconds);
+        const horizontalLookDirection = new Vector3(desiredDirection.x, 0, desiredDirection.z);
+        if (horizontalLookDirection.lengthSquared() > 0.0001) {
+            horizontalLookDirection.normalize();
+            const targetRotation = Quaternion.FromLookDirectionLH(horizontalLookDirection, Vector3.Up());
+            this.entity.mesh.rotationQuaternion = Quaternion.Slerp(this.entity.mesh.rotationQuaternion, targetRotation, this.rotationSpeed * deltaSeconds);
+        }
 
         const finalSpeed = this.entity.moveSpeed * this.speedMultiplier;
         const velocity = desiredDirection.scale(finalSpeed);

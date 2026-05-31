@@ -118,7 +118,7 @@ async function loadSpawnMesh(scene: BaseScene, mesh: AbstractMesh) {
             extras.spawn_uuid,
             scene,
             dronePos,
-            getNumberExtra(extras.stroll_radius, 8),
+            getNumberExtra(extras.stroll_radius, 16),
             getNumberExtra(extras.stroll_vertical_range, 3)
         );
         mesh.dispose();
