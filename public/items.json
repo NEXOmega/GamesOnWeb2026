@@ -33,7 +33,7 @@
         "id": "colors_pencil",
         "name": "Crayon de couleurs",
         "description": "Une relique d'avant l'apocalypse, cela pourrait faire plaisir aux enfants...",
-        "iconUrl": "./textures/items/missing_texture.png"
+        "iconUrl": "./textures/items/crayon.png"
     },
     {
         "id": "map",
@@ -47,4 +47,5 @@
         "description": "Du verre, cela va forcément pouvoir nous aider au bunker !",
         "iconUrl": "./textures/items/missing_texture.png"
     }
+
 ]
