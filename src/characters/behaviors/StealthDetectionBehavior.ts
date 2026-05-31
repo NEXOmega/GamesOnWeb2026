@@ -36,6 +36,7 @@ export default class StealthDetectionBehavior extends Behavior {
         }, this.entity.scene);
         
         this.visionCone.isPickable = false;
+        this.visionCone.isVisible = false;
         this.visionCone.parent = this.conePivot;
         this.visionCone.rotation.x = Math.PI / 2; 
 
@@ -58,7 +59,6 @@ export default class StealthDetectionBehavior extends Behavior {
 
     public canStart(): boolean {
         if (this.entity.target) return false;
-        this.visionCone.isVisible = true;
 
         const player = this.entity.scene.actualPlayer;
         if (!player) return false;

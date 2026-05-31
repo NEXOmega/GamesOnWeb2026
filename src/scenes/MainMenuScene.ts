@@ -33,7 +33,7 @@ export default class MainMenuScene extends BaseScene {
             }
         });
 
-        const title = new TextBlock("title", "NOM DU JEU");
+        const title = new TextBlock("title", "Le Bunker");
         title.height = "100px";
         title.color = "white";
         title.fontSize = 48;

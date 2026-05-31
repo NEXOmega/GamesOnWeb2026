@@ -58,7 +58,7 @@ export default class NPC extends Entity {
         this.dialogId = dialogId;
 
         this.collistionMesh = MeshBuilder.CreateCapsule("CharacterTransform", {height: 2, radius: 0.5}, scene);
-        this.collistionMesh.visibility = 0.1;
+        this.collistionMesh.visibility = 0;
         this.collistionMesh.rotationQuaternion = rotationQuaternion.clone();
         
         this.model = mesh;

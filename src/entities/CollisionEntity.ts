@@ -32,7 +32,7 @@ export default class CollisionEntity extends Entity implements Collidable {
 
             this.mesh.position = position // Example position
             this.mesh.isPickable = false;
-            this.mesh.visibility = 0.5;
+            this.mesh.visibility = 0;
             this.mesh.actionManager = new ActionManager(scene);
                 this.mesh.actionManager.registerAction(new ExecuteCodeAction({
                     trigger: ActionManager.OnIntersectionEnterTrigger,
@@ -46,7 +46,6 @@ export default class CollisionEntity extends Entity implements Collidable {
             }, () => {
                 this.onMeshExited();
             }))
-            console.log(this.mesh.metadata)
     }
     getCollisionMesh(): AbstractMesh {
         return this.mesh;
