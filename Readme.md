@@ -92,3 +92,5 @@ Le jeu est sur ce lien:
 
 - [Dépôt du concours](https://github.com/gamesonweb/ia-edition-bunker)
 - [Dépôt personnel](https://github.com/NEXOmega/GamesOnWeb2026)
+
+- [Bonne fin](https://youtu.be/n6IxpOYCQSU)
