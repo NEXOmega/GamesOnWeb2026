@@ -1,6 +1,5 @@
 import { AdvancedDynamicTexture, Button, StackPanel, TextBlock, Rectangle, Control, Slider } from "@babylonjs/gui";
 import { Scene } from "@babylonjs/core";
-import InputManager, { InputAction } from "../utils/InputManager";
 import SoundManager from "../sounds/SoundManager";
 import { State, StateManager } from "../utils/StateManager";
 
@@ -19,7 +18,7 @@ export default class OptionsHUD {
 
         this.mainContainer = new Rectangle("OptionsContainer");
         this.mainContainer.width = "600px";
-        this.mainContainer.height = "520px";
+        this.mainContainer.height = "620px";
         this.mainContainer.background = "rgba(20, 20, 20, 0.95)";
         this.mainContainer.color = "cyan";
         this.mainContainer.thickness = 2;
@@ -65,6 +64,23 @@ export default class OptionsHUD {
         ctrlLabel.fontSize = 20;
         ctrlLabel.paddingTop = "10px";
         stack.addControl(ctrlLabel);
+
+        const controlsGuide = new TextBlock("controlsGuide");
+        controlsGuide.text = [
+            "Déplacement : ZQSD / WASD / Flèches",
+            "Sprint : Shift",
+            "Inventaire : I",
+            "Options : Échap",
+            "Menu debug : F3"
+        ].join("\n");
+        controlsGuide.height = "180px";
+        controlsGuide.width = "480px";
+        controlsGuide.color = "white";
+        controlsGuide.fontSize = 18;
+        controlsGuide.lineSpacing = "8px";
+        controlsGuide.textWrapping = true;
+        controlsGuide.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        stack.addControl(controlsGuide);
 
         const closeBtn = Button.CreateSimpleButton("closeBtn", "APPLIQUER & FERMER");
         closeBtn.width = "250px";

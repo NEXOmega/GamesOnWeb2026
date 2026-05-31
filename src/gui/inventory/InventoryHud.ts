@@ -42,9 +42,20 @@ export default class InventoryUI {
         this.mainContainer.isVisible = false;
         this.texture.addControl(this.mainContainer);
 
+        const title = new TextBlock("inventoryTitle", "Inventaire");
+        title.height = "70px";
+        title.color = "white";
+        title.fontSize = 42;
+        title.fontWeight = "bold";
+        title.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        title.top = "24px";
+        this.mainContainer.addControl(title);
+
         const layoutGrid = new Grid();
         layoutGrid.addColumnDefinition(0.4); // 40% largeur
         layoutGrid.addColumnDefinition(0.6); // 60% largeur
+        layoutGrid.height = "80%";
+        layoutGrid.top = "55px";
         this.mainContainer.addControl(layoutGrid);
 
         const scrollViewer = new ScrollViewer();

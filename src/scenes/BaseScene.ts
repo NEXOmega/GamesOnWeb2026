@@ -1,4 +1,4 @@
-import { Engine, Scene, Light, AbstractSound, AbstractMesh, Vector3, HavokPlugin, RecastJSPlugin } from '@babylonjs/core';
+import { Engine, Scene, Light, AbstractSound, AbstractMesh, Vector3, HavokPlugin, RecastJSPlugin, KeyboardEventTypes } from '@babylonjs/core';
 import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
 import HavokPhysics from "@babylonjs/havok";
@@ -27,6 +27,7 @@ export default class BaseScene extends Scene {
     public playerSpawn : Vector3 = new Vector3(0,0,0);
 
     public optionsHud: OptionsHUD;
+    private isEscapeDown: boolean = false;
 
     constructor(engine: Engine, canvasElement: string, pointerLock: boolean = true) {
         super(engine);
@@ -78,13 +79,17 @@ export default class BaseScene extends Scene {
     }
 
     private setupGlobalShortcuts() {
-        /*window.addEventListener("keydown", (ev) => {
-            if (ev.key === 'Escape') {
+        this.onKeyboardObservable.add((kbInfo) => {
+            if (kbInfo.type === KeyboardEventTypes.KEYDOWN && kbInfo.event.key === "Escape" && !this.isEscapeDown) {
+                this.isEscapeDown = true;
+
                 if (StateManager.state === State.PLAYING || StateManager.state === State.IN_INVENTORY) {
                     this.optionsHud.toggle();
                 }
+            } else if (kbInfo.type === KeyboardEventTypes.KEYUP && kbInfo.event.key === "Escape") {
+                this.isEscapeDown = false;
             }
-        });*/
+        });
 
         window.addEventListener("keydown", (ev) => {
             if (ev.altKey && ev.key === 'i') {
