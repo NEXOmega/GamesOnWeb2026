@@ -139,6 +139,7 @@ export default class BaseScene extends Scene {
     }
         
     public onSleep() {
+        this.stopEntityLoopingSounds();
         this.sceneSounds.forEach(s => s.pause());
     }
 
@@ -147,6 +148,7 @@ export default class BaseScene extends Scene {
     }
 
     public dispose() {
+        this.stopEntityLoopingSounds();
         if(this.optionsHud) this.optionsHud.dispose();
         this.sceneSounds.forEach(s => {
             s.stop();
@@ -154,5 +156,15 @@ export default class BaseScene extends Scene {
         });
         this.sceneSounds = new Map()
         super.dispose();
+    }
+
+    private stopEntityLoopingSounds(): void {
+        this.entityManager.getEntities().forEach(entity => {
+            const entityWithLaserSound = entity as typeof entity & {
+                stopLaserChargeSound?: () => void;
+            };
+
+            entityWithLaserSound.stopLaserChargeSound?.();
+        });
     }
 }

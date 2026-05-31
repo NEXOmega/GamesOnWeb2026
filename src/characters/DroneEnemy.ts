@@ -7,6 +7,7 @@ import FindPlayerTargetBehavior from "./behaviors/FindPlayerTargetBehavior";
 import ChaseTargetBehavior from "./behaviors/ChaseTargetBehavior";
 import IdleBehavior from "./behaviors/IdleBehavior";
 import FlyingNavigation from "./navigation/FlyingNavigation";
+import DroneLaserSounds from "./DroneLaserSounds";
 
 /**
  * Enemie de base du jeu, fait des patrouilles selon un chemin défini, et si il détecte le joueur, il le suit pour essayer de l'éliminer.
@@ -16,10 +17,11 @@ export default class DroneEnemy extends Enemy {
     public collider: AbstractMesh;
     public physicsAggregate: PhysicsAggregate;
     public laser: TargetingLaser;
+    public laserSounds: DroneLaserSounds;
 
-    public fireCooldown: number = 3000;
+    public fireCooldown: number = 2000;
     public attackRange: number = 15;
-    public moveSpeed: number = 8;
+    public moveSpeed: number = 16;
 
     /** Dégâts infligés au joueur quand le laser le touche. */
     public laserDamage: number = 10;
@@ -49,6 +51,7 @@ export default class DroneEnemy extends Enemy {
         this.physicsAggregate.body.setAngularDamping(100);
 
         this.laser = new TargetingLaser(id, scene);
+        this.laserSounds = new DroneLaserSounds(id, this.collider);
 
         this.navigation = new FlyingNavigation(this);
 
@@ -58,7 +61,20 @@ export default class DroneEnemy extends Enemy {
         this.brain.addBehavior(new IdleBehavior(this, 4));
     }
 
+    public startLaserChargeSound(): void {
+        this.laserSounds.startCharge();
+    }
+
+    public stopLaserChargeSound(): void {
+        this.laserSounds.stopCharge();
+    }
+
+    public playLaserShootSound(): void {
+        this.laserSounds.playShoot();
+    }
+
     public dispose(): void {
+        this.laserSounds.dispose();
         this.laser.dispose();
         if (this.collider) this.collider.dispose();
         super.dispose();

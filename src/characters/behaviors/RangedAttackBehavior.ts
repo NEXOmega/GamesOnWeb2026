@@ -64,6 +64,7 @@ export default class RangedAttackBehavior extends Behavior {
     public start(): void {
         this.isAiming = true;
         this.lastFireTime = performance.now();
+        this.entity.startLaserChargeSound();
     }
 
     public update(delta: number): void {
@@ -93,12 +94,14 @@ export default class RangedAttackBehavior extends Behavior {
         if (timeAiming > this.entity.fireCooldown && this.isAiming) {
             this.executeFire(myPos, desiredDirection);
             this.lastFireTime = currentTime;
+            this.entity.startLaserChargeSound();
         }
     }
 
     public stop(): void {
         this.isAiming = false;
         this.entity.laser.stopAim();
+        this.entity.stopLaserChargeSound();
     }
 
     private executeFire(origin: Vector3, direction: Vector3) {
@@ -114,6 +117,7 @@ export default class RangedAttackBehavior extends Behavior {
 
         const hitDistance = (hit && hit.hit) ? hit.distance : this.entity.attackRange + 5;
         this.entity.laser.fire(origin, direction, hitDistance);
+        this.entity.playLaserShootSound();
 
         if (hit && hit.hit && hit.pickedMesh && hit.pickedMesh.name === "CharacterTransform") {
 

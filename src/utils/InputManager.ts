@@ -6,6 +6,7 @@ export type InputAction =
     | "move_left" 
     | "move_right" 
     | "jump"
+    | "sprint"
     | "interact"
     | "use_item"
     | "open_inventory"
@@ -19,6 +20,7 @@ export default class InputManager {
         "move_left": ["a", "q", "arrowleft"],
         "move_right": ["d", "arrowright"],
         "jump": [" "],
+        "sprint": ["shift"],
         "use_item": ["f"],
         "interact": ["e"],
         "open_inventory": ["i"],

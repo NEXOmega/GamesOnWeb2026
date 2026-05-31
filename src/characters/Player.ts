@@ -31,6 +31,7 @@ export default class Player extends Entity implements Collidable {
     readonly physicsAggregate: PhysicsAggregate;
 
     readonly moveSpeed = 14;
+    readonly sprintSpeed = 22;
     readonly rotationSpeed = 6;
 
     private jumpStarted = false;
@@ -64,6 +65,14 @@ export default class Player extends Entity implements Collidable {
 
     public get health(): number { return this._health; }
     public get isDead(): boolean { return this._isDead; }
+
+    // === Système de stamina / sprint ===
+    public readonly maxStamina: number = 100;
+    private _stamina: number = 100;
+    readonly staminaDrainPerSecond = 28;
+    readonly staminaRegenPerSecond = 22;
+
+    public get stamina(): number { return this._stamina; }
 
     // Position de spawn initiale, capturée à la création
     private _initialSpawnPosition: Vector3;
@@ -109,6 +118,7 @@ export default class Player extends Entity implements Collidable {
         this._initialSpawnPosition = position.clone();
 
         this.refreshHealthHud();
+        this.refreshStaminaHud();
     }
 
     public takeDamage(amount: number): void {
@@ -162,6 +172,12 @@ export default class Player extends Entity implements Collidable {
     private refreshHealthHud(): void {
         if (this.playerHud && typeof this.playerHud.updateHealthBar === "function") {
             this.playerHud.updateHealthBar(this._health, this.maxHealth);
+        }
+    }
+
+    private refreshStaminaHud(): void {
+        if (this.playerHud && typeof this.playerHud.updateStaminaBar === "function") {
+            this.playerHud.updateStaminaBar(this._stamina, this.maxStamina);
         }
     }
 
@@ -249,7 +265,19 @@ export default class Player extends Entity implements Collidable {
             }
         }
 
-        if (move.lengthSquared() > 0) {
+        const isMoving = move.lengthSquared() > 0;
+        const wantsToSprint = InputManager.isActionPressed("sprint");
+        const isSprinting = isMoving && wantsToSprint && this._stamina > 0;
+
+        if (isSprinting) {
+            this._stamina = Math.max(0, this._stamina - this.staminaDrainPerSecond * deltaSeconds);
+            this.refreshStaminaHud();
+        } else if (this._stamina < this.maxStamina) {
+            this._stamina = Math.min(this.maxStamina, this._stamina + this.staminaRegenPerSecond * deltaSeconds);
+            this.refreshStaminaHud();
+        }
+
+        if (isMoving) {
             move.normalize();
 
             this.physicsAggregate.body.setGravityFactor(1);
@@ -262,7 +290,7 @@ export default class Player extends Entity implements Collidable {
 
             this.model.rotationQuaternion = Quaternion.Slerp(this.model.rotationQuaternion, targetRotation, this.rotationSpeed * deltaSeconds);
 
-            const velocity = move.scale(this.moveSpeed);
+            const velocity = move.scale(isSprinting ? this.sprintSpeed : this.moveSpeed);
             this.physicsAggregate.body.setLinearVelocity(new Vector3(velocity.x, this.physicsAggregate.body.getLinearVelocity().y, velocity.z));
         } else {
             if (isGrounded && !this.jumpStarted) {
@@ -307,6 +335,7 @@ export default class Player extends Entity implements Collidable {
         this.setPosition(spawnPos);
 
         this._health = this.maxHealth;
+        this._stamina = this.maxStamina;
         this._isDead = false;
 
         // Cache l'UI de mort
@@ -320,6 +349,7 @@ export default class Player extends Entity implements Collidable {
         StateManager.state = this._stateBeforeDeath === State.DEAD ? State.PLAYING : this._stateBeforeDeath;
 
         this.refreshHealthHud();
+        this.refreshStaminaHud();
     }
 
     public getInventory() : Inventory {

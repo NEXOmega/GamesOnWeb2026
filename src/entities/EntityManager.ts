@@ -29,6 +29,10 @@ export default class EntityManager {
         }
     }
 
+    public getEntities(): readonly Entity[] {
+        return this.entities;
+    }
+
     public clear(): void {
         for (const entity of this.entities) {
             entity.dispose();
