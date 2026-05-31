@@ -22,6 +22,8 @@ export default class NPC extends Entity {
     readonly interaction: InteractionEntity;
 
     public dialogId: string
+    public readonly facePlayerDistance: number = 5;
+    public readonly facePlayerRotationSpeed: number = 5;
     
     static async CreateAsync(
         id: string,
@@ -66,7 +68,7 @@ export default class NPC extends Entity {
         this.model.position.y = -1;
         this.model.scaling = new Vector3(0.5, 0.5, 0.5);
 
-        this.interaction = new InteractionEntity(id+"_interaction",this.scene.actualPlayer, 5, scene);
+        this.interaction = new InteractionEntity(id+"_interaction",this.scene.actualPlayer, 10, scene);
         this.interaction.addMeshEnteredAction(new SendFrontTitleRequest({
                 text: "Press [E] to talk",
                 animation: new TitleAnimation.FadeAnimation(1,0,1)
@@ -111,6 +113,40 @@ export default class NPC extends Entity {
         });
 
         this.scene.entityManager.addEntity(this);
+    }
+
+    public update(delta: number): void {
+        super.update(delta);
+        this.facePlayerWhenClose(delta);
+    }
+
+    private facePlayerWhenClose(delta: number): void {
+        const player = this.scene.actualPlayer;
+        if (!player) return;
+
+        const npcPos = this.collistionMesh.getAbsolutePosition();
+        const playerPos = player.impostorMesh.getAbsolutePosition();
+        const direction = playerPos.subtract(npcPos);
+        direction.y = 0;
+
+        if (direction.lengthSquared() <= 0.0001) return;
+        if (direction.lengthSquared() > this.facePlayerDistance * this.facePlayerDistance) return;
+
+        direction.normalize();
+
+        if (!this.model.rotationQuaternion) {
+            this.model.rotationQuaternion = Quaternion.Identity();
+        }
+
+        const deltaSeconds = delta / 1000;
+        const targetWorldRotation = Quaternion.FromLookDirectionLH(direction, Vector3.Up());
+        const targetLocalRotation = Quaternion.Inverse(this.collistionMesh.absoluteRotationQuaternion).multiply(targetWorldRotation);
+
+        this.model.rotationQuaternion = Quaternion.Slerp(
+            this.model.rotationQuaternion,
+            targetLocalRotation,
+            Math.min(1, this.facePlayerRotationSpeed * deltaSeconds)
+        );
     }
 
 }
