@@ -21,10 +21,10 @@ export default class DroneEnemy extends Enemy {
 
     public fireCooldown: number = 2000;
     public attackRange: number = 15;
-    public moveSpeed: number = 16;
+    public moveSpeed: number = 15;
 
     /** Dégâts infligés au joueur quand le laser le touche. */
-    public laserDamage: number = 10;
+    public laserDamage: number = 20;
 
     static async CreateAsync(id: string, scene: BaseScene, position: Vector3 = Vector3.Zero()): Promise<DroneEnemy> {
         const result = await SceneLoader.ImportMeshAsync("", "./assets/models/enemies/", "Drone.glb", scene);

@@ -31,7 +31,7 @@ export default class Player extends Entity implements Collidable {
     readonly physicsAggregate: PhysicsAggregate;
 
     readonly moveSpeed = 14;
-    readonly sprintSpeed = 22;
+    readonly sprintSpeed = 24;
     readonly rotationSpeed = 6;
 
     private jumpStarted = false;
