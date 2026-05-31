@@ -5,7 +5,7 @@ import BaseScene from "../scenes/BaseScene";
 
 export default class PlayerCamera extends ArcRotateCamera {
     desiredRadius: number;
-    constructor(lockedTarget: TransformNode, scene: Scene, desiredRadius: number = 5) {
+    constructor(lockedTarget: TransformNode, scene: Scene, desiredRadius: number = 10) {
         super("playerCamera", -1.5, 1.2, 5, Vector3.Zero(), scene);
         this.desiredRadius = desiredRadius;
 
