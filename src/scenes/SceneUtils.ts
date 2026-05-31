@@ -1,4 +1,4 @@
-import { Scene, HemisphericLight, DirectionalLight, Vector3, MeshBuilder, Color3, SceneLoader, CascadedShadowGenerator, PhysicsAggregate, PhysicsShapeType, AbstractMesh } from '@babylonjs/core';
+import { Scene, HemisphericLight, DirectionalLight, Vector3, MeshBuilder, Color3, SceneLoader, CascadedShadowGenerator, PhysicsAggregate, PhysicsShapeType, AbstractMesh, Quaternion } from '@babylonjs/core';
 import { SkyMaterial } from '@babylonjs/materials';
 import { MapConfig } from './MapConfig';
 import NPC from '../characters/NPC';
@@ -96,7 +96,9 @@ async function loadSpawnMesh(scene: BaseScene, mesh: AbstractMesh) {
 
     mesh.computeWorldMatrix(true);
     const extras = mesh.metadata?.gltf?.extras || {};
-    const spawnPos = mesh.getAbsolutePosition().clone();
+    const spawnPos = new Vector3();
+    const spawnRotation = new Quaternion();
+    mesh.getWorldMatrix().decompose(undefined, spawnRotation, spawnPos);
     console.log(`[SceneUtils] Spawn ${mesh.name}`)
 
     if (extras.spawn_type === "item") {
@@ -104,7 +106,7 @@ async function loadSpawnMesh(scene: BaseScene, mesh: AbstractMesh) {
         mesh.dispose();
     } else if (extras.spawn_type === "npc") {
         console.log(`[SceneUtils] Spawn NPC ${extras.spawn_uuid} from ${mesh.name} at (${spawnPos.x.toFixed(2)}, ${spawnPos.y.toFixed(2)}, ${spawnPos.z.toFixed(2)})`);
-        await NPC.CreateAsync(extras.spawn_uuid, scene, spawnPos, extras.dialog_id);
+        await NPC.CreateAsync(extras.spawn_uuid, scene, spawnPos, extras.dialog_id, spawnRotation);
         mesh.dispose();
     } else if (extras.spawn_type === "interactable") {
         // extras.model_path : chemin relatif depuis /assets/models/ (ex: "npc/solar_panel.glb")

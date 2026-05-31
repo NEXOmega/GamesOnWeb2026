@@ -23,7 +23,13 @@ export default class NPC extends Entity {
 
     public dialogId: string
     
-    static async CreateAsync(id: string, scene: BaseScene, position: Vector3 = Vector3.Zero(), dialogId: string): Promise<NPC> {
+    static async CreateAsync(
+        id: string,
+        scene: BaseScene,
+        position: Vector3 = Vector3.Zero(),
+        dialogId: string,
+        rotationQuaternion: Quaternion = Quaternion.Identity()
+    ): Promise<NPC> {
         const result = await SceneLoader.ImportMeshAsync(
             "",
             "./assets/models/npc/",
@@ -33,18 +39,25 @@ export default class NPC extends Entity {
 
         const model = result.meshes[0];
 
-        return new NPC(id, model, scene, dialogId, position);
+        return new NPC(id, model, scene, dialogId, position, rotationQuaternion);
     }
 
-    constructor(id: string, mesh: AbstractMesh, scene: BaseScene, dialogId: string, position: Vector3 = Vector3.Zero(), rotation: Vector3 = Vector3.Zero()) {
-        super(id, mesh, scene, Vector3.Zero(), rotation);
+    constructor(
+        id: string,
+        mesh: AbstractMesh,
+        scene: BaseScene,
+        dialogId: string,
+        position: Vector3 = Vector3.Zero(),
+        rotationQuaternion: Quaternion = Quaternion.Identity()
+    ) {
+        super(id, mesh, scene, Vector3.Zero());
         if(!DialogueManager.getDialog(dialogId))
             throw new Error(`Dialog ${dialogId} for ${id} not found in DialogueManager !`)
         this.dialogId = dialogId;
 
         this.collistionMesh = MeshBuilder.CreateCapsule("CharacterTransform", {height: 2, radius: 0.5}, scene);
         this.collistionMesh.visibility = 0.1;
-        this.collistionMesh.rotationQuaternion = Quaternion.Identity();
+        this.collistionMesh.rotationQuaternion = rotationQuaternion.clone();
         
         this.model = mesh;
         this.model.parent = this.collistionMesh;
