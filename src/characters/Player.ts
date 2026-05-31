@@ -95,7 +95,7 @@ export default class Player extends Entity implements Collidable {
         this.model = mesh;
         this.model.parent = this.impostorMesh;
         this.model.position.y = -0.65;
-        this.model.scaling = new Vector3(0.3, 0.3, 0.3);
+        this.model.scaling = new Vector3(0.5, 0.5, 0.5);
 
         this.model.rotationQuaternion = Quaternion.Identity();
 

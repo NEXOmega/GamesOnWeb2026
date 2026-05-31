@@ -51,6 +51,7 @@ export default class NPC extends Entity {
 
         this.collistionMesh.position = position;
         this.model.position.y = -1;
+        this.model.scaling = new Vector3(0.5, 0.5, 0.5);
 
         this.interaction = new InteractionEntity(id+"_interaction",this.scene.actualPlayer, 5, scene);
         this.interaction.addMeshEnteredAction(new SendFrontTitleRequest({
