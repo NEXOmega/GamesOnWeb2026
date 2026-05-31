@@ -5,9 +5,9 @@ import RangedAttackBehavior from "./behaviors/RangedAttackBehavior";
 import TargetingLaser from "../effects/TargetingLaser";
 import FindPlayerTargetBehavior from "./behaviors/FindPlayerTargetBehavior";
 import ChaseTargetBehavior from "./behaviors/ChaseTargetBehavior";
-import IdleBehavior from "./behaviors/IdleBehavior";
 import FlyingNavigation from "./navigation/FlyingNavigation";
 import DroneLaserSounds from "./DroneLaserSounds";
+import RandomStrollBehavior from "./behaviors/RandomStrollBehavior";
 
 /**
  * Enemie de base du jeu, fait des patrouilles selon un chemin défini, et si il détecte le joueur, il le suit pour essayer de l'éliminer.
@@ -26,16 +26,29 @@ export default class DroneEnemy extends Enemy {
     /** Dégâts infligés au joueur quand le laser le touche. */
     public laserDamage: number = 20;
 
-    static async CreateAsync(id: string, scene: BaseScene, position: Vector3 = Vector3.Zero()): Promise<DroneEnemy> {
+    static async CreateAsync(
+        id: string,
+        scene: BaseScene,
+        position: Vector3 = Vector3.Zero(),
+        strollRadius: number = 8,
+        strollVerticalRange: number = 3
+    ): Promise<DroneEnemy> {
         const result = await SceneLoader.ImportMeshAsync("", "./assets/models/enemies/", "Drone.glb", scene);
 
         const model = result.meshes[0];
         console.log("Drone réel:", model.name, model.getAbsolutePosition());
 
-        return new DroneEnemy(id, model, scene, position);
+        return new DroneEnemy(id, model, scene, position, strollRadius, strollVerticalRange);
     }
 
-    constructor(id: string, mesh: AbstractMesh, scene: BaseScene, position: Vector3) {
+    constructor(
+        id: string,
+        mesh: AbstractMesh,
+        scene: BaseScene,
+        position: Vector3,
+        strollRadius: number = 8,
+        strollVerticalRange: number = 3
+    ) {
         super(id, mesh, scene, position);
 
         this.collider = MeshBuilder.CreateSphere(id + "_collider", { diameter: 1.2 }, scene);
@@ -58,7 +71,7 @@ export default class DroneEnemy extends Enemy {
         this.brain.addBehavior(new FindPlayerTargetBehavior(this, 1, 25));
         this.brain.addBehavior(new RangedAttackBehavior(this, 2));
         this.brain.addBehavior(new ChaseTargetBehavior(this, 3, 25));
-        this.brain.addBehavior(new IdleBehavior(this, 4));
+        this.brain.addBehavior(new RandomStrollBehavior(this, 4, position.clone(), strollRadius, strollVerticalRange));
     }
 
     public startLaserChargeSound(): void {

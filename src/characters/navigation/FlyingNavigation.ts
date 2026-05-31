@@ -30,25 +30,31 @@ export default class FlyingNavigation extends Navigation {
 
         let desiredDirection = this.targetPosition.subtract(myPos).normalize();
 
-        const ray = new Ray(myPos, desiredDirection, this.avoidanceRadius);
-        const hit = this.entity.scene.pickWithRay(ray, (m) =>
-            m !== this.entity.collider &&
-            m !== this.entity.mesh &&
-            !m.isDescendantOf(this.entity.mesh) &&
-            m.name !== "skyBox" &&
-            m.name !== "CharacterTransform" &&
-            m.isPickable
-        );
+        if (this.avoidObstacles) {
+            const ray = new Ray(myPos, desiredDirection, this.avoidanceRadius);
+            const hit = this.entity.scene.pickWithRay(ray, (m) =>
+                m !== this.entity.collider &&
+                m !== this.entity.mesh &&
+                !m.isDescendantOf(this.entity.mesh) &&
+                m.name !== "skyBox" &&
+                m.name !== "CharacterTransform" &&
+                m.isPickable
+            );
 
-        if (hit && hit.hit) {
-            const hitNormal = hit.getNormal(true);
-            if (hitNormal) desiredDirection = desiredDirection.add(hitNormal.scale(2)).normalize();
+            if (hit && hit.hit) {
+                const hitNormal = hit.getNormal(true);
+                if (hitNormal) desiredDirection = desiredDirection.add(hitNormal.scale(2)).normalize();
+            }
         }
 
         if (!this.entity.mesh.rotationQuaternion) this.entity.mesh.rotationQuaternion = Quaternion.Identity();
 
-        const targetRotation = Quaternion.FromLookDirectionLH(desiredDirection, Vector3.Up());
-        this.entity.mesh.rotationQuaternion = Quaternion.Slerp(this.entity.mesh.rotationQuaternion, targetRotation, this.rotationSpeed * deltaSeconds);
+        const horizontalLookDirection = new Vector3(desiredDirection.x, 0, desiredDirection.z);
+        if (horizontalLookDirection.lengthSquared() > 0.0001) {
+            horizontalLookDirection.normalize();
+            const targetRotation = Quaternion.FromLookDirectionLH(horizontalLookDirection, Vector3.Up());
+            this.entity.mesh.rotationQuaternion = Quaternion.Slerp(this.entity.mesh.rotationQuaternion, targetRotation, this.rotationSpeed * deltaSeconds);
+        }
 
         const finalSpeed = this.entity.moveSpeed * this.speedMultiplier;
         const velocity = desiredDirection.scale(finalSpeed);

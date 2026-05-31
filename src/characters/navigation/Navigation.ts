@@ -10,6 +10,7 @@ export abstract class Navigation {
     protected isNavigating: boolean = false;
     protected speedMultiplier: number = 1.0;
     protected stoppingDistance: number = 1.5;
+    protected avoidObstacles: boolean = true;
 
     constructor(entity: Enemy) {
         this.entity = entity;
@@ -18,10 +19,11 @@ export abstract class Navigation {
     /**
      * Demande à l'entité de se déplacer vers un point
      */
-    public moveTo(target: Vector3, speedMultiplier: number = 1.0, stoppingDistance: number = 1.5): void {
+    public moveTo(target: Vector3, speedMultiplier: number = 1.0, stoppingDistance: number = 1.5, avoidObstacles: boolean = true): void {
         this.targetPosition = target;
         this.speedMultiplier = speedMultiplier;
         this.stoppingDistance = stoppingDistance;
+        this.avoidObstacles = avoidObstacles;
         this.isNavigating = true;
     }
 

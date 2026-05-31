@@ -120,7 +120,14 @@ async function loadSpawnMesh(scene: BaseScene, mesh: AbstractMesh) {
         await Interactable.CreateAsync(extras.spawn_uuid, scene, mesh, extras.interaction_action, extras.model_path);
     } else if (extras.spawn_type === "drone") {
         console.log("[SceneUtils] Spawn drone")
-        await DroneEnemy.CreateAsync(extras.spawn_uuid, scene, spawnPos.add(new Vector3(0, 3, 0)));
+        const dronePos = spawnPos.add(new Vector3(0, 3, 0));
+        await DroneEnemy.CreateAsync(
+            extras.spawn_uuid,
+            scene,
+            dronePos,
+            getNumberExtra(extras.stroll_radius, 16),
+            getNumberExtra(extras.stroll_vertical_range, 3)
+        );
         mesh.dispose();
     } else if (extras.spawn_type === "robot") {
         const robot = await IANavigation.CreateAsync(extras.spawn_uuid, scene, spawnPos);
@@ -130,6 +137,10 @@ async function loadSpawnMesh(scene: BaseScene, mesh: AbstractMesh) {
         mesh.dispose();
     }
     
+}
+
+function getNumberExtra(value: unknown, fallback: number): number {
+    return typeof value === "number" ? value : fallback;
 }
 
 export async function loadMesh(
