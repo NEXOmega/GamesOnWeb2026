@@ -4,11 +4,12 @@ import { MapConfig } from './MapConfig';
 import NPC from '../characters/NPC';
 import Pickable from '../entities/Pickable';
 import BaseScene from './BaseScene';
-import InteractionEntity from '../entities/InteractionEntity';
 import Interactable from '../entities/Interactable';
 
 import Player from '../characters/Player';
 import { State, StateManager } from '../utils/StateManager';
+import DroneEnemy from '../characters/DroneEnemy';
+import IANavigation from '../characters/IANavigation';
 
 export async function loadConfig(configPath: string, scene: BaseScene) {
     const response = await fetch(configPath);
@@ -96,6 +97,7 @@ async function loadSpawnMesh(scene: BaseScene, mesh: AbstractMesh) {
     mesh.computeWorldMatrix(true);
     const extras = mesh.metadata?.gltf?.extras || {};
     const spawnPos = mesh.getAbsolutePosition().clone();
+    console.log(`[SceneUtils] Spawn ${mesh.name}`)
 
     if (extras.spawn_type === "item") {
         await Pickable.CreateAsync(extras.spawn_uuid, scene, spawnPos, extras.type, extras.quantity);
@@ -107,7 +109,19 @@ async function loadSpawnMesh(scene: BaseScene, mesh: AbstractMesh) {
     } else if (extras.spawn_type === "interactable") {
         // extras.model_path : chemin relatif depuis /assets/models/ (ex: "npc/solar_panel.glb")
         await Interactable.CreateAsync(extras.spawn_uuid, scene, mesh, extras.interaction_action, extras.model_path);
+    } else if (extras.spawn_type === "drone") {
+        console.log("[SceneUtils] Spawn drone")
+        await DroneEnemy.CreateAsync(extras.spawn_uuid, scene, spawnPos.add(new Vector3(0, 3, 0)));
+        mesh.dispose();
+    } else if (extras.spawn_type === "robot") {
+        const robot = await IANavigation.CreateAsync(extras.spawn_uuid, scene, spawnPos);
+        await robot.CreateNavMesh(false);
+        if (scene.actualPlayer) {
+            robot.IaToPlayer(scene.actualPlayer);
+        }
+        mesh.dispose();
     }
+    
 }
 
 export async function loadMesh(
