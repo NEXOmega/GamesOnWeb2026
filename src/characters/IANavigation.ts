@@ -20,7 +20,6 @@ import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
 import Player from "../characters/Player";
 import BaseScene from "../scenes/BaseScene";
 
-// Machine à états pour le comportement de l'IA
 enum IaState {
     PATROL,  // Patrouille en cercle autour de la position d'origine
     CHASE,   // Poursuit le joueur visible dans le FOV
@@ -29,10 +28,22 @@ enum IaState {
 }
 
 export default class IANavigation extends Entity {
+
+    // Paramètres de l'agent dans le crowd
+    private agentParameters = {
+        collisionQueryRange: 1,
+        height: 2,
+        maxAcceleration: 60,
+        maxSpeed: 18,
+        pathOptimizationRange: 3,
+        radius: 0.3,
+        reachRadius: 1.0,
+        separationWeight: 1,
+    };
     // Paramètres de navigation (NavMesh)
-    private parameters = {
-        cs: 0.2,
-        ch: 0.2,
+
+    private static readonly navMeshParameters = {
+        cs: 0.3, ch: 0.3,
         walkableSlopeAngle: 35,
         walkableHeight: 5,
         walkableClimb: 10,
@@ -46,40 +57,37 @@ export default class IANavigation extends Entity {
         detailSampleMaxError: 1,
     };
 
-    // Paramètres de l'agent dans le crowd
-    private agentParameters = {
-        collisionQueryRange: 1,
-        height: 2,
-        maxAcceleration: 3,
-        maxSpeed: 2,
-        pathOptimizationRange: 1,
-        radius: 0.2,
-        reachRadius: 3,
-        separationWeight: 1,
-    };
-
     private navigationPlugin: RecastJSPlugin;
     private crowd: any;
     private agentId: number = -1;
     private agentTransform?: TransformNode;
     private targetPlayer?: Player;
+    private prevPlayerPos?: Vector3;
+    private playerVelocity: Vector3 = Vector3.Zero();
 
-    // Collision physique (trigger) — pilotée par le crowd, kinematic.
+
     private collider?: AbstractMesh;
     private physicsAggregate?: PhysicsAggregate;
     private collisionObserver?: Observer<any>;
     private readonly killRadius: number = 1.2;
 
-    // Dégâts au contact
     public contactDamage: number = 25;
     public damageCooldownMs: number = 1000;
     private damageCooldownTimer: number = 0;
     private isTouchingPlayer: boolean = false;
 
+    private patrolRadius = 8;
+    private patrolTarget?: Vector3;
+    private patrolPauseMs = 0;
+    private patrolLookHeading = 0;
+    private readonly patrolArrivalDist = 1.2;
+
+    private readonly detectionRange = 50;
+    private lastRepathTarget: Vector3 = Vector3.Zero();
+
     private repathTimeMs = 0;
     private repathEveryMs = 250;
 
-    private roundAngle: number = 0;
     private roundCenter: Vector3 = Vector3.Zero();
 
     private lastKnownPlayerPos: Vector3 = Vector3.Zero();
@@ -88,6 +96,18 @@ export default class IANavigation extends Entity {
     private readonly arrivalThreshold: number = 1.5;
 
     private state: IaState = IaState.PATROL;
+
+    private readonly chaseSpeed = 18;
+    private readonly chaseAccel = 60;
+    private readonly calmSpeed = 6;
+    private readonly calmAccel = 20;
+    private currentMaxSpeed = -1;
+
+    private static sharedPlugin?: RecastJSPlugin;
+    private static sharedCrowd?: any;
+    private static sharedScene?: BaseScene;
+
+    private static readonly modelScale = 3;
 
     constructor(
         id: string,
@@ -98,7 +118,6 @@ export default class IANavigation extends Entity {
         scale?: Vector3,
     ) {
         super(id, mesh, scene, position, rotation, scale);
-        // Enregistrement dans l'entityManager pour que update() soit appelé chaque frame
         this.scene.entityManager.addEntity(this);
     }
 
@@ -109,33 +128,14 @@ export default class IANavigation extends Entity {
         rotation?: Vector3,
         scale?: Vector3,
     ): Promise<IANavigation> {
-        const result = await SceneLoader.ImportMeshAsync(
-            "",
-            "./assets/models/",
-            "Character.glb",
-            scene,
-        );
-
+        const result = await SceneLoader.ImportMeshAsync("", "./assets/models/", "Robot.glb", scene);
         const model = result.meshes[0];
-        return new IANavigation(id, model, scene, position, rotation, scale);
+
+        const robot = new IANavigation(id, model, scene, position, rotation, scale);
+        model.scaling.scaleInPlace(IANavigation.modelScale);
+        return robot;
     }
 
-    public async CreateNavMesh(debug: boolean): Promise<void> {
-        const staticMeshes = this.scene.meshes.filter(
-            (mesh) =>
-                mesh.getTotalIndices() > 0 &&
-                mesh.checkCollisions === true &&
-                mesh instanceof Mesh,
-        ) as Mesh[];
-
-        const recast = await Recast();
-        this.navigationPlugin = new RecastJSPlugin(recast);
-        this.navigationPlugin.createNavMesh(staticMeshes, this.parameters);
-
-        if (debug) {
-            this.NavMeshDebug(this.navigationPlugin);
-        }
-    }
 
     private NavMeshDebug(navigationPlugin: RecastJSPlugin): void {
         const navmeshdebug = navigationPlugin.createDebugNavMesh(this.scene);
@@ -146,44 +146,32 @@ export default class IANavigation extends Entity {
     }
 
     public IaToPlayer(player: Player): void {
-        if (!this.navigationPlugin) {
-            console.error(`[IANavigation] ${this.id} : CreateNavMesh() must be called first.`);
+        const plugin = IANavigation.sharedPlugin;
+        const crowd = IANavigation.sharedCrowd;
+        if (!plugin || !crowd) {
+            console.error(`[IANavigation] ${this.id} : InitNavigation() doit être appelé avant.`);
             return;
         }
 
+        this.navigationPlugin = plugin;
+        this.crowd = crowd;
         this.targetPlayer = player;
 
-        if (!this.crowd) {
+        if (this.agentId < 0) {
             this.mesh.computeWorldMatrix(true);
-
             const absolutePos = this.mesh.getAbsolutePosition();
 
-            // getClosestPoint de Recast a une tolérance de ±4 unités en Y.
-            // Si le spawn est trop haut au-dessus du sol (navmesh), la recherche échoue
-            // et retourne l'origine (0,0,0). On essaie plusieurs hauteurs en descendant.
-            let snappedPos = this.navigationPlugin.getClosestPoint(absolutePos);
-
-            const snapDist = Vector3.Distance(snappedPos, absolutePos);
-            console.log(`[IANavigation] ${this.id}: spawn=(${absolutePos.x.toFixed(2)}, ${absolutePos.y.toFixed(2)}, ${absolutePos.z.toFixed(2)}) → snap=(${snappedPos.x.toFixed(2)}, ${snappedPos.y.toFixed(2)}, ${snappedPos.z.toFixed(2)}) dist=${snapDist.toFixed(2)}`);
-
-            // Si le résultat est à plus de 15 unités → Recast n'a pas trouvé de navmesh,
-            // probablement retourné (0,0,0). On cherche au sol (Y=0) au même X,Z.
-            if (snapDist > 15) {
-                console.warn(`[IANavigation] ${this.id}: getClosestPoint a échoué (dist=${snapDist.toFixed(2)}). Fallback Y=0.`);
-                const groundQuery = new Vector3(absolutePos.x, 0, absolutePos.z);
-                snappedPos = this.navigationPlugin.getClosestPoint(groundQuery);
-                console.log(`[IANavigation] ${this.id}: fallback snap=(${snappedPos.x.toFixed(2)}, ${snappedPos.y.toFixed(2)}, ${snappedPos.z.toFixed(2)})`);
+            let snappedPos = plugin.getClosestPoint(absolutePos);
+            if (Vector3.Distance(snappedPos, absolutePos) > 15) {
+                snappedPos = plugin.getClosestPoint(new Vector3(absolutePos.x, 0, absolutePos.z));
             }
 
-            this.crowd = this.navigationPlugin.createCrowd(1, 0.5, this.scene);
             this.agentTransform = new TransformNode(this.id + "_agentTransform", this.scene);
             this.agentTransform.position.copyFrom(snappedPos);
-
             this.originalIaPlacement = snappedPos.clone();
             this.roundCenter = snappedPos.clone();
 
-            this.agentId = this.crowd.addAgent(snappedPos, this.agentParameters, this.agentTransform);
-
+            this.agentId = crowd.addAgent(snappedPos, this.agentParameters, this.agentTransform);
             this.createCollisionBody(snappedPos);
         }
     }
@@ -253,6 +241,8 @@ export default class IANavigation extends Entity {
 
         const diff = playerPos.subtract(agentPos);
         const dist = diff.length();
+        if (dist > this.detectionRange) return false;
+
         const vecPlayer = diff.normalize();
 
         const vel = this.crowd.getAgentVelocity(this.agentId);
@@ -283,15 +273,10 @@ export default class IANavigation extends Entity {
         return hit.pickedMesh === this.targetPlayer.impostorMesh;
     }
 
-    public followPlayer(): void {
-        const destination = this.targetPlayer.impostorMesh.getAbsolutePosition();
-        const from = this.crowd.getAgentPosition(this.agentId);
+    public followPlayer(target?: Vector3): void {
+        const destination = target ?? this.targetPlayer.impostorMesh.getAbsolutePosition();
         const to = this.navigationPlugin.getClosestPoint(destination);
-        const pathPoints = this.navigationPlugin.computePath(from, to);
-
-        if (pathPoints.length > 0) {
-            this.crowd.agentGoto(this.agentId, pathPoints[pathPoints.length - 1]);
-        }
+        this.crowd.agentGoto(this.agentId, to);
     }
 
     private goToLastKnownPlayerPosition(): void {
@@ -299,18 +284,6 @@ export default class IANavigation extends Entity {
         this.crowd.agentGoto(this.agentId, to);
     }
 
-    private IaRound(radius: number, deltaMs: number): void {
-        this.roundAngle += (deltaMs * Math.PI * 2) / 10000;
-
-        const dest = new Vector3(
-            this.roundCenter.x + radius * Math.cos(this.roundAngle),
-            this.roundCenter.y,
-            this.roundCenter.z + radius * Math.sin(this.roundAngle),
-        );
-
-        const to = this.navigationPlugin.getClosestPoint(dest);
-        this.crowd.agentGoto(this.agentId, to);
-    }
 
     public update(deltaMs: number): void {
         if (!this.navigationPlugin || !this.crowd || this.agentId < 0 || !this.targetPlayer) {
@@ -326,14 +299,19 @@ export default class IANavigation extends Entity {
             }
         }
 
-        // Cooldown des dégâts
+        const currentPlayerPos = this.targetPlayer.impostorMesh.getAbsolutePosition();
+        if (this.prevPlayerPos && deltaMs > 0) {
+            const instantVel = currentPlayerPos
+                .subtract(this.prevPlayerPos)
+                .scaleInPlace(1000 / deltaMs);
+            this.playerVelocity = Vector3.Lerp(this.playerVelocity, instantVel, 0.2);
+        }
+        this.prevPlayerPos = currentPlayerPos.clone();
+
         if (this.damageCooldownTimer > 0) {
             this.damageCooldownTimer = Math.max(0, this.damageCooldownTimer - deltaMs);
         }
 
-        // Tant que le joueur est en contact, on ré-applique les dégâts à chaque fin de cooldown.
-        // isTouchingPlayer est remis à true à chaque event de collision, et reset ici à false ;
-        // si la collision n'est plus signalée pendant un frame, on considère que le contact a cessé.
         if (this.isTouchingPlayer) {
             this.tryApplyDamage();
             this.isTouchingPlayer = false;
@@ -347,21 +325,29 @@ export default class IANavigation extends Entity {
             case IaState.PATROL:
                 if (playerInFov) {
                     this.state = IaState.CHASE;
+                    this.patrolPauseMs = 0;
+                    this.patrolTarget = undefined;
                 } else {
-                    this.IaRound(5, deltaMs);
+                    this.patrol(deltaMs);
                 }
                 break;
 
             case IaState.CHASE:
                 if (playerInFov) {
-                    this.lastKnownPlayerPos = this.targetPlayer.impostorMesh
-                        .getAbsolutePosition()
-                        .clone();
+                    const playerPos = this.targetPlayer.impostorMesh.getAbsolutePosition();
+                    this.lastKnownPlayerPos = playerPos.clone();
+
+                    // ← tes 3 lignes vont ici
+                    const lead = this.playerVelocity.scale(0.4); // 0.3–0.5s d'anticipation
+                    lead.y = 0;                                  // on reste sur le plan du sol
+                    const predicted = playerPos.add(lead);
 
                     this.repathTimeMs += deltaMs;
-                    if (this.repathTimeMs >= this.repathEveryMs) {
+                    const moved = Vector3.Distance(predicted, this.lastRepathTarget) > 0.75;
+                    if (this.repathTimeMs >= this.repathEveryMs && moved) {
                         this.repathTimeMs = 0;
-                        this.followPlayer();
+                        this.lastRepathTarget = predicted.clone();
+                        this.followPlayer(predicted);   // on passe la cible prédite
                     }
                 } else {
                     this.state = IaState.SEARCH;
@@ -382,7 +368,6 @@ export default class IANavigation extends Entity {
                     }
                 }
                 break;
-
             case IaState.RETURN:
                 if (playerInFov) {
                     this.state = IaState.CHASE;
@@ -391,16 +376,29 @@ export default class IANavigation extends Entity {
                     if (distToOrigin < this.arrivalThreshold) {
                         this.state = IaState.PATROL;
                         this.roundCenter = this.originalIaPlacement.clone();
-                        this.roundAngle = 0;
+                        this.patrolTarget = undefined;
+                        this.patrolPauseMs = 0;
                     }
                 }
                 break;
+
+        }
+
+        if (this.state === IaState.CHASE) {
+            this.setAgentSpeed(this.chaseSpeed, this.chaseAccel);
+        } else {
+            this.setAgentSpeed(this.calmSpeed, this.calmAccel);
         }
 
         const velocity = this.crowd.getAgentVelocity(this.agentId);
         if (velocity.length() > 0.05) {
             const desiredRotation = Math.atan2(velocity.x, velocity.z);
-            this.mesh.rotation.y += (desiredRotation - this.mesh.rotation.y) * 0.1;
+
+            let diff = desiredRotation - this.mesh.rotation.y;
+            diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+
+            const t = 1 - Math.exp(-6 * (deltaMs / 1000));
+            this.mesh.rotation.y += diff * t;
         }
     }
 
@@ -429,4 +427,86 @@ export default class IANavigation extends Entity {
     public GetNavPlugin(): RecastJSPlugin {
         return this.navigationPlugin;
     }
+
+    private patrol(deltaMs: number): void {
+        if (this.patrolPauseMs > 0) {
+            this.patrolPauseMs -= deltaMs;
+
+            let diff = this.patrolLookHeading - this.mesh.rotation.y;
+            diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+            this.mesh.rotation.y += diff * (1 - Math.exp(-3 * (deltaMs / 1000)));
+
+            if (this.patrolPauseMs <= 0) this.pickNewPatrolTarget();
+            return;
+        }
+
+        if (!this.patrolTarget) {
+            this.pickNewPatrolTarget();
+            return;
+        }
+
+        const agentPos = this.crowd.getAgentPosition(this.agentId);
+        if (Vector3.Distance(agentPos, this.patrolTarget) < this.patrolArrivalDist) {
+            this.patrolPauseMs = 800 + Math.random() * 2200;
+            this.patrolLookHeading = Math.random() * Math.PI * 2;  // direction au hasard
+            this.patrolTarget = undefined;
+        }
+    }
+
+    private pickNewPatrolTarget(): void {
+        for (let i = 0; i < 5; i++) {
+            const point = this.navigationPlugin.getRandomPointAround(this.roundCenter, this.patrolRadius);
+
+            if (point.lengthSquared() === 0) continue;
+            if (Vector3.Distance(point, this.roundCenter) > this.patrolRadius * 1.5) continue;
+
+            const agentPos = this.crowd.getAgentPosition(this.agentId);
+            if (Vector3.Distance(point, agentPos) < 2) continue; // évite les micro-pas
+
+            this.patrolTarget = point.clone();
+            this.crowd.agentGoto(this.agentId, point);
+            return;
+        }
+        this.patrolPauseMs = 500;
+    }
+
+    private setAgentSpeed(maxSpeed: number, maxAcceleration: number): void {
+        if (maxSpeed === this.currentMaxSpeed) return; // déjà à cette vitesse => rien à faire
+        this.currentMaxSpeed = maxSpeed;
+        this.agentParameters.maxSpeed = maxSpeed;
+        this.agentParameters.maxAcceleration = maxAcceleration;
+        this.crowd.updateAgentParameters(this.agentId, this.agentParameters);
+    }
+    public static async InitNavigation(scene: BaseScene, maxAgents: number, debug = false): Promise<void> {
+        if (IANavigation.sharedPlugin && IANavigation.sharedScene === scene) return;
+
+        const staticMeshes = scene.meshes.filter(
+            (m) => m.getTotalIndices() > 0 && m.checkCollisions === true && m instanceof Mesh,
+        ) as Mesh[];
+
+        const recast = await Recast();
+        const plugin = new RecastJSPlugin(recast);
+        plugin.createNavMesh(staticMeshes, IANavigation.navMeshParameters);
+
+        IANavigation.sharedPlugin = plugin;
+        IANavigation.sharedCrowd = plugin.createCrowd(Math.max(maxAgents, 1), 0.5, scene);
+        IANavigation.sharedScene = scene;
+
+        if (debug) {
+            const dbg = plugin.createDebugNavMesh(scene);
+            const mat = new StandardMaterial("navdebug", scene);
+            mat.diffuseColor = new Color3(0.1, 0.2, 1);
+            mat.alpha = 0.2;
+            dbg.material = mat;
+        }
+    }
+
+    public static DisposeNavigation(): void {
+        IANavigation.sharedCrowd?.dispose?.();
+        IANavigation.sharedPlugin?.dispose?.();
+        IANavigation.sharedCrowd = undefined;
+        IANavigation.sharedPlugin = undefined;
+        IANavigation.sharedScene = undefined;
+    }
+
 }
