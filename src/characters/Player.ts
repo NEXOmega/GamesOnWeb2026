@@ -71,6 +71,8 @@ export default class Player extends Entity implements Collidable {
     private _stamina: number = 100;
     readonly staminaDrainPerSecond = 28;
     readonly staminaRegenPerSecond = 22;
+    readonly sprintRecoveryThreshold = 30;
+    private _isSprintExhausted: boolean = false;
 
     public get stamina(): number { return this._stamina; }
 
@@ -267,10 +269,17 @@ export default class Player extends Entity implements Collidable {
 
         const isMoving = move.lengthSquared() > 0;
         const wantsToSprint = InputManager.isActionPressed("sprint");
-        const isSprinting = isMoving && wantsToSprint && this._stamina > 0;
+        if (this._isSprintExhausted && this._stamina >= this.sprintRecoveryThreshold) {
+            this._isSprintExhausted = false;
+        }
+
+        const isSprinting = isMoving && wantsToSprint && !this._isSprintExhausted && this._stamina > 0;
 
         if (isSprinting) {
             this._stamina = Math.max(0, this._stamina - this.staminaDrainPerSecond * deltaSeconds);
+            if (this._stamina <= 0) {
+                this._isSprintExhausted = true;
+            }
             this.refreshStaminaHud();
         } else if (this._stamina < this.maxStamina) {
             this._stamina = Math.min(this.maxStamina, this._stamina + this.staminaRegenPerSecond * deltaSeconds);
@@ -336,6 +345,7 @@ export default class Player extends Entity implements Collidable {
 
         this._health = this.maxHealth;
         this._stamina = this.maxStamina;
+        this._isSprintExhausted = false;
         this._isDead = false;
 
         // Cache l'UI de mort
