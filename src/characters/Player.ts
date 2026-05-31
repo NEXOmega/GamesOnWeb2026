@@ -125,6 +125,7 @@ export default class Player extends Entity implements Collidable {
 
     public takeDamage(amount: number): void {
         if (this._isDead || amount <= 0) return;
+        if (StateManager.state === State.DIALOG) return;
 
         this._health = Math.max(0, this._health - amount);
         this.refreshHealthHud();
