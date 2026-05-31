@@ -16,35 +16,6 @@ export default class DebugScene extends BaseScene {
 
     async createEnvironment(): Promise<void> {
         await loadConfig("./assets/models/levels/debug_level.json", this);
-        this.posPlayer = this.actualPlayer as Player;
-
-        const enemy = await IANavigation.CreateAsync(
-            "Enemy1",
-            this,
-            new Vector3(12, 1, 0),
-            Vector3.Zero(),
-            Vector3.One(),
-        );
-        await enemy.CreateNavMesh(false);
-        enemy.IaToPlayer(this.posPlayer);
-        this.entityManager.addEntity(enemy);
-
-
-        await DroneEnemy.CreateAsync(
-            "Drone1",
-            this,
-            new Vector3(-8, 4, 5),
-        );
-
-        await Pickable.CreateAsync(
-            "paracetamol_1",
-            this,
-            new Vector3(5, 1, 0),
-            "health_potion",
-            1
-        );
-
-
 
     }
 }

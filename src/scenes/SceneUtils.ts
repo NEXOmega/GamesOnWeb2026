@@ -72,12 +72,19 @@ export async function loadConfig(configPath: string, scene: BaseScene) {
     shadowGenerator.normalBias = config.lighting.shadowNormalBias;
 
     const spawnMeshes = meshes.filter(hasSpawnMetadata);
-    for (const mesh of spawnMeshes) {
-        await loadSpawnMesh(scene, mesh);
-    }
-
     for (const mesh of meshes) {
         loadMesh(scene, mesh, shadowGenerator, config.physicsEnabled);
+    }
+
+    const robotCount = spawnMeshes.filter(
+        (m) => m.metadata?.gltf?.extras?.spawn_type === "robot",
+    ).length;
+    if (robotCount > 0) {
+        await IANavigation.InitNavigation(scene, robotCount);
+    }
+
+    for (const mesh of spawnMeshes) {
+        await loadSpawnMesh(scene, mesh);
     }
 
     StateManager.state = State.PLAYING;
@@ -117,7 +124,6 @@ async function loadSpawnMesh(scene: BaseScene, mesh: AbstractMesh) {
         mesh.dispose();
     } else if (extras.spawn_type === "robot") {
         const robot = await IANavigation.CreateAsync(extras.spawn_uuid, scene, spawnPos);
-        await robot.CreateNavMesh(false);
         if (scene.actualPlayer) {
             robot.IaToPlayer(scene.actualPlayer);
         }
