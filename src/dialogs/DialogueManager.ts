@@ -18,6 +18,8 @@ export default class DialogueManager {
     public static ui: DialogueUI;
 
     public static init(scene: Scene) {
+        this.closeDialogue(false);
+        this.ui?.dispose();
         this.ui = new DialogueUI(scene);
     }
 
@@ -92,16 +94,23 @@ export default class DialogueManager {
         });
     }
 
-    public static closeDialogue() {
-        this.ui.hide();
+    public static closeDialogue(restorePlayerState: boolean = true) {
+        this.ui?.hide();
+
+        if (!this.npc) {
+            this.actualDialogue = null;
+            return;
+        }
         
         const player = this.npc.scene.actualPlayer;
-        player.scene.activeCamera = player.playerCamera;
-        player.playerHud.dialog.enqueueFront({ text: "", animation: new TitleAnimation.FadeAnimation(0,0,0) });
+        if (restorePlayerState && player) {
+            player.scene.activeCamera = player.playerCamera;
+            player.playerHud.dialog.enqueueFront({ text: "", animation: new TitleAnimation.FadeAnimation(0,0,0) });
+            StateManager.state = State.PLAYING;
+        }
 
         this.npc = null;
         this.actualDialogue = null;
-        StateManager.state = State.PLAYING;
     }
 
     public static async loadAll() {

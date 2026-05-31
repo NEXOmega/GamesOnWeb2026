@@ -13,7 +13,7 @@ export default class DialogueUI {
     private fullText: string = "";
 
     constructor(scene: Scene) {
-        this.texture = AdvancedDynamicTexture.CreateFullscreenUI("DialogueUI");
+        this.texture = AdvancedDynamicTexture.CreateFullscreenUI("DialogueUI", true, scene);
 
         this.container = new Rectangle("MainContainer");
         this.container.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
@@ -111,5 +111,14 @@ export default class DialogueUI {
             btnClose.onPointerUpObservable.add(() => onSelect("e")); 
             this.choicesPanel.addControl(btnClose);
         }
+    }
+
+    public dispose(): void {
+        if (this.typingTimer) {
+            clearInterval(this.typingTimer);
+            this.typingTimer = null;
+        }
+
+        this.texture.dispose();
     }
 }
